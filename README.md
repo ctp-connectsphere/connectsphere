@@ -1,73 +1,161 @@
-# React + TypeScript + Vite
+# Campus Connect
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Connecting students, enriching campus life** 🎓
 
-Currently, two official plugins are available:
+Campus Connect is a comprehensive platform designed to enhance the college experience by connecting students with events, resources, and each other. Built with modern web technologies, our MVP focuses on creating a vibrant, engaged campus community.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🎯 Mission
 
-## React Compiler
+To create an inclusive digital hub that empowers students to discover opportunities, build connections, and make the most of their campus experience.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features (MVP Scope)
 
-## Expanding the ESLint configuration
+- 🎉 **Event Discovery** - Find and join campus events tailored to your interests
+- 👤 **User Profiles** - Create and customize your student profile
+- 🔔 **Notifications** - Stay updated on events and activities
+- 🤝 **Community Engagement** - Connect with fellow students
+- 📱 **Responsive Design** - Access from any device
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🏗️ Project Structure
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+/frontend      # React + TypeScript + Vite application
+/backend       # Node.js + Express API with database integration
+/shared        # Shared constants, types, and utilities
+/docs          # Technical documentation, diagrams, onboarding guides
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Quick Start
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js v18 or higher
+- npm v9 or higher
+- Git
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/ctp-connectsphere/connectsphere.git
+   cd connectsphere
+   ```
+
+2. **Set up the frontend**
+   ```bash
+   cd frontend
+   npm install
+   cp .env.example .env
+   npm run dev
+   ```
+   Frontend runs at `http://localhost:5173`
+
+3. **Set up the backend** (in a new terminal)
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   npm run dev
+   ```
+   Backend API runs at `http://localhost:3000`
+
+4. **Verify the setup**
+   - Visit `http://localhost:5173` for the frontend
+   - Visit `http://localhost:3000/health` for the API health check
+
+For detailed setup instructions, see our [Onboarding Guide](docs/ONBOARDING.md).
+
+## 🛠️ Technology Stack
+
+### Frontend
+- React 19
+- TypeScript
+- Vite
+- ESLint
+
+### Backend
+- Node.js
+- Express
+- CORS & dotenv
+
+### Development Tools
+- ESLint for code quality
+- Nodemon for development
+
+## 📚 Documentation
+
+- [Onboarding Guide](docs/ONBOARDING.md) - Get started with development
+- [Technical Documentation](docs/TECHNICAL.md) - Architecture and API details
+- [Contributing Guidelines](CONTRIBUTING.md) - How to contribute
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Community standards
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+
+### Development Workflow
+
+1. Create a feature branch: `git checkout -b feature/your-feature-name`
+2. Make your changes and commit: `git commit -m "Add your feature"`
+3. Push to the branch: `git push origin feature/your-feature-name`
+4. Open a Pull Request
+
+### Branch Strategy
+
+- `main` - Production-ready code
+- `develop` - Integration branch for features
+- `feature/*` - Feature development branches
+
+## 🧪 Testing & Quality
+
+```bash
+# Frontend linting
+cd frontend && npm run lint
+
+# Backend linting
+cd backend && npm run lint
+
+# Build frontend
+cd frontend && npm run build
 ```
+
+## 📋 Roadmap
+
+### Phase 1: MVP (Current)
+- [x] Project setup and repository configuration
+- [ ] User authentication
+- [ ] Event listing and details
+- [ ] Basic user profiles
+- [ ] Core UI components
+
+### Phase 2: Enhanced Features
+- [ ] Advanced search and filtering
+- [ ] Event recommendations
+- [ ] User notifications
+- [ ] Social features
+
+### Phase 3: Scale & Optimize
+- [ ] Performance optimization
+- [ ] Mobile app
+- [ ] Analytics dashboard
+- [ ] Admin panel
+
+## 👥 Target Audience
+
+- **Primary**: College students seeking campus engagement
+- **Secondary**: Campus organizations and event coordinators
+- **Tertiary**: University administration
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+Built with ❤️ by the Campus Connect team for the CUNY Tech Prep program.
+
+---
+
+**Status**: Phase 1 MVP Development 🚧
+
+For questions or support, please open an issue on GitHub.
