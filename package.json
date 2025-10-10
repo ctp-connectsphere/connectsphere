@@ -21,6 +21,7 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:dev": "tsx scripts/seed-dev.ts",
+    "validate:config": "tsx scripts/validate-config.ts",
     "test": "echo \"No tests specified\" && exit 0",
     "test:watch": "echo \"No tests specified\" && exit 0",
     "test:coverage": "echo \"No tests specified\" && exit 0",
