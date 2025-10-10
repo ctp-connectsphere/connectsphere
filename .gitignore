@@ -6,6 +6,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Package manager lock files (keep package-lock.json, ignore others)
+yarn.lock
+pnpm-lock.yaml
+
 # Runtime data
 pids
 *.pid
@@ -171,3 +175,16 @@ coverage/
 # Misc
 *.tgz
 *.tar.gz
+
+# Campus Connect specific
+uploads/
+temp-uploads/
+*.tmp
+*.temp
+
+# Environment and secrets
+.env.*
+!.env.example
+secrets/
+*.key
+*.pem
