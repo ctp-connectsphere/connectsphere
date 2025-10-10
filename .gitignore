@@ -188,3 +188,5 @@ temp-uploads/
 secrets/
 *.key
 *.pem
+
+/generated/prisma
