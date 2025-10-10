@@ -2,6 +2,38 @@
 
 This document outlines the step-by-step implementation plan for the Campus Connect project, a student study partner matching application. This plan is structured as a comprehensive to-do list for AI assistants to follow when implementing the code.
 
+## ⚠️ Important Considerations
+
+**MVP Recommendation:** For faster initial launch, consider focusing on a leaner MVP consisting of:
+- **Phase 1:** Project Foundation & Infrastructure
+- **Phase 2:** Authentication System  
+- **Phase 3:** Core User Features
+- **Phase 4:** Core Matching Algorithm (Epic 11-12 only)
+- **Phase 6:** Essential Testing (Epic 19-20)
+
+Defer Phase 5 (Real-time Features) and advanced Phase 4 features until post-MVP.
+
+## 🎯 MVP (Minimum Viable Product) Scope
+
+For rapid initial deployment, focus on these essential components:
+
+### Core MVP Features:
+- ✅ User registration and authentication
+- ✅ Basic profile management
+- ✅ Course enrollment system
+- ✅ Simple availability grid
+- ✅ Core matching algorithm
+- ✅ Basic connection requests (without real-time messaging)
+- ✅ Essential testing and deployment
+
+### MVP Exclusions (Post-Launch):
+- Real-time messaging and notifications
+- Advanced connection management
+- Online status and presence
+- Comprehensive analytics
+- Advanced filtering and search
+- Mobile app optimization
+
 ## Phase 1: Project Foundation & Infrastructure
 
 ### Epic 1: Project Setup and Configuration
@@ -10,15 +42,25 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Initialize Next.js 14+ project with App Router and TypeScript
+  - **Commit Message:** `chore(project): Initialize Next.js 14 project with TypeScript`
 - [ ] [Backend] Configure ESLint and Prettier with strict TypeScript settings
+  - **Commit Message:** `chore(project): Configure ESLint and Prettier`
 - [ ] [Backend] Set up TailwindCSS with Shadcn/ui component library
+  - **Commit Message:** `chore(project): Set up TailwindCSS and Shadcn/ui`
 - [ ] [Backend] Create project folder structure following Next.js App Router conventions
+  - **Commit Message:** `chore(project): Create initial folder structure`
 - [ ] [Backend] Configure package.json scripts for development, build, and deployment
+  - **Commit Message:** `chore(project): Configure package.json scripts`
 - [ ] [Backend] Set up .gitignore and .env.example files
+  - **Commit Message:** `chore(project): Set up .gitignore and .env.example`
 - [ ] [Backend] Create next.config.js with proper configuration for App Router
-- [Backend] Set up middleware.ts for authentication and rate limiting
-- [Frontend] Create root layout.tsx with global styles and providers
-- [Frontend] Set up basic routing structure with route groups
+  - **Commit Message:** `chore(project): Configure next.config.js`
+- [ ] [Backend] Set up middleware.ts for authentication and rate limiting
+  - **Commit Message:** `feat(auth): Set up initial middleware for route protection`
+- [ ] [Frontend] Create root layout.tsx with global styles and providers
+  - **Commit Message:** `feat(frontend): Create root layout and global providers`
+- [ ] [Frontend] Set up basic routing structure with route groups
+  - **Commit Message:** `feat(frontend): Set up initial route groups`
 
 ### Epic 2: Database and Infrastructure Setup
 
@@ -26,14 +68,23 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Set up Neon PostgreSQL database instance
+  - **Commit Message:** `chore(db): Configure Neon PostgreSQL instance`
 - [ ] [Backend] Configure Prisma client with connection pooling
+  - **Commit Message:** `chore(db): Configure Prisma client with connection pooling`
 - [ ] [Backend] Implement complete database schema from DATABASE_SCHEMA.md
+  - **Commit Message:** `feat(db): Implement initial database schema`
 - [ ] [Backend] Create initial migration with all tables and relationships
+  - **Commit Message:** `chore(db): Generate initial migration`
 - [ ] [Backend] Set up database seeding scripts for universities and sample courses
+  - **Commit Message:** `feat(db): Create database seeding scripts`
 - [ ] [Backend] Configure Upstash Redis for caching and session storage
+  - **Commit Message:** `chore(infra): Configure Upstash Redis`
 - [ ] [Backend] Implement Redis connection service with error handling
+  - **Commit Message:** `feat(infra): Implement Redis connection service`
 - [ ] [Backend] Create caching service class for match results and user profiles
-- [Backend] Set up environment variable configuration for all services
+  - **Commit Message:** `feat(infra): Create generic caching service`
+- [ ] [Backend] Set up environment variable configuration for all services
+  - **Commit Message:** `chore(project): Configure all service environment variables`
 
 ### Epic 3: Development Environment Configuration
 
@@ -41,13 +92,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Configure VS Code workspace settings and recommended extensions
+  - **Commit Message:** `chore(dev): Configure VS Code workspace settings`
 - [ ] [Backend] Set up development database connection with proper error handling
+  - **Commit Message:** `chore(dev): Set up development database connection`
 - [ ] [Backend] Configure Redis connection for development environment
+  - **Commit Message:** `chore(dev): Configure development Redis connection`
 - [ ] [Backend] Set up debugging configuration for VS Code
+  - **Commit Message:** `chore(dev): Set up VS Code debugging configuration`
 - [ ] [Backend] Configure hot reload and development optimizations
+  - **Commit Message:** `chore(dev): Configure hot reload optimizations`
 - [ ] [Backend] Set up Prisma Studio access for database management
-- [Backend] Create development data seeding scripts
-- [Backend] Set up local environment variables and configuration
+  - **Commit Message:** `chore(dev): Enable Prisma Studio access`
+- [ ] [Backend] Create development data seeding scripts
+  - **Commit Message:** `feat(dev): Create development data seeding scripts`
+- [ ] [Backend] Set up local environment variables and configuration
+  - **Commit Message:** `chore(dev): Set up local .env configuration`
 
 ## Phase 2: Authentication System
 
@@ -57,13 +116,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Install and configure NextAuth.js v5 with proper TypeScript types
+  - **Commit Message:** `feat(auth): Install and configure NextAuth.js v5`
 - [ ] [Backend] Set up credentials provider for email/password authentication
+  - **Commit Message:** `feat(auth): Set up NextAuth credentials provider`
 - [ ] [Backend] Configure JWT session strategy with proper expiration
+  - **Commit Message:** `feat(auth): Configure JWT session strategy`
 - [ ] [Backend] Implement session storage in Redis with Upstash
+  - **Commit Message:** `feat(auth): Implement Redis session storage`
 - [ ] [Backend] Set up authentication pages (login, register, error)
+  - **Commit Message:** `feat(auth): Create authentication pages`
 - [ ] [Backend] Configure CSRF protection and security headers
+  - **Commit Message:** `chore(security): Configure CSRF protection and headers`
 - [ ] [Backend] Implement middleware for route protection
-- [Backend] Set up session validation and refresh logic
+  - **Commit Message:** `feat(auth): Implement auth middleware for route protection`
+- [ ] [Backend] Set up session validation and refresh logic
+  - **Commit Message:** `feat(auth): Implement session validation and refresh logic`
 
 ### Epic 5: User Registration System
 
@@ -71,13 +138,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create registration form component with proper validation
+  - **Commit Message:** `feat(auth): Create registration form component`
 - [ ] [Backend] Implement registration Server Action with Zod schema validation
+  - **Commit Message:** `feat(auth): Implement registration server action with Zod`
 - [ ] [Backend] Set up Resend email service for verification emails
+  - **Commit Message:** `feat(auth): Set up Resend for email verification`
 - [ ] [Backend] Create email verification flow with secure tokens
+  - **Commit Message:** `feat(auth): Implement email verification flow`
 - [ ] [Backend] Implement password hashing with bcrypt (12 rounds)
+  - **Commit Message:** `feat(auth): Implement bcrypt password hashing`
 - [ ] [Backend] Add input validation and sanitization for all fields
+  - **Commit Message:** `chore(security): Add input validation and sanitization`
 - [ ] [Backend] Create university email validation (.edu domain requirement)
-- [Backend] Implement proper error handling and user feedback
+  - **Commit Message:** `feat(auth): Add .edu domain validation for registration`
+- [ ] [Backend] Implement proper error handling and user feedback
+  - **Commit Message:** `feat(auth): Implement error handling for registration`
 
 ### Epic 6: User Login and Session Management
 
@@ -85,13 +160,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create login form component with proper validation
+  - **Commit Message:** `feat(auth): Create login form component`
 - [ ] [Backend] Implement login Server Action with credential verification
+  - **Commit Message:** `feat(auth): Implement login server action`
 - [ ] [Backend] Set up session validation and management
+  - **Commit Message:** `feat(auth): Set up session validation`
 - [ ] [Backend] Implement logout functionality with session cleanup
+  - **Commit Message:** `feat(auth): Implement logout functionality`
 - [ ] [Backend] Add password reset flow with secure token generation
+  - **Commit Message:** `feat(auth): Implement password reset flow`
 - [ ] [Backend] Implement session security features (device tracking, IP validation)
+  - **Commit Message:** `chore(security): Add session security features`
 - [ ] [Backend] Add account lockout after failed login attempts
-- [Backend] Create session timeout and automatic refresh logic
+  - **Commit Message:** `chore(security): Add account lockout mechanism`
+- [ ] [Backend] Create session timeout and automatic refresh logic
+  - **Commit Message:** `feat(auth): Implement session timeout and refresh`
 
 ## Phase 3: Core User Features
 
@@ -101,13 +184,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create profile creation form with study preference fields
+  - **Commit Message:** `feat(profile): Create profile creation form`
 - [ ] [Backend] Implement profile creation Server Action with validation
+  - **Commit Message:** `feat(profile): Implement profile creation server action`
 - [ ] [Backend] Set up Cloudinary for profile image uploads
+  - **Commit Message:** `feat(profile): Set up Cloudinary for image uploads`
 - [ ] [Frontend] Create profile editing interface with form validation
+  - **Commit Message:** `feat(profile): Create profile editing interface`
 - [ ] [Backend] Implement profile update functionality with proper validation
+  - **Commit Message:** `feat(profile): Implement profile update functionality`
 - [ ] [Frontend] Create profile display components with user information
-- [Backend] Add profile completion tracking and validation
-- [Frontend] Implement profile image upload with preview and validation
+  - **Commit Message:** `feat(profile): Create profile display components`
+- [ ] [Backend] Add profile completion tracking and validation
+  - **Commit Message:** `feat(profile): Add profile completion tracking`
+- [ ] [Frontend] Implement profile image upload with preview and validation
+  - **Commit Message:** `feat(profile): Implement profile image upload`
 
 ### Epic 8: Course Management System
 
@@ -115,13 +206,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create course search interface with filtering options
+  - **Commit Message:** `feat(courses): Create course search interface`
 - [ ] [Backend] Implement course search functionality with database queries
+  - **Commit Message:** `feat(courses): Implement course search functionality`
 - [ ] [Backend] Create course enrollment Server Action with validation
-- [Frontend] Build user course management interface
-- [Backend] Implement course validation to prevent duplicate enrollments
-- [Frontend] Create course information display components
-- [Backend] Add course recommendation system based on user preferences
-- [Frontend] Implement course enrollment status tracking
+  - **Commit Message:** `feat(courses): Implement course enrollment server action`
+- [ ] [Frontend] Build user course management interface
+  - **Commit Message:** `feat(courses): Build user course management interface`
+- [ ] [Backend] Implement course validation to prevent duplicate enrollments
+  - **Commit Message:** `feat(courses): Add validation for duplicate enrollments`
+- [ ] [Frontend] Create course information display components
+  - **Commit Message:** `feat(courses): Create course information display components`
+- [ ] [Backend] Add course recommendation system based on user preferences
+  - **Commit Message:** `feat(courses): Implement course recommendation system`
+- [ ] [Frontend] Implement course enrollment status tracking
+  - **Commit Message:** `feat(courses): Implement course enrollment status tracking`
 
 ### Epic 9: Availability Management System
 
@@ -129,13 +228,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create availability grid component with time slot selection
+  - **Commit Message:** `feat(availability): Create availability grid component`
 - [ ] [Backend] Implement availability management Server Actions
+  - **Commit Message:** `feat(availability): Implement availability server actions`
 - [ ] [Frontend] Build availability editing interface with drag-and-drop
-- [Backend] Create availability validation and conflict detection
-- [Frontend] Implement availability display components
-- [Backend] Add availability overlap calculation logic
-- [Frontend] Create timezone handling for availability display
-- [Backend] Implement availability caching for performance optimization
+  - **Commit Message:** `feat(availability): Build availability editing interface`
+- [ ] [Backend] Create availability validation and conflict detection
+  - **Commit Message:** `feat(availability): Add availability validation`
+- [ ] [Frontend] Implement availability display components
+  - **Commit Message:** `feat(availability): Implement availability display components`
+- [ ] [Backend] Add availability overlap calculation logic
+  - **Commit Message:** `feat(availability): Add overlap calculation logic`
+- [ ] [Frontend] Create timezone handling for availability display
+  - **Commit Message:** `feat(availability): Implement timezone handling`
+- [ ] [Backend] Implement availability caching for performance optimization
+  - **Commit Message:** `perf(availability): Implement availability caching`
 
 ### Epic 10: User Dashboard
 
@@ -143,13 +250,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Design and implement dashboard layout with responsive design
+  - **Commit Message:** `feat(dashboard): Design and implement dashboard layout`
 - [ ] [Frontend] Create profile overview section with key information
+  - **Commit Message:** `feat(dashboard): Create profile overview section`
 - [ ] [Frontend] Build course enrollment summary component
+  - **Commit Message:** `feat(dashboard): Build course enrollment summary`
 - [ ] [Frontend] Implement availability preview component
+  - **Commit Message:** `feat(dashboard): Implement availability preview`
 - [ ] [Frontend] Create navigation components with proper routing
-- [Frontend] Add dashboard analytics and insights
-- [Frontend] Implement responsive design for mobile devices
-- [Frontend] Create loading states and error handling for dashboard
+  - **Commit Message:** `feat(dashboard): Create navigation components`
+- [ ] [Frontend] Add dashboard analytics and insights
+  - **Commit Message:** `feat(dashboard): Add basic dashboard analytics`
+- [ ] [Frontend] Implement responsive design for mobile devices
+  - **Commit Message:** `style(dashboard): Implement responsive design`
+- [ ] [Frontend] Create loading states and error handling for dashboard
+  - **Commit Message:** `feat(dashboard): Create loading states and error handling`
 
 ## Phase 4: Matching and Connections
 
@@ -159,13 +274,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Implement core matching algorithm with compatibility scoring
+  - **Commit Message:** `feat(matching): Implement core matching algorithm`
 - [ ] [Backend] Create course overlap detection and filtering
+  - **Commit Message:** `feat(matching): Add course overlap detection`
 - [ ] [Backend] Implement availability overlap calculation with time zone handling
+  - **Commit Message:** `feat(matching): Implement availability overlap calculation`
 - [ ] [Backend] Build preference matching system (location, style, pace)
+  - **Commit Message:** `feat(matching): Build preference matching system`
 - [ ] [Backend] Create match result ranking and scoring system
+  - **Commit Message:** `feat(matching): Create match result ranking system`
 - [ ] [Backend] Implement match caching system with Redis for performance
+  - **Commit Message:** `perf(matching): Implement match caching with Redis`
 - [ ] [Backend] Add match result pagination and filtering
-- [Backend] Create match algorithm performance optimization
+  - **Commit Message:** `feat(matching): Add match result pagination`
+- [ ] [Backend] Create match algorithm performance optimization
+  - **Commit Message:** `perf(matching): Optimize match algorithm performance`
 
 ### Epic 12: Match Display and Filtering
 
@@ -173,13 +296,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create match results display component with card layout
+  - **Commit Message:** `feat(matching): Create match results display component`
 - [ ] [Frontend] Implement match filtering options (score, availability, preferences)
+  - **Commit Message:** `feat(matching): Implement match filtering options`
 - [ ] [Frontend] Build match sorting functionality (by score, availability, etc.)
+  - **Commit Message:** `feat(matching): Build match sorting functionality`
 - [ ] [Frontend] Create match detail views with comprehensive information
+  - **Commit Message:** `feat(matching): Create match detail views`
 - [ ] [Frontend] Implement match pagination for large result sets
+  - **Commit Message:** `feat(matching): Implement match pagination`
 - [ ] [Frontend] Add match refresh functionality with loading states
+  - **Commit Message:** `feat(matching): Add match refresh functionality`
 - [ ] [Frontend] Create match compatibility score visualization
-- [Frontend] Implement match result caching on the frontend
+  - **Commit Message:** `feat(matching): Create match score visualization`
+- [ ] [Frontend] Implement match result caching on the frontend
+  - **Commit Message:** `perf(matching): Implement frontend match result caching`
 
 ### Epic 13: Connection Request System
 
@@ -187,13 +318,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create connection request interface with message input
+  - **Commit Message:** `feat(connections): Create connection request interface`
 - [ ] [Backend] Implement connection request Server Action with validation
+  - **Commit Message:** `feat(connections): Implement connection request server action`
 - [ ] [Backend] Create connection status tracking and management
+  - **Commit Message:** `feat(connections): Add connection status tracking`
 - [ ] [Frontend] Build connection request response interface (accept/decline)
+  - **Commit Message:** `feat(connections): Build connection response interface`
 - [ ] [Backend] Implement connection request notifications system
+  - **Commit Message:** `feat(connections): Implement connection request notifications`
 - [ ] [Frontend] Create connection management interface
+  - **Commit Message:** `feat(connections): Create connection management interface`
 - [ ] [Backend] Add connection history and analytics
-- [Backend] Implement connection request rate limiting
+  - **Commit Message:** `feat(connections): Add connection history`
+- [ ] [Backend] Implement connection request rate limiting
+  - **Commit Message:** `chore(security): Implement connection request rate limiting`
 
 ### Epic 14: Connection Management
 
@@ -201,13 +340,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create connections list interface with status indicators
+  - **Commit Message:** `feat(connections): Create connections list interface`
 - [ ] [Frontend] Build connection history view with filtering options
+  - **Commit Message:** `feat(connections): Build connection history view`
 - [ ] [Backend] Implement connection status management and updates
+  - **Commit Message:** `feat(connections): Implement connection status management`
 - [ ] [Frontend] Create connection search and filtering functionality
+  - **Commit Message:** `feat(connections): Add connection search and filtering`
 - [ ] [Backend] Add connection removal and blocking functionality
+  - **Commit Message:** `feat(connections): Add connection removal and blocking`
 - [ ] [Frontend] Implement connection analytics and insights
+  - **Commit Message:** `feat(connections): Implement connection analytics`
 - [ ] [Backend] Create connection notification preferences
-- [Frontend] Build connection export and sharing features
+  - **Commit Message:** `feat(connections): Create connection notification preferences`
+- [ ] [Frontend] Build connection export and sharing features
+  - **Commit Message:** `feat(connections): Build connection export feature`
 
 ## Phase 5: Real-time Features
 
@@ -217,13 +364,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Set up Pusher account and configuration
+  - **Commit Message:** `chore(realtime): Set up Pusher account and configuration`
 - [ ] [Backend] Implement Pusher client setup with authentication
+  - **Commit Message:** `feat(realtime): Implement Pusher client setup`
 - [ ] [Backend] Create real-time event handling system
+  - **Commit Message:** `feat(realtime): Create event handling system`
 - [ ] [Backend] Set up authentication for Pusher channels
+  - **Commit Message:** `feat(realtime): Set up Pusher channel authentication`
 - [ ] [Backend] Implement connection management for real-time features
+  - **Commit Message:** `feat(realtime): Implement connection management`
 - [ ] [Backend] Add error handling and reconnection logic for Pusher
+  - **Commit Message:** `fix(realtime): Add error handling and reconnection logic`
 - [ ] [Frontend] Set up Pusher client on the frontend
-- [Frontend] Implement real-time event listeners and handlers
+  - **Commit Message:** `feat(realtime): Set up frontend Pusher client`
+- [ ] [Frontend] Implement real-time event listeners and handlers
+  - **Commit Message:** `feat(realtime): Implement frontend event listeners`
 
 ### Epic 16: Real-time Messaging System
 
@@ -231,13 +386,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create chat interface components with message display
+  - **Commit Message:** `feat(chat): Create chat interface components`
 - [ ] [Backend] Implement message sending Server Action with validation
+  - **Commit Message:** `feat(chat): Implement message sending server action`
 - [ ] [Backend] Set up real-time message delivery with Pusher
+  - **Commit Message:** `feat(chat): Set up real-time message delivery`
 - [ ] [Frontend] Build message history loading with pagination
+  - **Commit Message:** `feat(chat): Build message history loading`
 - [ ] [Frontend] Implement typing indicators for real-time feedback
+  - **Commit Message:** `feat(chat): Implement typing indicators`
 - [ ] [Backend] Add message status tracking (sent, delivered, read)
+  - **Commit Message:** `feat(chat): Add message status tracking`
 - [ ] [Frontend] Create message input with emoji and formatting support
-- [Backend] Implement message encryption and security
+  - **Commit Message:** `feat(chat): Create message input with emoji support`
+- [ ] [Backend] Implement message encryption and security
+  - **Commit Message:** `chore(security): Implement message encryption`
 
 ### Epic 17: Real-time Notifications
 
@@ -245,13 +408,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Create notification system architecture with Pusher
+  - **Commit Message:** `feat(notifications): Create notification system architecture`
 - [ ] [Backend] Implement connection request notification delivery
+  - **Commit Message:** `feat(notifications): Implement connection request notifications`
 - [ ] [Backend] Add message notification system
+  - **Commit Message:** `feat(notifications): Add message notification system`
 - [ ] [Frontend] Create notification display components with actions
+  - **Commit Message:** `feat(notifications): Create notification display components`
 - [ ] [Backend] Implement notification preferences and settings
+  - **Commit Message:** `feat(notifications): Implement notification preferences`
 - [ ] [Frontend] Build notification history and management
+  - **Commit Message:** `feat(notifications): Build notification history view`
 - [ ] [Backend] Add notification batching and rate limiting
-- [Frontend] Implement notification sound and visual indicators
+  - **Commit Message:** `perf(notifications): Add notification batching`
+- [ ] [Frontend] Implement notification sound and visual indicators
+  - **Commit Message:** `feat(notifications): Implement notification sound and indicators`
 
 ### Epic 18: Online Status and Presence
 
@@ -259,13 +430,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Implement online status tracking with Pusher presence
+  - **Commit Message:** `feat(presence): Implement online status tracking`
 - [ ] [Frontend] Create presence indicators in chat and connection lists
+  - **Commit Message:** `feat(presence): Create presence indicators in UI`
 - [ ] [Backend] Add last seen timestamp tracking and storage
+  - **Commit Message:** `feat(presence): Add 'last seen' timestamp`
 - [ ] [Frontend] Implement status change notifications
+  - **Commit Message:** `feat(presence): Implement status change notifications`
 - [ ] [Backend] Create presence management and privacy controls
+  - **Commit Message:** `feat(presence): Add presence privacy controls`
 - [ ] [Frontend] Build presence status display components
-- [Backend] Add presence analytics and insights
-- [Frontend] Implement presence-based messaging features
+  - **Commit Message:** `feat(presence): Build presence status display components`
+- [ ] [Backend] Add presence analytics and insights
+  - **Commit Message:** `feat(presence): Add presence analytics`
+- [ ] [Frontend] Implement presence-based messaging features
+  - **Commit Message:** `feat(presence): Implement presence-based messaging features`
 
 ## Phase 6: Testing and Quality Assurance
 
@@ -275,13 +454,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Configure Vitest for unit testing with TypeScript support
+  - **Commit Message:** `chore(testing): Configure Vitest for unit testing`
 - [ ] [Backend] Set up Playwright for end-to-end testing
+  - **Commit Message:** `chore(testing): Set up Playwright for E2E testing`
 - [ ] [Backend] Create testing utilities and helper functions
+  - **Commit Message:** `chore(testing): Create testing utilities`
 - [ ] [Backend] Set up test database configuration with Prisma
+  - **Commit Message:** `chore(testing): Set up test database configuration`
 - [ ] [Backend] Create mock data and fixtures for testing
+  - **Commit Message:** `chore(testing): Create mock data and fixtures`
 - [ ] [Backend] Configure test coverage reporting and thresholds
+  - **Commit Message:** `chore(testing): Configure test coverage reporting`
 - [ ] [Backend] Set up testing CI/CD pipeline with GitHub Actions
-- [Backend] Create testing documentation and guidelines
+  - **Commit Message:** `chore(ci): Set up testing pipeline with GitHub Actions`
+- [ ] [Backend] Create testing documentation and guidelines
+  - **Commit Message:** `docs(testing): Create testing documentation`
 
 ### Epic 20: Unit and Integration Testing
 
@@ -289,13 +476,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Write unit tests for all Server Actions and utilities
+  - **Commit Message:** `test(unit): Add tests for server actions and utils`
 - [ ] [Backend] Create integration tests for database operations
+  - **Commit Message:** `test(integration): Add tests for database operations`
 - [ ] [Backend] Test authentication flows and session management
+  - **Commit Message:** `test(integration): Add tests for authentication flows`
 - [ ] [Backend] Write tests for matching algorithm with various scenarios
+  - **Commit Message:** `test(unit): Add tests for matching algorithm`
 - [ ] [Backend] Test user profile management and course enrollment
+  - **Commit Message:** `test(integration): Add tests for profile and course management`
 - [ ] [Backend] Create tests for availability management system
+  - **Commit Message:** `test(integration): Add tests for availability management`
 - [ ] [Backend] Test connection request and management functionality
-- [Backend] Write tests for real-time messaging and notifications
+  - **Commit Message:** `test(integration): Add tests for connection functionality`
+- [ ] [Backend] Write tests for real-time messaging and notifications
+  - **Commit Message:** `test(integration): Add tests for real-time features`
 
 ### Epic 21: End-to-End Testing
 
@@ -303,13 +498,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Create E2E tests for user registration and login flow
+  - **Commit Message:** `test(e2e): Add tests for registration and login flow`
 - [ ] [Backend] Test profile creation and editing complete workflow
+  - **Commit Message:** `test(e2e): Add tests for profile creation workflow`
 - [ ] [Backend] Write E2E tests for course enrollment process
+  - **Commit Message:** `test(e2e): Add tests for course enrollment process`
 - [ ] [Backend] Test matching and connection request flow
+  - **Commit Message:** `test(e2e): Add tests for matching and connection flow`
 - [ ] [Backend] Create E2E tests for real-time messaging functionality
+  - **Commit Message:** `test(e2e): Add tests for real-time messaging`
 - [ ] [Backend] Test error handling and edge cases
+  - **Commit Message:** `test(e2e): Add tests for error handling and edge cases`
 - [ ] [Backend] Write E2E tests for mobile responsiveness
-- [Backend] Create performance and load testing scenarios
+  - **Commit Message:** `test(e2e): Add tests for mobile responsiveness`
+- [ ] [Backend] Create performance and load testing scenarios
+  - **Commit Message:** `test(perf): Create initial load testing scenarios`
 
 ## Phase 7: Deployment and Production
 
@@ -319,13 +522,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Configure Vercel project settings and environment variables
+  - **Commit Message:** `chore(deploy): Configure Vercel project settings`
 - [ ] [Backend] Set up production environment variables and secrets
+  - **Commit Message:** `chore(deploy): Set up production environment variables`
 - [ ] [Backend] Configure custom domain and SSL certificates
+  - **Commit Message:** `chore(deploy): Configure custom domain and SSL`
 - [ ] [Backend] Set up production database with Neon
+  - **Commit Message:** `chore(deploy): Set up production database`
 - [ ] [Backend] Configure production Redis instance with Upstash
+  - **Commit Message:** `chore(deploy): Configure production Redis instance`
 - [ ] [Backend] Set up production email service with Resend
+  - **Commit Message:** `chore(deploy): Set up production email service`
 - [ ] [Backend] Configure production file storage with Cloudinary
-- [Backend] Set up production analytics with PostHog
+  - **Commit Message:** `chore(deploy): Configure production file storage`
+- [ ] [Backend] Set up production analytics with PostHog
+  - **Commit Message:** `chore(deploy): Set up production analytics`
 
 ### Epic 23: Performance Monitoring and Analytics
 
@@ -333,13 +544,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Set up Vercel Analytics for performance monitoring
+  - **Commit Message:** `feat(monitoring): Set up Vercel Analytics`
 - [ ] [Backend] Configure error tracking with Sentry
+  - **Commit Message:** `feat(monitoring): Configure Sentry for error tracking`
 - [ ] [Backend] Implement performance monitoring and metrics
+  - **Commit Message:** `feat(monitoring): Implement custom performance metrics`
 - [ ] [Backend] Set up database performance monitoring
+  - **Commit Message:** `feat(monitoring): Set up database performance monitoring`
 - [ ] [Backend] Create monitoring dashboards and alerts
+  - **Commit Message:** `feat(monitoring): Create monitoring dashboards and alerts`
 - [ ] [Backend] Configure uptime monitoring and health checks
+  - **Commit Message:** `feat(monitoring): Configure uptime monitoring`
 - [ ] [Backend] Set up user analytics and behavior tracking
-- [Backend] Implement custom event tracking for key user actions
+  - **Commit Message:** `feat(analytics): Set up user behavior tracking`
+- [ ] [Backend] Implement custom event tracking for key user actions
+  - **Commit Message:** `feat(analytics): Implement custom event tracking`
 
 ### Epic 24: Security Hardening
 
@@ -347,13 +566,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Implement production rate limiting with Upstash
+  - **Commit Message:** `chore(security): Implement production rate limiting`
 - [ ] [Backend] Set up security headers and CORS policies
+  - **Commit Message:** `chore(security): Set up security headers and CORS`
 - [ ] [Backend] Configure input sanitization and validation
+  - **Commit Message:** `chore(security): Enhance input sanitization`
 - [ ] [Backend] Set up security monitoring and threat detection
+  - **Commit Message:** `chore(security): Set up threat detection`
 - [ ] [Backend] Configure automated backup systems
+  - **Commit Message:** `chore(security): Configure automated backups`
 - [ ] [Backend] Implement security audit logging
+  - **Commit Message:** `chore(security): Implement security audit logging`
 - [ ] [Backend] Set up vulnerability scanning and dependency updates
-- [Backend] Configure security incident response procedures
+  - **Commit Message:** `chore(security): Set up vulnerability scanning`
+- [ ] [Backend] Configure security incident response procedures
+  - **Commit Message:** `docs(security): Document incident response procedures`
 
 ### Epic 25: Performance Optimization
 
@@ -361,13 +588,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Optimize database queries and add proper indexing
+  - **Commit Message:** `perf(db): Optimize queries and add indexes`
 - [ ] [Backend] Implement caching optimizations for frequently accessed data
+  - **Commit Message:** `perf(cache): Implement advanced caching optimizations`
 - [ ] [Frontend] Optimize bundle size and implement code splitting
+  - **Commit Message:** `perf(frontend): Optimize bundle size with code splitting`
 - [ ] [Backend] Conduct load testing and performance optimization
+  - **Commit Message:** `perf(testing): Conduct load testing`
 - [ ] [Frontend] Optimize image loading and implement lazy loading
+  - **Commit Message:** `perf(frontend): Optimize image loading`
 - [ ] [Backend] Implement CDN optimization for static assets
+  - **Commit Message:** `perf(infra): Implement CDN optimization`
 - [ ] [Backend] Optimize real-time features for low latency
-- [Backend] Implement performance monitoring and alerting
+  - **Commit Message:** `perf(realtime): Optimize real-time feature latency`
+- [ ] [Backend] Implement performance monitoring and alerting
+  - **Commit Message:** `perf(monitoring): Implement performance monitoring alerts`
 
 ## Phase 8: Documentation and Launch Preparation
 
@@ -377,13 +612,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Frontend] Create user onboarding flow with interactive tutorials
+  - **Commit Message:** `feat(docs): Create user onboarding flow`
 - [ ] [Frontend] Write comprehensive user help documentation
+  - **Commit Message:** `docs(user): Write user help documentation`
 - [ ] [Frontend] Create video tutorials for key features
+  - **Commit Message:** `docs(user): Create video tutorials`
 - [ ] [Frontend] Implement in-app help system with tooltips and guidance
+  - **Commit Message:** `feat(docs): Implement in-app help system`
 - [ ] [Frontend] Create FAQ section with common questions
+  - **Commit Message:** `docs(user): Create FAQ section`
 - [ ] [Frontend] Add contextual help throughout the application
+  - **Commit Message:** `feat(docs): Add contextual help`
 - [ ] [Frontend] Create user guide and best practices documentation
-- [Frontend] Implement feedback and support system
+  - **Commit Message:** `docs(user): Create user guide`
+- [ ] [Frontend] Implement feedback and support system
+  - **Commit Message:** `feat(support): Implement feedback and support system`
 
 ### Epic 27: Final Testing and Launch Preparation
 
@@ -391,13 +634,21 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 
 **Tasks:**
 - [ ] [Backend] Conduct final integration testing across all features
+  - **Commit Message:** `test(integration): Conduct final integration testing`
 - [ ] [Backend] Perform comprehensive security audit and penetration testing
+  - **Commit Message:** `test(security): Perform security audit`
 - [ ] [Backend] Test all user journeys and critical paths
+  - **Commit Message:** `test(e2e): Test all critical user journeys`
 - [ ] [Backend] Prepare launch announcement and marketing materials
+  - **Commit Message:** `chore(launch): Prepare launch announcement`
 - [ ] [Backend] Create monitoring alerts for launch day
+  - **Commit Message:** `chore(launch): Create launch day monitoring alerts`
 - [ ] [Backend] Document launch procedures and rollback plans
+  - **Commit Message:** `docs(launch): Document launch and rollback procedures`
 - [ ] [Backend] Set up user feedback collection system
-- [Backend] Prepare support documentation and contact information
+  - **Commit Message:** `feat(launch): Set up user feedback collection`
+- [ ] [Backend] Prepare support documentation and contact information
+  - **Commit Message:** `docs(support): Prepare support documentation`
 
 ## Implementation Notes
 
@@ -438,6 +689,12 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 - All security requirements must be met
 - Performance targets must be achieved (< 200ms API response time)
 - The application must be fully responsive and mobile-friendly
+
+### Developer Notes
+- **Task Tagging:** Tasks are tagged as `[Backend]` or `[Frontend]` to indicate primary responsibility, but Next.js App Router blurs these lines. Some "Backend" tasks involve frontend components and vice versa.
+- **Scope Management:** This is a comprehensive plan. Consider implementing in iterations, starting with the MVP scope outlined above.
+- **Testing Strategy:** Implement testing throughout development, not just at the end. Each epic should include test implementation.
+- **Documentation:** Update relevant documentation files as you implement features.
 
 ---
 
