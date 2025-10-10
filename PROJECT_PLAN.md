@@ -34,6 +34,19 @@ For rapid initial deployment, focus on these essential components:
 - Advanced filtering and search
 - Mobile app optimization
 
+## 🎨 Design Philosophy
+- This section outlines the core design principles that will guide the user interface (UI) and user experience (UX) of Campus Connect. The goal is to create an application that is not only functional but also intuitive, elegant, and enjoyable to use.
+
+- Clarity & Simplicity: The interface must be clean, uncluttered, and easy to understand at a glance. Every element on the screen must serve a clear purpose. We will avoid unnecessary visual noise and complexity, embracing "less is more."
+
+- Intuitive & Effortless: The user's journey should be logical and predictable. Users should be able to achieve their goals (like finding a partner or setting their schedule) with the minimum number of steps and without needing instructions.
+
+- Consistency: We will maintain strict consistency in design patterns, color palettes, typography, and component behavior across the entire application. A button or icon should always look and behave the same way, creating a reliable and familiar experience.
+
+- Feedback & Responsiveness: The application must provide immediate and clear feedback for every user action. This includes loading states, success messages, validation errors, and button-press effects. The interface should feel fast, fluid, and responsive.
+
+- Aesthetic Deference: The design should be modern and aesthetically pleasing, but it must defer to the content. The UI's primary role is to present the user's information—their profile, courses, and potential matches—in the clearest way possible, without competing for attention. We will use ample whitespace, clean typography, and a limited color palette to achieve a professional and focused look.
+
 ## Phase 1: Project Foundation & Infrastructure
 
 ### Epic 1: Project Setup and Configuration
