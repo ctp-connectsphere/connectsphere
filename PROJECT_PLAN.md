@@ -35,6 +35,7 @@ For rapid initial deployment, focus on these essential components:
 - Mobile app optimization
 
 ## 🎨 Design Philosophy
+
 - This section outlines the core design principles that will guide the user interface (UI) and user experience (UX) of Campus Connect. The goal is to create an application that is not only functional but also intuitive, elegant, and enjoyable to use.
 
 - Clarity & Simplicity: The interface must be clean, uncluttered, and easy to understand at a glance. Every element on the screen must serve a clear purpose. We will avoid unnecessary visual noise and complexity, embracing "less is more."
