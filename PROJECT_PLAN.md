@@ -50,7 +50,7 @@ For rapid initial deployment, focus on these essential components:
 
 ## Phase 1: Project Foundation & Infrastructure
 
-### Epic 1: Project Setup and Configuration
+### Epic 1: Project Setup and Configuration Done
 
 **User Story:** As a developer, I want the project to be properly initialized with Next.js 14+ App Router, TypeScript, and essential development tools so that I can start building the application efficiently.
 
@@ -76,7 +76,7 @@ For rapid initial deployment, focus on these essential components:
 - [ ] [Frontend] Set up basic routing structure with route groups
   - **Commit Message:** `feat(frontend): Set up initial route groups`
 
-### Epic 2: Database and Infrastructure Setup
+### Epic 2: Database and Infrastructure Setup Done
 
 **User Story:** As a developer, I want the database schema to be properly configured with Prisma and PostgreSQL so that I can store and retrieve user data efficiently.
 
