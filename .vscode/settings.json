@@ -38,5 +38,19 @@
     "**/coverage": true
   },
   "typescript.preferences.includePackageJsonAutoImports": "on",
-  "prisma.showPrismaDataPlatformNotification": false
+  "prisma.showPrismaDataPlatformNotification": false,
+  "debug.console.fontSize": 14,
+  "debug.console.lineHeight": 18,
+  "debug.console.fontFamily": "'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace",
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.showBreakpointsInOverviewRuler": true,
+  "debug.showInlineBreakpointCandidates": true,
+  "debug.openDebug": "openOnDebugBreak",
+  "debug.inlineValues": true,
+  "debug.showSubSessionsInToolBar": true,
+  "debug.toolBarLocation": "docked",
+  "debug.focusEditorOnBreak": true,
+  "debug.openExplorerOnEnd": true,
+  "debug.console.acceptSuggestionOnEnter": "on",
+  "debug.console.historyLength": 1000
 }
