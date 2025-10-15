@@ -1,9 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable App Router
-  experimental: {
-    appDir: true,
-  },
+  // Development optimizations
+  ...(process.env.NODE_ENV === 'development' && {
+    // Faster builds in development
+    typescript: {
+      ignoreBuildErrors: false,
+    },
+    eslint: {
+      ignoreDuringBuilds: false,
+    },
+    // Hot reload optimizations
+    onDemandEntries: {
+      maxInactiveAge: 25 * 1000,
+      pagesBufferLength: 2,
+    },
+  }),
   
   // Image optimization
   images: {
@@ -52,14 +63,32 @@ const nextConfig = {
   
   // Webpack configuration
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Add custom webpack configuration here if needed
-    return config;
-  },
-  
-  // Bundle analyzer (when ANALYZE=true)
-  ...(process.env.ANALYZE === 'true' && {
-    webpack: (config, { isServer }) => {
-      if (!isServer) {
+    // Development optimizations
+    if (dev) {
+      // Faster builds in development
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+      
+      // Better source maps for debugging
+      config.devtool = 'eval-cheap-module-source-map';
+      
+      // Optimize module resolution
+      config.resolve.symlinks = false;
+      
+      // Add development-specific plugins
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          __DEV__: JSON.stringify(true),
+        })
+      );
+    }
+    
+    // Production optimizations
+    if (!dev && !isServer) {
+      // Bundle analyzer for production builds
+      if (process.env.ANALYZE === 'true') {
         const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
         config.plugins.push(
           new BundleAnalyzerPlugin({
@@ -69,9 +98,10 @@ const nextConfig = {
           })
         );
       }
-      return config;
-    },
-  }),
+    }
+    
+    return config;
+  },
   
   // Output configuration
   output: 'standalone',
