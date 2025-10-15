@@ -22,3 +22,55 @@ export default function RegisterPage() {
     </div>
   );
 }
+ 'use client'
+import { useState } from 'react'
+import { registerUser } from '@/src/lib/actions/auth'
+
+export default function RegisterPage() {
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    university: ''
+  })
+  const [message, setMessage] = useState<string | null>(null)
+  const [errors, setErrors] = useState<Record<string, string[]> | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage(null)
+    setErrors(null)
+
+    const fd = new FormData()
+    Object.entries(form).forEach(([k, v]) => fd.append(k, v))
+    const res = await registerUser(fd)
+    if (res.success) setMessage(res.message!)
+    if ((res as any).errors) setErrors((res as any).errors)
+    setLoading(false)
+  }
+
+  return (
+    <div className="mx-auto max-w-md p-6">
+      <h1 className="text-xl font-semibold mb-4">Create an account</h1>
+      <form onSubmit={onSubmit} className="space-y-3">
+        <input className="w-full border rounded px-3 py-2" name="firstName" placeholder="First name" onChange={onChange} required />
+        <input className="w-full border rounded px-3 py-2" name="lastName" placeholder="Last name" onChange={onChange} required />
+        <input className="w-full border rounded px-3 py-2" name="email" type="email" placeholder="University email" onChange={onChange} required />
+        <input className="w-full border rounded px-3 py-2" name="password" type="password" placeholder="Password" onChange={onChange} required />
+        <input className="w-full border rounded px-3 py-2" name="university" placeholder="University" onChange={onChange} required />
+        {errors && <pre className="text-sm text-red-600">{JSON.stringify(errors, null, 2)}</pre>}
+        {message && <p className="text-sm text-green-600">{message}</p>}
+        <button className="w-full bg-black text-white rounded py-2" disabled={loading}>
+          {loading ? 'Creating account...' : 'Create account'}
+        </button>
+      </form>
+    </div>
+  )
+}
