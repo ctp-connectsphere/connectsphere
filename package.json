@@ -46,6 +46,8 @@
     "pre-push": "npm run lint && npm run type-check && npm run build"
   },
   "dependencies": {
+    "next-auth": "^5.0.0",
+    "@auth/prisma-adapter": "^2.7.0",
     "@prisma/client": "^6.17.1",
     "@upstash/redis": "^1.35.5",
     "bcryptjs": "^3.0.2",
