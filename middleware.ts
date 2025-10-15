@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { auth } from '@/lib/auth/config';
 
 // Rate limiting store (in production, use Redis or a proper store)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -36,7 +37,7 @@ const publicRoutes = [
 
 function getRateLimitKey(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0] : request.ip || 'unknown';
+  const ip = forwarded ? forwarded.split(',')[0] : 'unknown';
   return ip;
 }
 
@@ -46,7 +47,8 @@ function isRateLimited(request: NextRequest): boolean {
   const windowStart = now - RATE_LIMIT_WINDOW_MS;
   
   // Clean up expired entries
-  for (const [k, v] of rateLimitStore.entries()) {
+  const entries = Array.from(rateLimitStore.entries());
+  for (const [k, v] of entries) {
     if (v.resetTime < now) {
       rateLimitStore.delete(k);
     }
@@ -72,14 +74,16 @@ function isRateLimited(request: NextRequest): boolean {
   return false;
 }
 
-function isAuthenticated(request: NextRequest): boolean {
-  // Check for session token in cookies
-  const sessionToken = request.cookies.get('next-auth.session-token') || 
-                      request.cookies.get('__Secure-next-auth.session-token');
-  
-  // In a real implementation, you would validate the token here
-  // For now, we'll just check if it exists
-  return !!sessionToken;
+async function isAuthenticated(request: NextRequest): Promise<boolean> {
+  try {
+    const session = await auth();
+    return !!session?.user;
+  } catch (error) {
+    // Fallback to cookie check if auth() fails
+    const sessionToken = request.cookies.get('next-auth.session-token') || 
+                        request.cookies.get('__Secure-next-auth.session-token');
+    return !!sessionToken;
+  }
 }
 
 function isProtectedRoute(pathname: string): boolean {
@@ -94,7 +98,7 @@ function isPublicRoute(pathname: string): boolean {
   return publicRoutes.includes(pathname) || pathname.startsWith('/api/');
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Skip middleware for static files and API routes that don't need auth
@@ -102,6 +106,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/api/auth/') ||
+    pathname.startsWith('/api/health') ||
     pathname.includes('.')
   ) {
     return NextResponse.next();
@@ -125,7 +130,7 @@ export function middleware(request: NextRequest) {
   }
   
   // Authentication check
-  const authenticated = isAuthenticated(request);
+  const authenticated = await isAuthenticated(request);
   
   // Redirect authenticated users away from auth pages
   if (authenticated && isAuthRoute(pathname)) {
