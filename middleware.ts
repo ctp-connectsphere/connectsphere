@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/config';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Rate limiting store (in production, use Redis or a proper store)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -45,7 +45,7 @@ function isRateLimited(request: NextRequest): boolean {
   const key = getRateLimitKey(request);
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW_MS;
-  
+
   // Clean up expired entries
   const entries = Array.from(rateLimitStore.entries());
   for (const [k, v] of entries) {
@@ -53,23 +53,23 @@ function isRateLimited(request: NextRequest): boolean {
       rateLimitStore.delete(k);
     }
   }
-  
+
   const current = rateLimitStore.get(key);
-  
+
   if (!current) {
     rateLimitStore.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return false;
   }
-  
+
   if (current.resetTime < now) {
     rateLimitStore.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return false;
   }
-  
+
   if (current.count >= RATE_LIMIT_MAX) {
     return true;
   }
-  
+
   current.count++;
   return false;
 }
@@ -80,8 +80,8 @@ async function isAuthenticated(request: NextRequest): Promise<boolean> {
     return !!session?.user;
   } catch (error) {
     // Fallback to cookie check if auth() fails
-    const sessionToken = request.cookies.get('next-auth.session-token') || 
-                        request.cookies.get('__Secure-next-auth.session-token');
+    const sessionToken = request.cookies.get('next-auth.session-token') ||
+      request.cookies.get('__Secure-next-auth.session-token');
     return !!sessionToken;
   }
 }
@@ -100,7 +100,7 @@ function isPublicRoute(pathname: string): boolean {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Skip middleware for static files and API routes that don't need auth
   if (
     pathname.startsWith('/_next/') ||
@@ -111,53 +111,53 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.next();
   }
-  
+
   // Rate limiting
   if (isRateLimited(request)) {
     return new NextResponse(
-      JSON.stringify({ 
-        error: 'Too many requests', 
-        message: 'Rate limit exceeded. Please try again later.' 
+      JSON.stringify({
+        error: 'Too many requests',
+        message: 'Rate limit exceeded. Please try again later.'
       }),
-      { 
-        status: 429, 
-        headers: { 
+      {
+        status: 429,
+        headers: {
           'Content-Type': 'application/json',
           'Retry-After': '900' // 15 minutes
-        } 
+        }
       }
     );
   }
-  
+
   // Authentication check
   const authenticated = await isAuthenticated(request);
-  
+
   // Redirect authenticated users away from auth pages
   if (authenticated && isAuthRoute(pathname)) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-  
+
   // Redirect unauthenticated users to login for protected routes
   if (!authenticated && isProtectedRoute(pathname)) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
-  
+
   // Add security headers
   const response = NextResponse.next();
-  
+
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  
+
   // CSP header (adjust as needed for your app)
   response.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:;"
   );
-  
+
   return response;
 }
 
