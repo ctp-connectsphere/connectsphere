@@ -1,4 +1,4 @@
-import { validateEnvironment, config } from '../src/lib/config/env'
+import { config, validateEnvironment } from '../src/lib/config/env'
 import { checkDatabaseConnection } from '../src/lib/db/connection'
 import { checkRedisHealth } from '../src/lib/redis/connection'
 
@@ -11,9 +11,9 @@ interface ValidationResult {
 async function validateConfig() {
   console.log('🔍 Validating environment configuration...')
   console.log('')
-  
+
   const results: ValidationResult[] = []
-  
+
   try {
     // Validate environment variables
     console.log('1. Validating environment variables...')
@@ -31,7 +31,7 @@ async function validateConfig() {
         message: error instanceof Error ? error.message : 'Unknown error'
       })
     }
-    
+
     // Test database connection
     console.log('2. Testing database connection...')
     try {
@@ -48,7 +48,7 @@ async function validateConfig() {
         message: error instanceof Error ? error.message : 'Connection test failed'
       })
     }
-    
+
     // Test Redis connection
     console.log('3. Testing Redis connection...')
     try {
@@ -56,7 +56,7 @@ async function validateConfig() {
       results.push({
         name: 'Redis Connection',
         status: redisHealth.status === 'healthy' ? 'success' : 'error',
-        message: redisHealth.status === 'healthy' 
+        message: redisHealth.status === 'healthy'
           ? `Connected successfully (${redisHealth.responseTime}ms)`
           : `Connection failed: ${redisHealth.error}`
       })
@@ -67,10 +67,10 @@ async function validateConfig() {
         message: error instanceof Error ? error.message : 'Connection test failed'
       })
     }
-    
+
     // Check optional services
     console.log('4. Checking optional services...')
-    
+
     // Email service
     if (config.email.apiKey) {
       results.push({
@@ -85,7 +85,7 @@ async function validateConfig() {
         message: 'Email service not configured (optional)'
       })
     }
-    
+
     // File storage
     if (config.storage.cloudName && config.storage.apiKey && config.storage.apiSecret) {
       results.push({
@@ -100,7 +100,7 @@ async function validateConfig() {
         message: 'File storage not configured (optional)'
       })
     }
-    
+
     // Real-time communication
     if (config.pusher.appId && config.pusher.secret && config.pusher.key) {
       results.push({
@@ -115,7 +115,7 @@ async function validateConfig() {
         message: 'Real-time features not configured (optional)'
       })
     }
-    
+
     // Analytics
     if (config.features.analytics && config.analytics.key) {
       results.push({
@@ -130,18 +130,18 @@ async function validateConfig() {
         message: 'Analytics not configured (optional)'
       })
     }
-    
+
     // Display results
     console.log('')
     console.log('📋 Validation Results:')
     console.log('')
-    
+
     results.forEach(result => {
-      const icon = result.status === 'success' ? '✅' : 
-                   result.status === 'warning' ? '⚠️' : '❌'
+      const icon = result.status === 'success' ? '✅' :
+        result.status === 'warning' ? '⚠️' : '❌'
       console.log(`   ${icon} ${result.name}: ${result.message}`)
     })
-    
+
     // Configuration summary
     console.log('')
     console.log('📊 Configuration Summary:')
@@ -151,11 +151,11 @@ async function validateConfig() {
     console.log(`   Debug Mode: ${config.isDevelopment ? 'Enabled' : 'Disabled'}`)
     console.log(`   Real-time Features: ${config.features.realTime ? 'Enabled' : 'Disabled'}`)
     console.log(`   Notifications: ${config.features.notifications ? 'Enabled' : 'Disabled'}`)
-    
+
     // Check for errors
     const errors = results.filter(r => r.status === 'error')
     const warnings = results.filter(r => r.status === 'warning')
-    
+
     if (errors.length > 0) {
       console.log('')
       console.log('❌ Configuration validation failed with errors:')
@@ -178,7 +178,7 @@ async function validateConfig() {
         console.log('🎉 Configuration validation completed successfully!')
         console.log('💡 All services are properly configured.')
       }
-      
+
       console.log('')
       console.log('🚀 You can now start the development server:')
       console.log('   npm run dev')
@@ -188,10 +188,10 @@ async function validateConfig() {
       console.log('   - Open Prisma Studio: npm run db:studio')
       console.log('   - Debug database: npm run debug:db')
       console.log('   - Debug Redis: npm run debug:redis')
-      
+
       process.exit(0)
     }
-    
+
   } catch (error) {
     console.error('')
     console.error('❌ Configuration validation failed with unexpected error:')

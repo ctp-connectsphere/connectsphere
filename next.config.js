@@ -15,18 +15,18 @@ const nextConfig = {
       pagesBufferLength: 2,
     },
   }),
-  
+
   // Image optimization
   images: {
     domains: ['res.cloudinary.com', 'images.unsplash.com'],
     formats: ['image/webp', 'image/avif'],
   },
-  
+
   // Environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  
+
   // Redirects
   async redirects() {
     return [
@@ -37,7 +37,7 @@ const nextConfig = {
       },
     ];
   },
-  
+
   // Headers for security
   async headers() {
     return [
@@ -60,7 +60,7 @@ const nextConfig = {
       },
     ];
   },
-  
+
   // Webpack configuration
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Development optimizations
@@ -70,13 +70,13 @@ const nextConfig = {
         poll: 1000,
         aggregateTimeout: 300,
       };
-      
+
       // Better source maps for debugging
       config.devtool = 'eval-cheap-module-source-map';
-      
+
       // Optimize module resolution
       config.resolve.symlinks = false;
-      
+
       // Add development-specific plugins
       config.plugins.push(
         new webpack.DefinePlugin({
@@ -84,7 +84,7 @@ const nextConfig = {
         })
       );
     }
-    
+
     // Production optimizations
     if (!dev && !isServer) {
       // Bundle analyzer for production builds
@@ -99,25 +99,25 @@ const nextConfig = {
         );
       }
     }
-    
+
     return config;
   },
-  
+
   // Output configuration
   output: 'standalone',
-  
+
   // Trailing slash
   trailingSlash: false,
-  
+
   // PoweredByHeader
   poweredByHeader: false,
-  
+
   // Compress
   compress: true,
-  
+
   // React strict mode
   reactStrictMode: true,
-  
+
   // Swc minify
   swcMinify: true,
 };
