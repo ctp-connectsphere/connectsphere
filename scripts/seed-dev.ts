@@ -1,7 +1,14 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { config } from '../src/lib/config/env'
 
 const prisma = new PrismaClient()
+
+// Check if we're in development mode
+if (config.isProduction) {
+  console.error('❌ Development seeding is not allowed in production')
+  process.exit(1)
+}
 
 async function seedDevelopment() {
   console.log('🌱 Starting development database seeding...')
@@ -178,9 +185,20 @@ async function seedDevelopment() {
   console.log('✅ Created availability data')
 
   console.log('🎉 Development seeding completed!')
+  console.log('')
   console.log('📧 Test credentials:')
   console.log('   - test@berkeley.edu / password123')
   console.log('   - demo@berkeley.edu / password123')
+  console.log('')
+  console.log('🔗 Useful links:')
+  console.log('   - Prisma Studio: npm run db:studio')
+  console.log('   - Database Manager: npm run db:manager')
+  console.log('   - Debug Database: npm run debug:db')
+  console.log('')
+  console.log('💡 Tips:')
+  console.log('   - Use these credentials to test the application')
+  console.log('   - Check Prisma Studio to explore the data')
+  console.log('   - Run npm run db:reset:dev to reset and reseed')
 }
 
 seedDevelopment()

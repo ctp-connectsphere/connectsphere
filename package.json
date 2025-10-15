@@ -31,6 +31,7 @@
     "db:manager": "tsx scripts/db-manager.ts",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:dev": "tsx scripts/seed-dev.ts",
+    "db:seed:comprehensive": "tsx scripts/seed-comprehensive.ts",
     "db:reset": "prisma migrate reset",
     "db:reset:dev": "prisma migrate reset --skip-seed && npm run db:seed:dev",
     "validate:config": "tsx scripts/validate-config.ts",
