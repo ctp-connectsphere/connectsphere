@@ -59,7 +59,10 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.NODE_ENV === 'production' ? 'https://yourdomain.com' : 'http://localhost:3000',
+            value:
+              process.env.NODE_ENV === 'production'
+                ? 'https://yourdomain.com'
+                : 'http://localhost:3000',
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -75,7 +78,7 @@ const nextConfig = {
           },
         ],
       },
-    ]
+    ];
   },
   async rewrites() {
     return [
@@ -83,8 +86,8 @@ const nextConfig = {
         source: '/health',
         destination: '/api/health',
       },
-    ]
+    ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
