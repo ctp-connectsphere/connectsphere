@@ -1,5 +1,5 @@
-import { PrismaClient, Prisma } from '@prisma/client'
 import { config } from '@/lib/config/env'
+import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -26,28 +26,27 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
       url: config.database.url
     }
   },
-  log: isDevelopment 
+  log: isDevelopment
     ? [
-        { level: 'query', emit: 'event' },
-        { level: 'info', emit: 'stdout' },
-        { level: 'warn', emit: 'stdout' },
-        { level: 'error', emit: 'stdout' }
-      ]
+      { level: 'info', emit: 'stdout' },
+      { level: 'warn', emit: 'stdout' },
+      { level: 'error', emit: 'stdout' }
+    ]
     : [
-        { level: 'warn', emit: 'stdout' },
-        { level: 'error', emit: 'stdout' }
-      ],
+      { level: 'warn', emit: 'stdout' },
+      { level: 'error', emit: 'stdout' }
+    ],
   errorFormat: isDevelopment ? 'pretty' : 'minimal'
 })
 
-// Development query logging
-if (isDevelopment) {
-  prisma.$on('query', (e) => {
-    console.log('Query: ' + e.query)
-    console.log('Params: ' + e.params)
-    console.log('Duration: ' + e.duration + 'ms')
-  })
-}
+// Development query logging (disabled for now due to type issues)
+// if (isDevelopment) {
+//   prisma.$on('query', (e: any) => {
+//     console.log('Query: ' + e.query)
+//     console.log('Params: ' + e.params)
+//     console.log('Duration: ' + e.duration + 'ms')
+//   })
+// }
 
 // Enhanced error handling for database operations
 export class DatabaseError extends Error {
@@ -102,7 +101,7 @@ if (isDevelopment) {
 if (isDevelopment) {
   let retryCount = 0
   const maxRetries = 3
-  
+
   const connectWithRetry = async () => {
     try {
       await checkDatabaseConnection()
@@ -118,7 +117,7 @@ if (isDevelopment) {
       }
     }
   }
-  
+
   // Initial connection check
   connectWithRetry().catch(console.error)
 }

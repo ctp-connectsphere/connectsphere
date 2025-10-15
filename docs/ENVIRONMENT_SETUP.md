@@ -5,6 +5,7 @@ This guide provides detailed instructions for setting up environment variables a
 ## Quick Setup
 
 1. **Copy the environment template:**
+
    ```bash
    cp .env.example .env.local
    ```
@@ -23,6 +24,7 @@ This guide provides detailed instructions for setting up environment variables a
 These variables must be set for the application to function:
 
 #### Database Configuration
+
 ```env
 # PostgreSQL Database URL
 DATABASE_URL="postgresql://username:password@localhost:5432/connectsphere_dev"
@@ -34,6 +36,7 @@ DATABASE_IDLE_TIMEOUT=30000
 ```
 
 #### Redis Configuration
+
 ```env
 # Upstash Redis REST API URL and token
 UPSTASH_REDIS_REST_URL="https://your-redis-url.upstash.io"
@@ -41,6 +44,7 @@ UPSTASH_REDIS_REST_TOKEN="your-redis-token"
 ```
 
 #### Authentication Configuration
+
 ```env
 # NextAuth.js configuration
 NEXTAUTH_URL="http://localhost:3000"
@@ -51,6 +55,7 @@ JWT_SECRET="your-jwt-secret-key-here"
 ```
 
 #### Security Configuration
+
 ```env
 # Password hashing rounds (10-15 recommended)
 BCRYPT_ROUNDS=12
@@ -69,6 +74,7 @@ RATE_LIMIT_WINDOW_MS=900000
 These variables are optional but recommended for full functionality:
 
 #### Email Configuration (Resend)
+
 ```env
 # Resend API key for sending emails
 RESEND_API_KEY="your-resend-api-key"
@@ -78,6 +84,7 @@ EMAIL_FROM="noreply@connectsphere.com"
 ```
 
 #### File Storage Configuration (Cloudinary)
+
 ```env
 # Cloudinary configuration for image uploads
 CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
@@ -86,6 +93,7 @@ CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
 ```
 
 #### Real-time Communication (Pusher)
+
 ```env
 # Pusher configuration for real-time features
 PUSHER_APP_ID="your-pusher-app-id"
@@ -95,6 +103,7 @@ NEXT_PUBLIC_PUSHER_CLUSTER="your-pusher-cluster"
 ```
 
 #### Analytics Configuration (PostHog)
+
 ```env
 # PostHog configuration for analytics
 NEXT_PUBLIC_POSTHOG_KEY="your-posthog-key"
@@ -103,6 +112,7 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=false
 ```
 
 #### Monitoring Configuration (Sentry)
+
 ```env
 # Sentry configuration for error monitoring
 SENTRY_DSN=""
@@ -112,6 +122,7 @@ SENTRY_AUTH_TOKEN=""
 ```
 
 #### Application Configuration
+
 ```env
 # Application metadata
 NEXT_PUBLIC_APP_NAME="Campus Connect"
@@ -129,6 +140,7 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ### 1. Database Setup (PostgreSQL)
 
 #### Option A: Local PostgreSQL
+
 ```bash
 # Install PostgreSQL (macOS with Homebrew)
 brew install postgresql
@@ -142,6 +154,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/connectsphere_dev"
 ```
 
 #### Option B: Docker PostgreSQL
+
 ```bash
 # Start PostgreSQL with Docker
 docker run --name postgres-dev \
@@ -156,6 +169,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/connectsphere_dev"
 ```
 
 #### Option C: Cloud Database (Neon/Supabase)
+
 1. Create account at [Neon](https://neon.tech) or [Supabase](https://supabase.com)
 2. Create new database
 3. Copy connection string to `DATABASE_URL`
@@ -206,6 +220,7 @@ npm run debug:all
 ## Development vs Production
 
 ### Development Configuration
+
 ```env
 NODE_ENV=development
 NEXTAUTH_URL="http://localhost:3000"
@@ -216,6 +231,7 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=false
 ```
 
 ### Production Configuration
+
 ```env
 NODE_ENV=production
 NEXTAUTH_URL="https://your-domain.com"
@@ -228,6 +244,7 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=true
 ## Security Considerations
 
 ### Secret Generation
+
 Generate strong secrets for production:
 
 ```bash
@@ -239,6 +256,7 @@ openssl rand -base64 32
 ```
 
 ### Environment File Security
+
 - Never commit `.env.local` to version control
 - Use different secrets for each environment
 - Rotate secrets regularly in production
@@ -271,6 +289,7 @@ openssl rand -base64 32
 ### Validation Errors
 
 The validation script will check for:
+
 - Required variables are set
 - URL formats are valid
 - Numeric values are within acceptable ranges

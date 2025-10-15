@@ -1,5 +1,5 @@
-import { Redis } from '@upstash/redis'
 import { config } from '@/lib/config/env'
+import { Redis } from '@upstash/redis'
 
 // Development-specific configuration
 const isDevelopment = config.isDevelopment
@@ -9,15 +9,6 @@ const isProduction = config.isProduction
 const redisConfig = {
   url: config.redis.url,
   token: config.redis.token,
-  retryDelayOnFailover: isDevelopment ? 50 : 100,
-  maxRetriesPerRequest: isDevelopment ? 2 : 3,
-  // Add connection timeout for development
-  ...(isDevelopment && {
-    socket: {
-      connectTimeout: 5000,
-      commandTimeout: 3000,
-    }
-  })
 }
 
 // Main Redis connection
@@ -27,8 +18,6 @@ const redis = new Redis(redisConfig)
 export const redisWithPooling = new Redis({
   url: config.redis.url,
   token: config.redis.token,
-  retryDelayOnFailover: 100,
-  maxRetriesPerRequest: 3,
 })
 
 // Redis error handling class
@@ -68,7 +57,7 @@ export async function checkRedisHealth(): Promise<{
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('❌ Redis health check failed:', errorMessage)
-    
+
     return {
       status: 'unhealthy',
       error: errorMessage,
@@ -80,16 +69,13 @@ export async function checkRedisHealth(): Promise<{
 // Get Redis connection info with error handling
 export async function getRedisInfo() {
   try {
-    const [memoryInfo, keyspaceInfo, serverInfo] = await Promise.all([
-      redis.info('memory').catch(() => null),
-      redis.info('keyspace').catch(() => null),
-      redis.info('server').catch(() => null),
-    ])
+    // Upstash Redis REST API doesn't support INFO command
+    // Return basic connection info instead
+    const keyCount = await redis.dbsize()
 
     return {
-      memory: memoryInfo,
-      keyspace: keyspaceInfo,
-      server: serverInfo,
+      keyCount,
+      connectionStatus: 'connected',
       timestamp: new Date().toISOString(),
     }
   } catch (error) {
@@ -140,13 +126,13 @@ export async function safeRedisOperation<T>(
     return await operation()
   } catch (error) {
     console.error(`❌ Redis operation failed (${operationName}):`, error)
-    
+
     // In development, log the error but don't fail the application
     if (isDevelopment) {
       console.warn(`⚠️  Using fallback value for ${operationName}`)
       return fallbackValue
     }
-    
+
     // In production, throw the error
     throw new RedisError(
       `Redis operation failed: ${operationName}`,
@@ -177,16 +163,10 @@ export const devRedisUtils = {
   // Get cache statistics for development
   async getCacheStats() {
     try {
-      const [memoryInfo, keyCount, dbSize] = await Promise.all([
-        redis.info('memory'),
-        redis.dbsize(),
-        redis.info('keyspace').catch(() => null),
-      ])
+      const keyCount = await redis.dbsize()
 
       return {
-        memoryUsage: memoryInfo,
         keyCount,
-        databaseSize: dbSize,
         timestamp: new Date().toISOString(),
       }
     } catch (error) {
@@ -209,7 +189,7 @@ export const devRedisUtils = {
       try {
         const result = await originalGet(key)
         console.log(`🔍 GET ${key} (${Date.now() - start}ms)`)
-        return result
+        return result as any
       } catch (error) {
         console.error(`❌ GET ${key} failed:`, error)
         throw error

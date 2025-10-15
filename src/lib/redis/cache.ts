@@ -1,4 +1,4 @@
-import { redis, safeRedisOperation, RedisError } from './connection'
+import redis, { safeRedisOperation } from './connection'
 
 /**
  * Redis caching service for Campus Connect
@@ -20,11 +20,11 @@ export class CacheService {
       async () => {
         const key = `matches:${userId}:${courseId}`
         const cached = await redis.get(key)
-        
+
         if (cached) {
           return JSON.parse(cached as string)
         }
-        
+
         return null
       },
       `getMatches(${userId}, ${courseId})`,
@@ -50,11 +50,11 @@ export class CacheService {
       async () => {
         const key = `profile:${userId}`
         const cached = await redis.get(key)
-        
+
         if (cached) {
           return JSON.parse(cached as string)
         }
-        
+
         return null
       },
       `getUserProfile(${userId})`,
@@ -80,11 +80,11 @@ export class CacheService {
       async () => {
         const key = universityId ? `courses:${universityId}` : 'courses:all'
         const cached = await redis.get(key)
-        
+
         if (cached) {
           return JSON.parse(cached as string)
         }
-        
+
         return null
       },
       `getCourses(${universityId || 'all'})`,
@@ -110,11 +110,11 @@ export class CacheService {
       async () => {
         const key = `rate_limit:${identifier}`
         const current = await redis.incr(key)
-        
+
         if (current === 1) {
           await redis.expire(key, windowSeconds)
         }
-        
+
         return {
           allowed: current <= maxRequests,
           remaining: Math.max(0, maxRequests - current),
@@ -138,14 +138,14 @@ export class CacheService {
         `profile:${userId}`,
         `user:${userId}:*`
       ]
-      
+
       for (const pattern of patterns) {
         const keys = await redis.keys(pattern)
         if (keys.length > 0) {
           await redis.del(...keys)
         }
       }
-      
+
       return true
     } catch (error) {
       console.error('Failed to invalidate user cache:', error)
@@ -157,11 +157,11 @@ export class CacheService {
     try {
       const pattern = `matches:*:${courseId}`
       const keys = await redis.keys(pattern)
-      
+
       if (keys.length > 0) {
         await redis.del(...keys)
       }
-      
+
       return true
     } catch (error) {
       console.error('Failed to invalidate course cache:', error)
@@ -182,12 +182,10 @@ export class CacheService {
   // Utility methods
   static async getCacheStats() {
     try {
-      const info = await redis.info('memory')
-      const keyspace = await redis.info('keyspace')
-      
+      const keyCount = await redis.dbsize()
+
       return {
-        memory: info,
-        keyspace: keyspace,
+        keyCount,
         timestamp: new Date().toISOString()
       }
     } catch (error) {

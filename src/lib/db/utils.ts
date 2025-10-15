@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { prisma, DatabaseError } from './connection'
+import { DatabaseError, prisma } from './connection'
 
 /**
  * Database utility functions for common operations
@@ -32,7 +32,7 @@ export async function safeDbOperation<T>(
     return await operation()
   } catch (error) {
     console.error(`❌ ${operationName} failed:`, error)
-    
+
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       // Handle specific Prisma errors
       switch (error.code) {
@@ -62,7 +62,7 @@ export async function safeDbOperation<T>(
           )
       }
     }
-    
+
     throw new DatabaseError(
       `Unexpected error during ${operationName}`,
       'UNKNOWN_ERROR',
@@ -163,7 +163,7 @@ export async function resetDatabase() {
 
   try {
     console.log('🔄 Resetting database...')
-    
+
     // Delete all data in reverse dependency order
     await prisma.message.deleteMany()
     await prisma.connection.deleteMany()
@@ -189,11 +189,11 @@ export async function seedDatabase() {
 
   try {
     console.log('🌱 Seeding database...')
-    
+
     // Import and run seed script
     const { seed } = await import('../../../prisma/seed')
     await seed()
-    
+
     console.log('✅ Database seeding completed')
   } catch (error) {
     console.error('❌ Database seeding failed:', error)
