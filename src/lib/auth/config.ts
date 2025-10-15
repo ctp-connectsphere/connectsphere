@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db/connection'
-import { PrismaAdapter } from '@auth/prisma-adapter'
 import { SessionService } from '@/lib/redis/session'
+import { PrismaAdapter } from '@auth/prisma-adapter'
 import bcrypt from 'bcryptjs'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
@@ -70,8 +70,8 @@ export const authOptions = {
         },
         async session({ session, token }: any) {
             if (token?.userId) {
-                ;(session as any).user = (session as any).user || {}
-                ;(session as any).user.id = token.userId
+                ; (session as any).user = (session as any).user || {}
+                    ; (session as any).user.id = token.userId
             }
 
             // Validate session exists in Redis
