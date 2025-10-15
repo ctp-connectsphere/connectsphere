@@ -1,37 +1,126 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
+import { config } from '@/lib/config/env'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Connection pool configuration for production
+// Development-specific configuration
+const isDevelopment = config.isDevelopment
+const isProduction = config.isProduction
+
+// Connection pool configuration optimized for different environments
 const connectionPoolConfig = {
-  connectionLimit: parseInt(process.env.DATABASE_POOL_SIZE || '10'),
-  acquireTimeoutMillis: 60000,
-  timeout: 60000,
+  connectionLimit: isDevelopment ? 5 : config.database.poolSize,
+  acquireTimeoutMillis: isDevelopment ? 30000 : config.database.connectionTimeout,
+  timeout: isDevelopment ? 30000 : config.database.connectionTimeout,
   reconnect: true,
-  idleTimeoutMillis: 30000,
-  maxUses: 7500
+  idleTimeoutMillis: isDevelopment ? 10000 : config.database.idleTimeout,
+  maxUses: isDevelopment ? 1000 : 7500
 }
 
+// Enhanced Prisma client configuration with better error handling
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL
+      url: config.database.url
     }
   },
-  log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['warn', 'error'],
-  errorFormat: 'pretty'
+  log: isDevelopment 
+    ? [
+        { level: 'query', emit: 'event' },
+        { level: 'info', emit: 'stdout' },
+        { level: 'warn', emit: 'stdout' },
+        { level: 'error', emit: 'stdout' }
+      ]
+    : [
+        { level: 'warn', emit: 'stdout' },
+        { level: 'error', emit: 'stdout' }
+      ],
+  errorFormat: isDevelopment ? 'pretty' : 'minimal'
 })
 
+// Development query logging
+if (isDevelopment) {
+  prisma.$on('query', (e) => {
+    console.log('Query: ' + e.query)
+    console.log('Params: ' + e.params)
+    console.log('Duration: ' + e.duration + 'ms')
+  })
+}
+
+// Enhanced error handling for database operations
+export class DatabaseError extends Error {
+  constructor(
+    message: string,
+    public code?: string,
+    public originalError?: unknown
+  ) {
+    super(message)
+    this.name = 'DatabaseError'
+  }
+}
+
+// Database connection health check
+export async function checkDatabaseConnection(): Promise<boolean> {
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    console.log('✅ Database connection successful')
+    return true
+  } catch (error) {
+    console.error('❌ Database connection failed:', error)
+    throw new DatabaseError(
+      'Failed to connect to database',
+      'CONNECTION_ERROR',
+      error
+    )
+  }
+}
+
+// Graceful shutdown with error handling
+async function gracefulShutdown() {
+  try {
+    console.log('🔄 Disconnecting from database...')
+    await prisma.$disconnect()
+    console.log('✅ Database disconnected successfully')
+  } catch (error) {
+    console.error('❌ Error during database shutdown:', error)
+  }
+}
+
+// Handle different exit signals
+process.on('SIGINT', gracefulShutdown)
+process.on('SIGTERM', gracefulShutdown)
+process.on('beforeExit', gracefulShutdown)
+
 // Prevent multiple instances in development
-if (process.env.NODE_ENV !== 'production') {
+if (isDevelopment) {
   globalForPrisma.prisma = prisma
 }
 
-// Graceful shutdown
-process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+// Connection retry logic for development
+if (isDevelopment) {
+  let retryCount = 0
+  const maxRetries = 3
+  
+  const connectWithRetry = async () => {
+    try {
+      await checkDatabaseConnection()
+      retryCount = 0
+    } catch (error) {
+      retryCount++
+      if (retryCount < maxRetries) {
+        console.log(`🔄 Retrying database connection (${retryCount}/${maxRetries})...`)
+        setTimeout(connectWithRetry, 2000 * retryCount)
+      } else {
+        console.error('❌ Max retry attempts reached. Please check your database connection.')
+        throw error
+      }
+    }
+  }
+  
+  // Initial connection check
+  connectWithRetry().catch(console.error)
+}
 
 export default prisma
