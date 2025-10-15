@@ -22,9 +22,9 @@ export default function RegisterPage() {
     </div>
   );
 }
- 'use client'
-import { useState } from 'react'
-import { registerUser } from '@/src/lib/actions/auth'
+'use client'
+import { registerUser } from '@/src/lib/actions/auth';
+import { useState } from 'react';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
