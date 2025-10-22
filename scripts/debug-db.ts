@@ -6,7 +6,7 @@
  */
 
 import { config } from '../src/lib/config/env'
-import { checkDatabaseConnection, getDatabaseHealth, prisma } from '../src/lib/db/connection'
+import { checkDatabaseConnection, prisma } from '../src/lib/db/connection'
 import { devRedisUtils } from '../src/lib/redis/connection'
 
 async function debugDatabase() {
@@ -25,8 +25,13 @@ async function debugDatabase() {
 
         // Get database health
         console.log('2. Getting database health...')
-        const health = await getDatabaseHealth()
-        console.log('📊 Database Health:', JSON.stringify(health, null, 2))
+        try {
+            await checkDatabaseConnection()
+            console.log('📊 Database Health: ✅ Healthy')
+        } catch (error) {
+            console.log('📊 Database Health: ❌ Unhealthy')
+            console.log('Error:', error)
+        }
         console.log('')
 
         // Test basic database operations
@@ -73,7 +78,8 @@ async function debugDatabase() {
         // Test environment validation
         console.log('5. Validating environment configuration...')
         try {
-            config.validateEnvironment()
+            const { validateEnvironment } = await import('../src/lib/config/env')
+            validateEnvironment()
             console.log('✅ Environment validation:', 'Passed')
         } catch (error) {
             console.log('❌ Environment validation failed:', error instanceof Error ? error.message : error)

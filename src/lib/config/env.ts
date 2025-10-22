@@ -2,6 +2,8 @@
  * Environment variable configuration and validation
  */
 
+import 'dotenv/config'
+
 // Database configuration
 export const DATABASE_CONFIG = {
   url: process.env.DATABASE_URL!,
@@ -25,7 +27,7 @@ export const AUTH_CONFIG = {
 // Email configuration (Resend)
 export const EMAIL_CONFIG = {
   apiKey: process.env.RESEND_API_KEY!,
-  from: process.env.EMAIL_FROM || 'noreply@connectsphere.com',
+  from: process.env.EMAIL_FROM || 'g1097420948@gmail.com',
 }
 
 // File storage configuration (Cloudinary)
@@ -99,7 +101,7 @@ export function validateEnvironment() {
   ]
 
   const missing = requiredVars.filter(varName => !process.env[varName])
-  
+
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`)
   }
