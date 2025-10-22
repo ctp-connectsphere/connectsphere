@@ -12,7 +12,7 @@ const credentialsSchema = z.object({
 })
 
 export const authOptions = {
-    adapter: PrismaAdapter(prisma) as any,
+    adapter: PrismaAdapter(prisma),
     providers: [
         Credentials({
             name: 'Email and Password',

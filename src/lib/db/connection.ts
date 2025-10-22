@@ -1,5 +1,6 @@
 import { config } from '@/lib/config/env'
 import { PrismaClient } from '@prisma/client'
+import 'dotenv/config'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -18,6 +19,7 @@ const connectionPoolConfig = {
   idleTimeoutMillis: isDevelopment ? 10000 : config.database.idleTimeout,
   maxUses: isDevelopment ? 1000 : 7500
 }
+
 
 // Enhanced Prisma client configuration with better error handling
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
@@ -88,7 +90,11 @@ async function gracefulShutdown() {
 }
 
 // Handle different exit signals (only in Node.js runtime, not Edge Runtime)
-if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+// Check if we're in a Node.js environment (not Edge Runtime)
+if (typeof process !== 'undefined' && 
+    process.env.NODE_ENV !== 'production' && 
+    typeof window === 'undefined' &&
+    typeof process.on === 'function') {
   process.on('SIGINT', gracefulShutdown)
   process.on('SIGTERM', gracefulShutdown)
   process.on('beforeExit', gracefulShutdown)
