@@ -103,15 +103,15 @@ export default function LoginPage() {
     }
   }
 
-        return (
-          <div className="min-h-screen flex items-center justify-center bg-secondary py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-              <Card variant="elevated" className="p-8">
-                <div className="text-center mb-8">
-                  <Logo size="large" variant="full" className="justify-center mb-6" />
-                  <h1 className="text-title-1 text-primary mb-2">Welcome back</h1>
-                  <p className="text-body text-tertiary">Sign in to your ConnectSphere account</p>
-                </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-secondary py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <Card variant="elevated" className="p-8">
+          <div className="text-center mb-8">
+            <Logo size="large" variant="full" className="justify-center mb-6" />
+            <h1 className="text-title-1 text-primary mb-2">Welcome back</h1>
+            <p className="text-body text-tertiary">Sign in to your ConnectSphere account</p>
+          </div>
           <form onSubmit={onSubmit} className="space-y-4">
             {/* Email Field */}
             <div>
