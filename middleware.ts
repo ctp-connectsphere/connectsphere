@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth/config';
+import { SessionManager } from '@/lib/auth/session-manager';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -77,12 +78,31 @@ function isRateLimited(request: NextRequest): boolean {
 async function isAuthenticated(request: NextRequest): Promise<boolean> {
   try {
     const session = await auth();
-    return !!session?.user;
+    if (!session?.user) return false;
+
+    // Additional session validation for security
+    const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
+      request.cookies.get('__Secure-next-auth.session-token')?.value;
+
+    if (!sessionToken) return false;
+
+    // Validate session with enhanced security checks
+    const validation = await SessionManager.validateSession(sessionToken);
+    if (!validation.valid) {
+      console.warn(`Invalid session detected: ${validation.reason}`);
+      return false;
+    }
+
+    // Check if session is expiring soon and refresh if needed
+    const isExpiringSoon = await SessionManager.isSessionExpiringSoon(sessionToken);
+    if (isExpiringSoon) {
+      await SessionManager.refreshSession(sessionToken);
+    }
+
+    return true;
   } catch (error) {
-    // Fallback to cookie check if auth() fails
-    const sessionToken = request.cookies.get('next-auth.session-token') ||
-      request.cookies.get('__Secure-next-auth.session-token');
-    return !!sessionToken;
+    console.error('Authentication check failed:', error);
+    return false;
   }
 }
 
