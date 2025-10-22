@@ -1,12 +1,26 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+}
+main {
+  padding: 2em 4em;
+  flex-grow: 1;
 }
 
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em 2em;
+  background-color: #1a1a1a;
+  color: white;
+}
+.navbar .nav-links {
+  display: flex;
+  gap: 1em;
+  list-style-type: none;
+}
 .logo {
-  height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
