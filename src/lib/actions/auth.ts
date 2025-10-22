@@ -1,9 +1,9 @@
 'use server'
 import { prisma } from '@/lib/db/connection'
+import { sendPasswordResetEmail } from '@/lib/email/service'
 import bcrypt from 'bcryptjs'
 import { headers } from 'next/headers'
 import { z } from 'zod'
-import { sendPasswordResetEmail } from '@/lib/email/service'
 
 const registerSchema = z.object({
     email: z.string().email().refine(v => v.endsWith('.edu'), 'Must use university email'),
@@ -185,6 +185,18 @@ export async function requestPasswordReset(formData: FormData) {
         const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`
         const userName = `${user.firstName} ${user.lastName}`
         
+        // In development, log the reset link and show it to user
+        if (process.env.NODE_ENV === 'development') {
+            console.log(`🔗 Password reset link for ${email}: ${resetLink}`)
+            
+            return {
+                success: true,
+                message: `Password reset link generated! Check the console for the link: ${resetLink}`,
+                resetLink // Show link in development
+            }
+        }
+        
+        // In production, send actual email
         const emailResult = await sendPasswordResetEmail(email, resetLink, userName)
         
         if (!emailResult.success) {

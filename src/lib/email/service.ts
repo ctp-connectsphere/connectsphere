@@ -1,42 +1,42 @@
-import { Resend } from 'resend'
 import { EMAIL_CONFIG } from '@/lib/config/env'
+import { Resend } from 'resend'
 
 const resend = new Resend(EMAIL_CONFIG.apiKey)
 
 export interface EmailTemplate {
-  to: string
-  subject: string
-  html: string
-  text?: string
+    to: string
+    subject: string
+    html: string
+    text?: string
 }
 
 export async function sendEmail({ to, subject, html, text }: EmailTemplate) {
-  try {
-    const { data, error } = await resend.emails.send({
-      from: EMAIL_CONFIG.from,
-      to: [to],
-      subject,
-      html,
-      text,
-    })
+    try {
+        const { data, error } = await resend.emails.send({
+            from: EMAIL_CONFIG.from,
+            to: [to],
+            subject,
+            html,
+            text,
+        })
 
-    if (error) {
-      console.error('Email sending failed:', error)
-      return { success: false, error: error.message }
+        if (error) {
+            console.error('Email sending failed:', error)
+            return { success: false, error: error.message }
+        }
+
+        console.log('Email sent successfully:', data)
+        return { success: true, data }
+    } catch (error) {
+        console.error('Email service error:', error)
+        return { success: false, error: 'Failed to send email' }
     }
-
-    console.log('Email sent successfully:', data)
-    return { success: true, data }
-  } catch (error) {
-    console.error('Email service error:', error)
-    return { success: false, error: 'Failed to send email' }
-  }
 }
 
 export async function sendPasswordResetEmail(email: string, resetLink: string, userName: string) {
-  const subject = 'Reset Your ConnectSphere Password'
-  
-  const html = `
+    const subject = 'Reset Your ConnectSphere Password'
+
+    const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -130,7 +130,7 @@ export async function sendPasswordResetEmail(email: string, resetLink: string, u
     </html>
   `
 
-  const text = `
+    const text = `
 Password Reset Request - ConnectSphere
 
 Hello ${userName},
@@ -148,18 +148,18 @@ Best regards,
 The ConnectSphere Team
   `
 
-  return await sendEmail({
-    to: email,
-    subject,
-    html,
-    text
-  })
+    return await sendEmail({
+        to: email,
+        subject,
+        html,
+        text
+    })
 }
 
 export async function sendWelcomeEmail(email: string, userName: string) {
-  const subject = 'Welcome to ConnectSphere!'
-  
-  const html = `
+    const subject = 'Welcome to ConnectSphere!'
+
+    const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -246,9 +246,9 @@ export async function sendWelcomeEmail(email: string, userName: string) {
     </html>
   `
 
-  return await sendEmail({
-    to: email,
-    subject,
-    html
-  })
+    return await sendEmail({
+        to: email,
+        subject,
+        html
+    })
 }
