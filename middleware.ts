@@ -78,30 +78,17 @@ function isRateLimited(request: NextRequest): boolean {
 async function isAuthenticated(request: NextRequest): Promise<boolean> {
   try {
     const session = await auth();
-    if (!session?.user) return false;
-
-    // Additional session validation for security
-    const sessionToken = request.cookies.get('next-auth.session-token')?.value ||
-      request.cookies.get('__Secure-next-auth.session-token')?.value;
-
-    if (!sessionToken) return false;
-
-    // Validate session with enhanced security checks
-    const validation = await SessionManager.validateSession(sessionToken);
-    if (!validation.valid) {
-      console.warn(`Invalid session detected: ${validation.reason}`);
+    console.log('🔍 Middleware auth check:', { hasSession: !!session, user: session?.user?.email });
+    
+    if (!session?.user) {
+      console.log('❌ No session or user found');
       return false;
     }
 
-    // Check if session is expiring soon and refresh if needed
-    const isExpiringSoon = await SessionManager.isSessionExpiringSoon(sessionToken);
-    if (isExpiringSoon) {
-      await SessionManager.refreshSession(sessionToken);
-    }
-
+    console.log('✅ Session valid:', session.user.email);
     return true;
   } catch (error) {
-    console.error('Authentication check failed:', error);
+    console.error('❌ Authentication check failed:', error);
     return false;
   }
 }

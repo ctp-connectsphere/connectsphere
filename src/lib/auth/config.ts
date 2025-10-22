@@ -6,6 +6,17 @@ import Credentials from 'next-auth/providers/credentials'
 export const { handlers, auth, signIn, signOut } = NextAuth({
     secret: process.env.NEXTAUTH_SECRET,
     debug: process.env.NODE_ENV === 'development',
+    cookies: {
+        sessionToken: {
+            name: `next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production'
+            }
+        }
+    },
     providers: [
         Credentials({
             name: 'credentials',
@@ -19,13 +30,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
 
                 const { email, password } = credentials
-                
+
                 try {
                     const user = await prisma.user.findUnique({ where: { email } })
                     if (!user || !user.isVerified) {
                         return null
                     }
-                    
+
                     const ok = await bcrypt.compare(password, user.passwordHash)
                     if (!ok) {
                         return null
@@ -51,16 +62,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     callbacks: {
         async jwt({ token, user }: any) {
+            console.log('🔄 JWT callback:', { user: user?.email, token: token?.email, hasToken: !!token })
+            
             if (user) {
+                console.log('✅ Setting token from user:', user.email)
                 token.id = user.id
                 token.email = user.email
                 token.name = user.name
                 token.image = user.image
                 token.role = user.role
             }
+            
+            console.log('🔄 JWT token result:', { id: token.id, email: token.email })
             return token
         },
         async session({ session, token }: any) {
+            console.log('📋 Session callback:', { token: token?.email, session: session?.user?.email })
+            
             if (token) {
                 session.user = {
                     ...session.user,
@@ -70,7 +88,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     image: token.image as string,
                     role: token.role as string
                 }
+                console.log('✅ Session updated:', session.user)
             }
+            
             return session
         }
     },
