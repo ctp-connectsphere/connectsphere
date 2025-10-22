@@ -38,6 +38,8 @@
     "debug:db": "tsx scripts/debug-db.ts",
     "debug:redis": "tsx scripts/debug-redis.ts",
     "debug:all": "npm run debug:db && npm run debug:redis",
+    "redis:browse": "tsx scripts/browse-redis.ts",
+    "redis:test": "tsx scripts/test-redis-data.ts",
     "test": "echo \"No tests specified\" && exit 0",
     "test:watch": "echo \"No tests specified\" && exit 0",
     "test:coverage": "echo \"No tests specified\" && exit 0",
@@ -59,7 +61,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss": "^3.4.18",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -77,7 +81,6 @@
     "lint-staged": "^15.2.11",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
-    "tailwindcss": "^4.1.14",
     "tsx": "^4.20.6",
     "typescript": "^5.7.3",
     "webpack-bundle-analyzer": "^4.10.2"

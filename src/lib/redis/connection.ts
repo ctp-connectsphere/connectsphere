@@ -14,6 +14,9 @@ const redisConfig = {
 // Main Redis connection
 const redis = new Redis(redisConfig)
 
+// Export redis as named export for compatibility
+export { redis }
+
 // Redis connection with pooling for serverless (production optimized)
 export const redisWithPooling = new Redis({
   url: config.redis.url,

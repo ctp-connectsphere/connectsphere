@@ -5,6 +5,7 @@
  * Run this script to test Redis connections and operations
  */
 
+import 'dotenv/config'
 import { config } from '../src/lib/config/env'
 import { CacheService } from '../src/lib/redis/cache'
 import { checkRedisHealth, devRedisUtils, getRedisInfo, redis } from '../src/lib/redis/connection'

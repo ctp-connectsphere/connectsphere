@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { config, validateEnvironment } from '../src/lib/config/env'
 import { checkDatabaseConnection } from '../src/lib/db/connection'
 import { checkRedisHealth } from '../src/lib/redis/connection'

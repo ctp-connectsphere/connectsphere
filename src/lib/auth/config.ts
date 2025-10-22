@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db/connection'
+import { prisma } from '@/lib/db/edge-connection'
 import { SessionService } from '@/lib/redis/session'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import bcrypt from 'bcryptjs'
@@ -12,7 +12,7 @@ const credentialsSchema = z.object({
 })
 
 export const authOptions = {
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter(prisma) as any,
     providers: [
         Credentials({
             name: 'Email and Password',
