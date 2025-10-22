@@ -47,8 +47,11 @@ export const authOptions = {
     callbacks: {
         async jwt({ token, user, trigger }: any) {
             if (user?.id) {
-                token.userId = user.id
+                token.id = user.id
                 token.email = user.email
+                token.name = user.name
+                token.image = user.image
+                token.role = user.role
             }
 
             // Store session in Redis for additional security
@@ -56,12 +59,13 @@ export const authOptions = {
                 await SessionService.createSession(
                     token.sub || '',
                     {
-                        userId: token.userId,
-                        email: token.email,
-                        name: token.name,
-                        image: token.picture,
-                        iat: token.iat,
-                        exp: token.exp
+                        user: {
+                            id: token.id,
+                            email: token.email,
+                            name: token.name,
+                            image: token.image,
+                            role: token.role
+                        }
                     }
                 )
             }
@@ -69,16 +73,14 @@ export const authOptions = {
             return token
         },
         async session({ session, token }: any) {
-            if (token?.userId) {
-                ; (session as any).user = (session as any).user || {}
-                    ; (session as any).user.id = token.userId
-            }
-
-            // Validate session exists in Redis
-            if (token?.sub) {
-                const redisSession = await SessionService.getSession(token.sub)
-                if (!redisSession) {
-                    throw new Error('Session expired')
+            if (token) {
+                session.user = {
+                    ...session.user,
+                    id: token.id as string,
+                    email: token.email as string,
+                    name: token.name as string,
+                    image: token.image as string,
+                    role: token.role as string
                 }
             }
 
