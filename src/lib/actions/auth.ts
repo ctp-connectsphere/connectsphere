@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/connection'
 import bcrypt from 'bcryptjs'
 import { headers } from 'next/headers'
 import { z } from 'zod'
+import { sendPasswordResetEmail } from '@/lib/email/service'
 
 const registerSchema = z.object({
     email: z.string().email().refine(v => v.endsWith('.edu'), 'Must use university email'),
@@ -164,20 +165,39 @@ export async function requestPasswordReset(formData: FormData) {
         const resetToken = crypto.randomUUID()
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 
-        // TODO: Store reset token in passwordReset table
-        // For now, we'll just log it
-        console.log(`Password reset token for ${email}: ${resetToken}`)
+        // Store reset token in database
+        await prisma.passwordReset.upsert({
+            where: { email },
+            update: {
+                token: resetToken,
+                expiresAt,
+                createdAt: new Date()
+            },
+            create: {
+                email,
+                token: resetToken,
+                expiresAt,
+                createdAt: new Date()
+            }
+        })
 
-        // TODO: Send email with reset link
-        // For now, we'll just return the token for testing
+        // Send password reset email
         const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`
-
-        console.log(`Password reset link for ${email}: ${resetLink}`)
+        const userName = `${user.firstName} ${user.lastName}`
+        
+        const emailResult = await sendPasswordResetEmail(email, resetLink, userName)
+        
+        if (!emailResult.success) {
+            console.error('Failed to send password reset email:', emailResult.error)
+            return {
+                success: false,
+                message: 'Failed to send password reset email. Please try again.'
+            }
+        }
 
         return {
             success: true,
-            message: 'Password reset link sent to your email address',
-            resetLink // Remove this in production
+            message: 'Password reset link sent to your email address'
         }
 
     } catch (e: any) {
@@ -200,36 +220,60 @@ export async function resetPassword(formData: FormData) {
             }
         }
 
-        // TODO: Find valid reset token in passwordReset table
-        // For now, we'll just validate the token format and update the password
-        if (!token || token.length < 10) {
+        // Find valid reset token
+        const resetRecord = await prisma.passwordReset.findUnique({
+            where: { token },
+            include: { user: true }
+        })
+
+        if (!resetRecord) {
             return {
                 success: false,
                 message: 'Invalid reset token'
             }
         }
 
-        // Find user by email (in a real implementation, you'd look up by token)
-        // This is a simplified version for demonstration
-        const user = await prisma.user.findFirst({
-            where: { email: { contains: '@' } } // Placeholder - in real app, lookup by token
+        // Check if token is expired
+        if (resetRecord.expiresAt < new Date()) {
+            return {
+                success: false,
+                message: 'Reset token has expired'
+            }
+        }
+
+        // Check if token has already been used
+        if (resetRecord.usedAt) {
+            return {
+                success: false,
+                message: 'Reset token has already been used'
+            }
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: resetRecord.email }
         })
 
         if (!user) {
             return {
                 success: false,
-                message: 'Invalid or expired reset token'
+                message: 'User not found'
             }
         }
 
         // Hash new password
         const passwordHash = await bcrypt.hash(password, 12)
 
-        // Update user password
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { passwordHash }
-        })
+        // Update user password and mark token as used
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { id: user.id },
+                data: { passwordHash }
+            }),
+            prisma.passwordReset.update({
+                where: { id: resetRecord.id },
+                data: { usedAt: new Date() }
+            })
+        ])
 
         // Invalidate all user sessions
         await prisma.session.deleteMany({
