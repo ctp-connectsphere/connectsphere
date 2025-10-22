@@ -68,6 +68,20 @@ export default function ForgotPasswordPage() {
             {message && (
               <div className="bg-green-50 border border-green-200 rounded p-3">
                 <p className="text-sm text-green-600">{message}</p>
+                {message.includes('http://localhost:3000/reset-password') && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                    <p className="text-sm text-blue-800 font-medium mb-2">🔗 Reset Link (Development Mode):</p>
+                    <a 
+                      href={message.split('Check the console for the link: ')[1]} 
+                      className="text-sm text-blue-600 underline break-all"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {message.split('Check the console for the link: ')[1]}
+                    </a>
+                    <p className="text-xs text-blue-600 mt-2">Click the link above to reset your password</p>
+                  </div>
+                )}
               </div>
             )}
 
