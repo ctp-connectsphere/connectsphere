@@ -1,6 +1,10 @@
 'use client'
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Logo } from '@/components/ui/logo';
 
 interface LoginErrors {
   email?: string;
@@ -99,11 +103,15 @@ export default function LoginPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">Sign in to your account</h1>
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-secondary py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8">
+              <Card variant="elevated" className="p-8">
+                <div className="text-center mb-8">
+                  <Logo size="large" variant="full" className="justify-center mb-6" />
+                  <h1 className="text-title-1 text-primary mb-2">Welcome back</h1>
+                  <p className="text-body text-tertiary">Sign in to your ConnectSphere account</p>
+                </div>
           <form onSubmit={onSubmit} className="space-y-4">
             {/* Email Field */}
             <div>
@@ -112,11 +120,11 @@ export default function LoginPage() {
                 placeholder="Email"
                 type="email"
                 value={email}
-                onChange={e => handleInputChange('email', e.target.value)}
+                onChange={e => handleInputChange('email', e.target.value.toLocaleLowerCase())}
                 required
               />
               {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                <p className="text-sm text-red-600 mt-1">{errors.email.toLowerCase()}</p>
               )}
             </div>
 
@@ -127,11 +135,11 @@ export default function LoginPage() {
                 placeholder="Password"
                 type="password"
                 value={password}
-                onChange={e => handleInputChange('password', e.target.value)}
+                onChange={e => handleInputChange('password', e.target.value.toLocaleLowerCase())}
                 required
               />
               {errors.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                <p className="text-sm text-red-600 mt-1">{errors.password.toLowerCase()}</p>
               )}
             </div>
 
@@ -154,7 +162,7 @@ export default function LoginPage() {
             {/* General Error */}
             {errors.general && (
               <div className="bg-red-50 border border-red-200 rounded p-3">
-                <p className="text-sm text-red-600">{errors.general}</p>
+                <p className="text-sm text-red-600">{errors.general.toLowerCase()}</p>
               </div>
             )}
 

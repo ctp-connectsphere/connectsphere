@@ -1,5 +1,4 @@
 import { auth } from '@/lib/auth/config';
-import { SessionManager } from '@/lib/auth/session-manager';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -79,7 +78,7 @@ async function isAuthenticated(request: NextRequest): Promise<boolean> {
   try {
     const session = await auth();
     console.log('🔍 Middleware auth check:', { hasSession: !!session, user: session?.user?.email });
-    
+
     if (!session?.user) {
       console.log('❌ No session or user found');
       return false;
