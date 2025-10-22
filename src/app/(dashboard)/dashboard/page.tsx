@@ -1,8 +1,8 @@
+import { Sidebar, navigationItems } from '@/components/navigation/sidebar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { auth } from '@/lib/auth/config';
 import { redirect } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Sidebar, navigationItems } from '@/components/navigation/sidebar';
 
 export default async function DashboardPage() {
   const session = await auth()
