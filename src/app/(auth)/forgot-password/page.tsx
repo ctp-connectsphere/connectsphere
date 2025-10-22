@@ -45,6 +45,11 @@ export default function ForgotPasswordPage() {
 
           <p className="text-sm text-gray-600 text-center mb-6">
             Enter your university email address and we'll send you a link to reset your password.
+            {process.env.NODE_ENV === 'development' && (
+              <span className="block mt-2 text-xs text-blue-600">
+                📝 Development mode: Reset link will be shown on this page instead of sending email
+              </span>
+            )}
           </p>
 
           <form onSubmit={onSubmit} className="space-y-4">

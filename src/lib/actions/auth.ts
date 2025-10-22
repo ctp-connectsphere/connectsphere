@@ -185,15 +185,16 @@ export async function requestPasswordReset(formData: FormData) {
         const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`
         const userName = `${user.firstName} ${user.lastName}`
 
-        // In development, log the reset link and show it to user
+        // In development, show the reset link in UI instead of sending email
         if (process.env.NODE_ENV === 'development') {
             console.log(`🔗 Password reset link for ${email}: ${resetLink}`)
             console.log(`📧 User: ${userName}`)
             console.log(`⏰ Expires at: ${expiresAt.toISOString()}`)
-
+            console.log(`📝 Note: In development mode, reset link is shown in UI instead of sending email`)
+            
             return {
                 success: true,
-                message: `Password reset link generated! Check the console for the link: ${resetLink}`,
+                message: `Password reset link generated! In development mode, the link is shown below instead of sending an email: ${resetLink}`,
                 resetLink // Show link in development
             }
         }
