@@ -1,6 +1,4 @@
 import { prisma } from '@/lib/db/edge-connection'
-import { SessionService } from '@/lib/redis/session'
-import { PrismaAdapter } from '@auth/prisma-adapter'
 import bcrypt from 'bcryptjs'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
@@ -14,6 +12,8 @@ const credentialsSchema = z.object({
 export const authOptions = {
     // Temporarily disable adapter to fix session issues
     // adapter: PrismaAdapter(prisma),
+    secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === 'development',
     providers: [
         Credentials({
             name: 'Email and Password',
@@ -80,11 +80,8 @@ export const authOptions = {
         error: '/auth/error'
     },
     events: {
-        async signOut(message: any) {
-            // Clean up Redis session on sign out
-            if (message.token?.sub) {
-                await SessionService.deleteSession(message.token.sub)
-            }
+        async signOut() {
+            // Session cleanup can be added here if needed
         }
     }
 }
