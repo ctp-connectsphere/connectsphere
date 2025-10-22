@@ -87,13 +87,15 @@ async function gracefulShutdown() {
   }
 }
 
-// Handle different exit signals
-process.on('SIGINT', gracefulShutdown)
-process.on('SIGTERM', gracefulShutdown)
-process.on('beforeExit', gracefulShutdown)
+// Handle different exit signals (only in Node.js runtime, not Edge Runtime)
+if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production' && typeof window === 'undefined') {
+  process.on('SIGINT', gracefulShutdown)
+  process.on('SIGTERM', gracefulShutdown)
+  process.on('beforeExit', gracefulShutdown)
+}
 
 // Prevent multiple instances in development
-if (isDevelopment) {
+if (isDevelopment && typeof global !== 'undefined') {
   globalForPrisma.prisma = prisma
 }
 
