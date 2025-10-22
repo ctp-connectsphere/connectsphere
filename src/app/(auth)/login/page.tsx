@@ -11,6 +11,7 @@ interface LoginErrors {
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [errors, setErrors] = useState<LoginErrors>({})
   const [loading, setLoading] = useState(false)
 
@@ -25,6 +26,16 @@ export default function LoginPage() {
     // Email format validation
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Please enter a valid email address'
+    }
+
+    // University email validation
+    if (email && !email.endsWith('.edu')) {
+      newErrors.email = 'Please use your university email address (.edu)'
+    }
+
+    // Password length validation
+    if (password && password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -114,6 +125,22 @@ export default function LoginPage() {
               {errors.password && (
                 <p className="text-sm text-red-600 mt-1">{errors.password}</p>
               )}
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-600">Remember me</span>
+              </label>
+              <a href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+                Forgot password?
+              </a>
             </div>
 
             {/* General Error */}

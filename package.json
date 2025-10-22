@@ -40,6 +40,7 @@
     "debug:all": "npm run debug:db && npm run debug:redis",
     "redis:browse": "tsx scripts/browse-redis.ts",
     "redis:test": "tsx scripts/test-redis-data.ts",
+    "cleanup:sessions": "tsx scripts/cleanup-sessions.ts",
     "test": "echo \"No tests specified\" && exit 0",
     "test:watch": "echo \"No tests specified\" && exit 0",
     "test:coverage": "echo \"No tests specified\" && exit 0",
