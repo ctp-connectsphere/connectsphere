@@ -22,21 +22,44 @@ export const authOptions = {
                 password: { label: 'Password', type: 'password' }
             },
             authorize: async (credentials) => {
+                console.log('🔐 NextAuth authorize called with:', { email: credentials?.email })
+                
                 const parsed = credentialsSchema.safeParse(credentials)
-                if (!parsed.success) return null
+                if (!parsed.success) {
+                    console.log('❌ Credentials validation failed:', parsed.error)
+                    return null
+                }
 
                 const { email, password } = parsed.data
+                console.log('🔍 Looking up user:', email)
+                
                 const user = await prisma.user.findUnique({ where: { email } })
-                if (!user || !user.isVerified) return null
+                if (!user) {
+                    console.log('❌ User not found:', email)
+                    return null
+                }
+                
+                if (!user.isVerified) {
+                    console.log('❌ User not verified:', email)
+                    return null
+                }
 
+                console.log('✅ User found and verified:', email)
+                console.log('🔐 Comparing password...')
+                
                 const ok = await bcrypt.compare(password, user.passwordHash)
-                if (!ok) return null
+                if (!ok) {
+                    console.log('❌ Password comparison failed for:', email)
+                    return null
+                }
 
+                console.log('✅ Authentication successful for:', email)
                 return {
                     id: user.id,
                     email: user.email,
                     name: `${user.firstName} ${user.lastName}`,
-                    image: user.profileImageUrl ?? undefined
+                    image: user.profileImageUrl ?? undefined,
+                    role: 'student'
                 }
             }
         })
@@ -47,7 +70,10 @@ export const authOptions = {
     },
     callbacks: {
         async jwt({ token, user }: any) {
+            console.log('🔄 JWT callback called with:', { user: user?.email, token: token?.email })
+            
             if (user?.id) {
+                console.log('✅ Setting token from user:', user.email)
                 token.id = user.id
                 token.email = user.email
                 token.name = user.name
@@ -55,9 +81,12 @@ export const authOptions = {
                 token.role = user.role
             }
 
+            console.log('🔄 JWT token updated:', { id: token.id, email: token.email })
             return token
         },
         async session({ session, token }: any) {
+            console.log('📋 Session callback called with:', { token: token?.email, session: session?.user?.email })
+            
             if (token) {
                 session.user = {
                     ...session.user,
@@ -67,6 +96,7 @@ export const authOptions = {
                     image: token.image as string,
                     role: token.role as string
                 }
+                console.log('✅ Session updated:', session.user)
             }
 
             return session
