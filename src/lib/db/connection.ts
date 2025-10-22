@@ -91,10 +91,10 @@ async function gracefulShutdown() {
 
 // Handle different exit signals (only in Node.js runtime, not Edge Runtime)
 // Check if we're in a Node.js environment (not Edge Runtime)
-if (typeof process !== 'undefined' && 
-    process.env.NODE_ENV !== 'production' && 
-    typeof window === 'undefined' &&
-    typeof process.on === 'function') {
+if (typeof process !== 'undefined' &&
+  process.env.NODE_ENV !== 'production' &&
+  typeof window === 'undefined' &&
+  typeof process.on === 'function') {
   process.on('SIGINT', gracefulShutdown)
   process.on('SIGTERM', gracefulShutdown)
   process.on('beforeExit', gracefulShutdown)

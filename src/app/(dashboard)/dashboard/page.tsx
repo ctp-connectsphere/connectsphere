@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth/config'
-import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth/config';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
   const session = await auth()
-  
+
   if (!session) {
     redirect('/login')
   }
@@ -20,7 +20,7 @@ export default async function DashboardPage() {
               <p className="text-gray-600 mb-6">
                 You are successfully authenticated and logged in.
               </p>
-              
+
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                 <h2 className="text-lg font-semibold text-green-800 mb-2">
                   ✅ Authentication Status
@@ -36,7 +36,7 @@ export default async function DashboardPage() {
                   <p className="text-blue-700"><strong>Email:</strong> {session.user?.email}</p>
                   <p className="text-blue-700"><strong>Name:</strong> {session.user?.name}</p>
                 </div>
-                
+
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                   <h3 className="font-semibold text-purple-800 mb-2">Session Details</h3>
                   <p className="text-purple-700"><strong>User ID:</strong> {session.user?.id}</p>
@@ -45,7 +45,7 @@ export default async function DashboardPage() {
               </div>
 
               <div className="mt-8">
-                <a 
+                <a
                   href="/api/auth/signout"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
