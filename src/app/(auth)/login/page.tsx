@@ -182,7 +182,7 @@ export default function LoginPage() {
               </a>
             </p>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )
