@@ -190,7 +190,7 @@ export async function requestPasswordReset(formData: FormData) {
             console.log(`🔗 Password reset link for ${email}: ${resetLink}`)
             console.log(`📧 User: ${userName}`)
             console.log(`⏰ Expires at: ${expiresAt.toISOString()}`)
-            
+
             return {
                 success: true,
                 message: `Password reset link generated! Check the console for the link: ${resetLink}`,
