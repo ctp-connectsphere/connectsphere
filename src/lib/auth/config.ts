@@ -63,7 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     callbacks: {
         async jwt({ token, user }: any) {
             console.log('🔄 JWT callback:', { user: user?.email, token: token?.email, hasToken: !!token })
-            
+
             if (user) {
                 console.log('✅ Setting token from user:', user.email)
                 token.id = user.id
@@ -72,13 +72,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.image = user.image
                 token.role = user.role
             }
-            
+
             console.log('🔄 JWT token result:', { id: token.id, email: token.email })
             return token
         },
         async session({ session, token }: any) {
             console.log('📋 Session callback:', { token: token?.email, session: session?.user?.email })
-            
+
             if (token) {
                 session.user = {
                     ...session.user,
@@ -90,7 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
                 console.log('✅ Session updated:', session.user)
             }
-            
+
             return session
         }
     },

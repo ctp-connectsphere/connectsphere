@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed - December 22, 2024
+### Fixed - Oct. 22, 2025
 
 - **NextAuth.js v5 Beta Compatibility Issues**
   - Fixed `TypeError: Function.prototype.apply` error in authentication configuration
@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.3.0] - 2024-12-19
+## [0.3.0] - Oct. 19, 2025
 
 ### Added
 
@@ -138,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] - 2024-01-15
+## [0.1.0] - Sep. 25, 2025
 
 ### Added
 
@@ -185,7 +185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.0.1] - 2024-01-14
+## [0.0.1] - Sep. 20, 2025
 
 ### Added
 
@@ -210,8 +210,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date       | Description                                 |
 | ------- | ---------- | ------------------------------------------- |
-| 0.1.0   | 2025-10-10 | Initial documentation and project structure |
-| 0.0.1   | 2025-10-10 | Basic project setup                         |
+| 0.1.0   | 2025-09-25 | Initial documentation and project structure |
+| 0.0.1   | 2025-09-20 | Basic project setup                         |
 
 ---
 
