@@ -12,7 +12,8 @@ const credentialsSchema = z.object({
 })
 
 export const authOptions = {
-    adapter: PrismaAdapter(prisma),
+    // Temporarily disable adapter to fix session issues
+    // adapter: PrismaAdapter(prisma),
     providers: [
         Credentials({
             name: 'Email and Password',
@@ -45,29 +46,13 @@ export const authOptions = {
         maxAge: 30 * 24 * 60 * 60 // 30 days
     },
     callbacks: {
-        async jwt({ token, user, trigger }: any) {
+        async jwt({ token, user }: any) {
             if (user?.id) {
                 token.id = user.id
                 token.email = user.email
                 token.name = user.name
                 token.image = user.image
                 token.role = user.role
-            }
-
-            // Store session in Redis for additional security
-            if (token && trigger === 'signIn') {
-                await SessionService.createSession(
-                    token.sub || '',
-                    {
-                        user: {
-                            id: token.id,
-                            email: token.email,
-                            name: token.name,
-                            image: token.image,
-                            role: token.role
-                        }
-                    }
-                )
             }
 
             return token
@@ -86,11 +71,8 @@ export const authOptions = {
 
             return session
         },
-        async signOut({ token }: any) {
-            // Clean up Redis session on sign out
-            if (token?.sub) {
-                await SessionService.deleteSession(token.sub)
-            }
+        async signOut() {
+            // Session cleanup can be added here if needed
         }
     },
     pages: {

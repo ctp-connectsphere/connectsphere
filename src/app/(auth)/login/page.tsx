@@ -78,13 +78,21 @@ export default function LoginPage() {
         callbackUrl: '/dashboard'
       })
 
-      if ((res as any)?.error) {
+      console.log('SignIn response:', res) // Debug log
+
+      if (res?.error) {
+        console.error('SignIn error:', res.error) // Debug log
         setErrors({ general: 'Invalid email or password. Please try again.' })
       } else if (res?.ok) {
+        console.log('SignIn successful, redirecting...') // Debug log
         // Redirect manually on success
         window.location.href = '/dashboard'
+      } else {
+        console.log('SignIn unknown response:', res) // Debug log
+        setErrors({ general: 'An unexpected response. Please try again.' })
       }
     } catch (error) {
+      console.error('SignIn exception:', error) // Debug log
       setErrors({ general: 'An unexpected error occurred. Please try again.' })
     } finally {
       setLoading(false)
