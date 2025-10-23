@@ -191,7 +191,7 @@ export async function requestPasswordReset(formData: FormData) {
             console.log(`📧 User: ${userName}`)
             console.log(`⏰ Expires at: ${expiresAt.toISOString()}`)
             console.log(`📝 Note: In development mode, reset link is shown in UI instead of sending email`)
-            
+
             return {
                 success: true,
                 message: `Password reset link generated! In development mode, the link is shown below instead of sending an email: ${resetLink}`,
