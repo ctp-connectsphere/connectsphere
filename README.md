@@ -179,6 +179,36 @@ npx prisma db push
 npx prisma studio
 ```
 
+### 2.1 Neon PostgreSQL Setup
+
+Use Neon for PostgreSQL in development and production.
+
+1) Create/update your `.env` with the following:
+
+```bash
+# Connection via pooler (for app runtime)
+DATABASE_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spring-glade-ah133wuj-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# Direct connection (for Prisma migrations)
+DIRECT_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spring-glade-ah133wuj.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+```
+
+2) Apply the Prisma schema to Neon:
+
+```bash
+npx prisma db push
+```
+
+3) (Optional) Inspect data in Prisma Studio:
+
+```bash
+npx prisma studio
+```
+
+Troubleshooting:
+- If you see TLS/certificate errors, ensure `sslmode=require` is present in both URLs and retry locally (outside sandboxed environments).
+- If connections are slow via the pooler, add `&pgbouncer=true&connect_timeout=15` to `DATABASE_URL`.
+
 ### 3. Code Quality
 
 We use ESLint and Prettier for code quality and formatting:
