@@ -77,6 +77,7 @@ connectsphere/
 **Current Version:** 0.1.0 (Documentation Phase)
 
 ### ✅ Completed
+
 - [x] Project foundation and setup
 - [x] Complete technical documentation
 - [x] API specification and database schema
@@ -84,6 +85,7 @@ connectsphere/
 - [x] Development guidelines and standards
 
 ### 🚧 In Progress
+
 - [ ] Next.js application with App Router
 - [ ] Server Components and Server Actions implementation
 - [ ] Authentication system (NextAuth.js v5)
@@ -94,6 +96,7 @@ connectsphere/
 ### 📋 Planned Features
 
 #### Phase 1 - MVP (Q4 2025)
+
 - User authentication and registration
 - User profile creation and management
 - Course enrollment system
@@ -103,6 +106,7 @@ connectsphere/
 - Responsive web interface
 
 #### Phase 2 - Enhanced Features (Q1 2026)
+
 - Improved matching algorithm
 - Advanced filtering options
 - Study session scheduling
@@ -110,6 +114,7 @@ connectsphere/
 - Mobile optimization
 
 #### Phase 3 - Group Features (Q2 2026)
+
 - Study group formation
 - Group chat functionality
 - Group study scheduling
@@ -118,6 +123,7 @@ connectsphere/
 ## 🛠️ Technology Stack
 
 ### Full-Stack Framework
+
 - **Next.js 14+** - React framework with App Router, Server Components, and Server Actions
 - **React 19+** - UI library (via Next.js)
 - **TypeScript 5.8.3** - Type safety across frontend and backend
@@ -125,18 +131,21 @@ connectsphere/
 - **Shadcn/ui** - High-quality component library
 
 ### Authentication & Security
+
 - **NextAuth.js v5 (Auth.js)** - Complete authentication solution
 - **JWT** - Session tokens (via NextAuth.js)
 - **Middleware** - Route protection and authentication checks
 - **Upstash Rate Limit** - API rate limiting
 
 ### Database & Caching
+
 - **PostgreSQL 15+** - Primary relational database
 - **Prisma** - Type-safe database ORM with connection pooling
 - **Upstash Redis** - Serverless Redis for caching and sessions
 - **Neon or Supabase** - Serverless PostgreSQL hosting
 
 ### Infrastructure
+
 - **Vercel** - Complete hosting (frontend + backend + edge functions)
 - **Upstash** - Redis and rate limiting
 - **Neon/Supabase** - PostgreSQL database
@@ -183,7 +192,7 @@ npx prisma studio
 
 Use Neon for PostgreSQL in development and production.
 
-1) Create/update your `.env` with the following:
+1. Create/update your `.env` with the following:
 
 ```bash
 # Connection via pooler (for app runtime)
@@ -193,21 +202,32 @@ DATABASE_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spring-glade-ah133wu
 DIRECT_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spring-glade-ah133wuj.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
-2) Apply the Prisma schema to Neon:
+2. Apply the Prisma schema to Neon:
 
 ```bash
 npx prisma db push
 ```
 
-3) (Optional) Inspect data in Prisma Studio:
+3. (Optional) Inspect data in Prisma Studio:
 
 ```bash
 npx prisma studio
 ```
 
 Troubleshooting:
+
 - If you see TLS/certificate errors, ensure `sslmode=require` is present in both URLs and retry locally (outside sandboxed environments).
 - If connections are slow via the pooler, add `&pgbouncer=true&connect_timeout=15` to `DATABASE_URL`.
+
+### 2.2 DB Connectivity Check (Script)
+
+Run a quick connectivity test against `DATABASE_URL`:
+
+```bash
+node scripts/neon-db-check.js
+```
+
+You should see output confirming connectivity, current database, and a list of tables.
 
 ### 3. Code Quality
 
@@ -265,8 +285,8 @@ See our [Changelog](./CHANGELOG.md) for detailed release history and planned fea
 
 ## 🐛 Bug Reports & Feature Requests
 
-
 Still config....
+
 <!-- - **Bug Reports:** [Create an issue](https://github.com/your-org/connectsphere/issues/new?template=bug_report.md)
 - **Feature Requests:** [Create an issue](https://github.com/your-org/connectsphere/issues/new?template=feature_request.md)
 - **Security Issues:** Email [security@campusconnect.app](mailto:security@campusconnect.app) -->
@@ -292,4 +312,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Need Help?** Check our [Technical Documentation](./TECHNICAL_DOCUMENTATION.md) or [open an issue](https://github.com/your-org/connectsphere/issues).
 
-*Last Updated: Oct. 2025*
+_Last Updated: Oct. 2025_
