@@ -224,7 +224,7 @@ Troubleshooting:
 Run a quick connectivity test against `DATABASE_URL`:
 
 ```bash
-node scripts/neon-db-check.js
+node scripts/neon-db-check.cjs
 ```
 
 You should see output confirming connectivity, current database, and a list of tables.
