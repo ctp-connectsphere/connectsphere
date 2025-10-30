@@ -170,18 +170,6 @@ cp .env.example .env.local
 # Start development server
 npm run dev
 
-# Run tests
-npm run test
-
-# Run linting
-npm run lint
-
-# Build for production
-npm run build
-
-# Start production server
-npm run start
-
 # Database commands
 npx prisma generate
 npx prisma db push
@@ -228,6 +216,36 @@ node scripts/neon-db-check.cjs
 ```
 
 You should see output confirming connectivity, current database, and a list of tables.
+
+### 2.3 Team member database access (Neon)
+
+Give teammates these steps to connect locally to the shared Neon database:
+
+1. Prereqs
+   - Node.js 20+ and npm installed
+   - Repo cloned and dependencies installed: `npm install`
+
+2. Environment
+   - Create `.env` with the following (get credentials from the team vault):
+     ```bash
+     # App/runtime (via pooler)
+     DATABASE_URL="postgresql://neondb_owner:REDACTED@ep-spring-glade-ah133wuj-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+     # Prisma migrations (direct host)
+     DIRECT_URL="postgresql://neondb_owner:REDACTED@ep-spring-glade-ah133wuj.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+     ```
+
+3. Generate Prisma client
+   - `npx prisma generate`
+
+4. (Optional) Verify connectivity
+   - `node scripts/neon-db-check.cjs`
+
+5. Run the app
+   - `npm run dev`
+
+Notes
+- Do not commit `.env`.
+- If connections are slow, add `&pgbouncer=true&connect_timeout=15` to `DATABASE_URL`.
 
 ### 3. Code Quality
 
