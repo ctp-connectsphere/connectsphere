@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - DB connectivity script
   - `scripts/neon-db-check.cjs` to verify connection and list public tables
   - README instructions to run the script locally
+- Email testing utilities
+  - Added multiple scripts to exercise password reset and email flows in dev/prod-like modes
+- UI design system
+  - Introduced Apple-inspired design system and foundational UI components
 
 ### Changed - Oct. 30, 2025
 
@@ -23,6 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added "Team member database access (Neon)" step-by-step guide
 - Updated environment guidance
   - Clarified using pooler for app runtime and direct host for Prisma
+
+### Fixed - Oct. 30, 2025 (additional)
+
+- Prisma schema
+  - Added unique constraint to `PasswordReset.email` to support upsert and tighten integrity
+- Auth UI fixes
+  - Corrected JSX structure issues in login page
+  - Moved `@import` to top of `globals.css` per CSS rules
 
 ### Fixed - Oct. 30, 2025
 
