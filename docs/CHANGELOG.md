@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Oct. 30, 2025
+
+- Neon PostgreSQL integration guidance
+  - Documented `DATABASE_URL` (pooler) and `DIRECT_URL` (direct) usage in README
+  - Added TLS notes and pgbouncer recommendations
+- DB connectivity script
+  - `scripts/neon-db-check.cjs` to verify connection and list public tables
+  - README instructions to run the script locally
+
+### Changed - Oct. 30, 2025
+
+- README streamlined
+  - Trimmed Development Commands to essential tasks (dev + Prisma commands)
+  - Added "Team member database access (Neon)" step-by-step guide
+- Updated environment guidance
+  - Clarified using pooler for app runtime and direct host for Prisma
+
+### Fixed - Oct. 30, 2025
+
+- Resolved ESM/CommonJS issue for the DB check script by switching to `.cjs`
+- Corrected environment variable handling with `dotenv/config` in scripts
+
 ### Fixed - Oct. 22, 2025
 
 - **NextAuth.js v5 Beta Compatibility Issues**
