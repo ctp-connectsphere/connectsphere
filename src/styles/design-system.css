@@ -332,6 +332,8 @@
   flex-direction: column; /* stack items vertically */
   box-sizing: border-box;
   overflow-y: auto;
+  position: sticky; /* stick in view and align with main scroll */
+  top: 0;
 }
 
 /* Ensure the user block sits flush to the bottom with comfortable padding */
