@@ -39,7 +39,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           // Temporarily allow unverified sign-in for demo if explicitly enabled
-          const allowUnverified = process.env.ALLOW_UNVERIFIED_SIGNIN === 'true';
+          const allowUnverified =
+            process.env.ALLOW_UNVERIFIED_SIGNIN === 'true';
           if (!user.isVerified && !allowUnverified) {
             return null;
           }
