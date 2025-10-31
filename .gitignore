@@ -197,3 +197,7 @@ secrets/
 # Project planning docs (keep local only)
 /PROJECT_PLAN.md
 /docs/PROJECT_PROGRESS.md
+
+# Local-only env files
+none_pre.env
+prisma/.env
