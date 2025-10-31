@@ -325,13 +325,20 @@
   background-color: var(--bg-card);
   border-right: 1px solid var(--color-gray-200);
   padding: var(--space-6);
-  padding-bottom: var(--space-2);
+  padding-bottom: 0; /* no extra space at the very bottom */
   height: 100vh; /* ensure full viewport height */
   width: 280px;
   display: flex; /* allow pushing user section to bottom */
   flex-direction: column; /* stack items vertically */
   box-sizing: border-box;
   overflow-y: auto;
+}
+
+/* Ensure the user block sits flush to the bottom with comfortable padding */
+.nav-sidebar .sidebar-user {
+  margin-top: auto;
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
 }
 
 .nav-item {
