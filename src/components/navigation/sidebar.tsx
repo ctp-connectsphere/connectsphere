@@ -21,7 +21,7 @@ export function Sidebar({ navItems, className = '' }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className={`nav-sidebar ${className}`}>
+    <div className={`nav-sidebar bg-white text-gray-900 border-r border-gray-200 ${className}`}>
       {/* Logo */}
       <div className="mb-8">
         <Logo size="medium" variant="full" />
