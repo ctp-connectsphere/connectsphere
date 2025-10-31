@@ -35,7 +35,6 @@ connectsphere/
 ├── docs/                          # Technical documentation
 │   ├── API_REFERENCE.md          # Complete API documentation
 │   ├── DATABASE_SCHEMA.md        # Database design and schema
-│   ├── TESTING_GUIDE.md          # Testing strategies and examples
 │   ├── DEPLOYMENT_GUIDE.md       # Deployment and CI/CD guide
 │   └── CONTRIBUTING.md           # Contribution guidelines
 ├── app/                          # Next.js App Router
@@ -63,8 +62,9 @@ connectsphere/
 - **[Architecture Decisions](./docs/ARCHITECTURE_DECISIONS.md)** - Key architectural decisions and rationale
 - **[API Reference](./docs/API_REFERENCE.md)** - Detailed Server Actions and API documentation
 - **[Database Schema](./docs/DATABASE_SCHEMA.md)** - Database design with performance optimizations
-- **[Testing Guide](./docs/TESTING_GUIDE.md)** - Testing strategies and examples
+- **[Testing Guide](./docs/TESTING.md)** - Complete testing documentation (Vitest + Scripts)
 - **[Deployment Guide](./docs/DEPLOYMENT_GUIDE.md)** - Infrastructure and deployment procedures
+- **[Email Domain Setup](./docs/EMAIL_DOMAIN_SETUP.md)** - Domain purchase and Resend email configuration
 
 ### For Contributors
 
@@ -184,10 +184,10 @@ Use Neon for PostgreSQL in development and production.
 
 ```bash
 # Connection via pooler (for app runtime)
-DATABASE_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spring-glade-ah133wuj-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DATABASE_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spr133wuj-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 # Direct connection (for Prisma migrations)
-DIRECT_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spring-glade-ah133wuj.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://neondb_owner:npg_MyIHN0h2CnFP@ep-spriuj.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
 2. Apply the Prisma schema to Neon:
@@ -244,6 +244,7 @@ Give teammates these steps to connect locally to the shared Neon database:
    - `npm run dev`
 
 Notes
+
 - Do not commit `.env`.
 - If connections are slow, add `&pgbouncer=true&connect_timeout=15` to `DATABASE_URL`.
 

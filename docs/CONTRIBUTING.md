@@ -18,6 +18,7 @@
 Thank you for your interest in contributing to Campus Connect! This guide will help you get started with contributing to our project. Whether you're fixing a bug, adding a feature, or improving documentation, your contributions are valuable to our community.
 
 **Before you start contributing, please read our:**
+
 - [Technical Documentation](../TECHNICAL_DOCUMENTATION.md) - Understanding the project architecture
 - [API Reference](./API_REFERENCE.md) - Backend API documentation
 - [Database Schema](./DATABASE_SCHEMA.md) - Database design and structure
@@ -126,6 +127,7 @@ gitgraph
 ```
 
 **Branch Types:**
+
 - `main` - Production-ready code
 - `develop` - Integration branch for features
 - `feature/description` - New features
@@ -167,6 +169,7 @@ git commit -m "refactor(database): optimize user query performance"
 ```
 
 **Commit Types:**
+
 - `feat`: New features
 - `fix`: Bug fixes
 - `docs`: Documentation changes
@@ -195,31 +198,33 @@ git commit -m "refactor(database): optimize user query performance"
 ### TypeScript Standards
 
 **File Naming:**
+
 ```typescript
 // kebab-case for files
-user-profile.tsx
-auth-service.ts
-matching-algorithm.ts
+user - profile.tsx;
+auth - service.ts;
+matching - algorithm.ts;
 
 // PascalCase for components
-UserProfile.tsx
-AuthService.ts
-MatchingAlgorithm.ts
+UserProfile.tsx;
+AuthService.ts;
+MatchingAlgorithm.ts;
 ```
 
 **Function and Variable Naming:**
+
 ```typescript
 // camelCase for functions and variables
 const getUserProfile = async (userId: string) => {
-  const userProfile = await fetchUserData(userId)
-  return userProfile
-}
+  const userProfile = await fetchUserData(userId);
+  return userProfile;
+};
 
 // PascalCase for classes and interfaces
 interface UserProfile {
-  id: string
-  firstName: string
-  lastName: string
+  id: string;
+  firstName: string;
+  lastName: string;
 }
 
 class AuthService {
@@ -229,34 +234,36 @@ class AuthService {
 }
 
 // UPPER_SNAKE_CASE for constants
-const API_BASE_URL = 'https://api.campusconnect.app'
-const MAX_RETRY_ATTEMPTS = 3
+const API_BASE_URL = 'https://api.campusconnect.app';
+const MAX_RETRY_ATTEMPTS = 3;
 ```
 
 **Type Definitions:**
+
 ```typescript
 // Prefer interfaces for object shapes
 interface User {
-  id: string
-  email: string
-  profile: UserProfile
+  id: string;
+  email: string;
+  profile: UserProfile;
 }
 
 // Use type aliases for unions and primitives
-type Status = 'pending' | 'accepted' | 'declined'
-type UserId = string
+type Status = 'pending' | 'accepted' | 'declined';
+type UserId = string;
 
 // Generic types for reusable components
 interface ApiResponse<T> {
-  success: boolean
-  data: T
-  message?: string
+  success: boolean;
+  data: T;
+  message?: string;
 }
 ```
 
 ### React Standards
 
 **Component Structure:**
+
 ```typescript
 // Component with proper TypeScript interfaces
 interface ButtonProps {
@@ -292,30 +299,32 @@ export default Button
 ```
 
 **Custom Hooks:**
+
 ```typescript
 // Custom hooks should start with 'use'
 const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Hook implementation
-  }, [])
+  }, []);
 
-  return { user, loading, login, logout }
-}
+  return { user, loading, login, logout };
+};
 
-export { useAuth }
+export { useAuth };
 ```
 
 ### Backend Standards
 
 **Controller Structure:**
+
 ```typescript
 // controllers/userController.ts
-import { Request, Response, NextFunction } from 'express'
-import { userService } from '../services/userService'
-import { ApiResponse } from '../types/ApiResponse'
+import { Request, Response, NextFunction } from 'express';
+import { userService } from '../services/userService';
+import { ApiResponse } from '../types/ApiResponse';
 
 export const getUserProfile = async (
   req: Request,
@@ -323,56 +332,58 @@ export const getUserProfile = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { userId } = req.params
-    const user = await userService.getUserProfile(userId)
-    
+    const { userId } = req.params;
+    const user = await userService.getUserProfile(userId);
+
     const response: ApiResponse<User> = {
       success: true,
       data: user,
-      message: 'User profile retrieved successfully'
-    }
-    
-    res.status(200).json(response)
+      message: 'User profile retrieved successfully',
+    };
+
+    res.status(200).json(response);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 ```
 
 **Service Layer:**
+
 ```typescript
 // services/userService.ts
-import prisma from '../config/database'
-import { User, CreateUserData } from '../types/User'
+import prisma from '../config/database';
+import { User, CreateUserData } from '../types/User';
 
 export class UserService {
   async getUserProfile(userId: string): Promise<User> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { profile: true }
-    })
+      include: { profile: true },
+    });
 
     if (!user) {
-      throw new Error('User not found')
+      throw new Error('User not found');
     }
 
-    return user
+    return user;
   }
 
   async createUser(userData: CreateUserData): Promise<User> {
     return prisma.user.create({
       data: userData,
-      include: { profile: true }
-    })
+      include: { profile: true },
+    });
   }
 }
 
-export const userService = new UserService()
+export const userService = new UserService();
 ```
 
 ### Testing Standards
 
 **Frontend Tests:**
+
 ```typescript
 // Button.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react'
@@ -388,7 +399,7 @@ describe('Button Component', () => {
   it('handles click events', () => {
     const handleClick = vi.fn()
     render(<Button onClick={handleClick}>Click me</Button>)
-    
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
@@ -396,14 +407,15 @@ describe('Button Component', () => {
 ```
 
 **Backend Tests:**
+
 ```typescript
 // userController.test.ts
-import request from 'supertest'
-import { app } from '../app'
-import { userService } from '../services/userService'
+import request from 'supertest';
+import { app } from '../app';
+import { userService } from '../services/userService';
 
-jest.mock('../services/userService')
-const mockUserService = jest.mocked(userService)
+jest.mock('../services/userService');
+const mockUserService = jest.mocked(userService);
 
 describe('User Controller', () => {
   describe('GET /api/v1/users/:userId/profile', () => {
@@ -412,20 +424,20 @@ describe('User Controller', () => {
         id: 'user_123',
         email: 'test@example.com',
         firstName: 'John',
-        lastName: 'Doe'
-      }
+        lastName: 'Doe',
+      };
 
-      mockUserService.getUserProfile.mockResolvedValue(mockUser)
+      mockUserService.getUserProfile.mockResolvedValue(mockUser);
 
       const response = await request(app)
         .get('/api/v1/users/user_123/profile')
-        .expect(200)
+        .expect(200);
 
-      expect(response.body.success).toBe(true)
-      expect(response.body.data).toEqual(mockUser)
-    })
-  })
-})
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual(mockUser);
+    });
+  });
+});
 ```
 
 ---
@@ -460,23 +472,28 @@ git push origin feature/your-feature-name
 
 ```markdown
 ## Description
+
 Brief description of what this PR does.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published
 
 ## Screenshots (if applicable)
+
 Add screenshots to help explain your changes.
 
 ## Checklist
+
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -489,6 +506,7 @@ Add screenshots to help explain your changes.
 ### Code Review Process
 
 **Review Checklist:**
+
 - [ ] **Functionality** - Does the code work as intended?
 - [ ] **Code Quality** - Is the code clean, readable, and maintainable?
 - [ ] **Performance** - Are there any performance concerns?
@@ -497,6 +515,7 @@ Add screenshots to help explain your changes.
 - [ ] **Documentation** - Is documentation updated appropriately?
 
 **Review Guidelines:**
+
 - Be constructive and respectful
 - Focus on the code, not the person
 - Explain your reasoning for suggestions
@@ -504,6 +523,7 @@ Add screenshots to help explain your changes.
 - Acknowledge good practices and improvements
 
 **Response to Reviews:**
+
 - Address all feedback promptly
 - Ask for clarification if needed
 - Make requested changes in new commits
@@ -516,47 +536,61 @@ Add screenshots to help explain your changes.
 ### Creating Issues
 
 **Bug Reports:**
+
 ```markdown
 ## Bug Description
+
 A clear and concise description of what the bug is.
 
 ## To Reproduce
+
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
 ## Expected Behavior
+
 A clear and concise description of what you expected to happen.
 
 ## Screenshots
+
 If applicable, add screenshots to help explain your problem.
 
 ## Environment
+
 - OS: [e.g. macOS, Windows, Linux]
 - Browser: [e.g. Chrome, Safari, Firefox]
 - Version: [e.g. 1.0.0]
 
 ## Additional Context
+
 Add any other context about the problem here.
 ```
 
 **Feature Requests:**
+
 ```markdown
 ## Feature Description
+
 A clear and concise description of what you want to happen.
 
 ## Problem Statement
+
 Is your feature request related to a problem? Please describe.
 
 ## Proposed Solution
+
 Describe the solution you'd like.
 
 ## Alternatives Considered
+
 Describe any alternative solutions or features you've considered.
 
 ## Additional Context
+
 Add any other context or screenshots about the feature request here.
 ```
 
@@ -584,18 +618,21 @@ Add any other context or screenshots about the feature request here.
 We are committed to providing a welcoming and inspiring community for all. Please read and follow our Code of Conduct:
 
 **Be Respectful:**
+
 - Use welcoming and inclusive language
 - Be respectful of differing viewpoints and experiences
 - Gracefully accept constructive criticism
 - Focus on what is best for the community
 
 **Be Professional:**
+
 - Show empathy towards other community members
 - Be collaborative
 - When we disagree, try to understand why
 - Focus on resolving issues and learning from mistakes
 
 **Be Inclusive:**
+
 - Welcome newcomers and help them get started
 - Be patient with those who are learning
 - Encourage questions and provide helpful answers
@@ -604,12 +641,14 @@ We are committed to providing a welcoming and inspiring community for all. Pleas
 ### Getting Help
 
 **Communication Channels:**
+
 - **GitHub Discussions** - General questions and discussions
 - **GitHub Issues** - Bug reports and feature requests
 - **Pull Request Comments** - Code review discussions
 - **Email** - Security issues (security@campusconnect.app)
 
 **Getting Help Guidelines:**
+
 - Search existing issues and discussions before asking
 - Provide clear, detailed information
 - Include relevant code snippets and error messages
@@ -646,20 +685,24 @@ All notable changes are documented in [CHANGELOG.md](../CHANGELOG.md):
 ## [1.1.0] - 2025-10-10
 
 ### Added
+
 - User profile editing functionality
 - Real-time notifications for connection requests
 - Dark mode theme support
 
 ### Changed
+
 - Improved matching algorithm accuracy
 - Updated UI/UX design for better accessibility
 
 ### Fixed
+
 - Fixed authentication token expiry issue
 - Resolved chat message ordering bug
 - Fixed mobile responsiveness issues
 
 ### Security
+
 - Updated dependencies to address vulnerabilities
 - Enhanced input validation for user data
 ```
@@ -675,6 +718,7 @@ We appreciate all contributions to Campus Connect! Contributors will be recogniz
 - **GitHub Contributors** - Automatic recognition through GitHub
 
 **Types of Contributions:**
+
 - Code contributions
 - Documentation improvements
 - Bug reports and testing
@@ -696,5 +740,5 @@ Thank you for contributing to Campus Connect! 🚀
 
 ---
 
-*Last Updated: Oct. 2025*  
-*Contributing Guide Version: 1.0.0*
+_Last Updated: Oct. 2025_  
+_Contributing Guide Version: 1.0.0_

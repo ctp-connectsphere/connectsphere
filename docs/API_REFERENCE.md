@@ -35,16 +35,19 @@ Campus Connect uses Next.js 14+ App Router architecture with Server Components, 
 ## Next.js Architecture
 
 ### Route Handlers (`app/api/*/route.ts`)
+
 - RESTful API endpoints for external integrations
 - Webhook handlers for third-party services
 - File upload/download endpoints
 
 ### Server Actions (`lib/actions/*.ts`)
+
 - Type-safe server mutations
 - Form submissions and data updates
 - Database operations with automatic revalidation
 
 ### Server Components
+
 - Direct database access without API calls
 - Server-side rendering with automatic caching
 - SEO-optimized content delivery
@@ -58,31 +61,33 @@ Campus Connect uses NextAuth.js v5 for authentication with JWT sessions stored i
 ### Session Access
 
 **Server Components:**
+
 ```typescript
 import { auth } from '@/lib/auth'
 
 export default async function ProtectedPage() {
   const session = await auth()
-  
+
   if (!session) {
     redirect('/login')
   }
-  
+
   return <div>Welcome, {session.user.email}!</div>
 }
 ```
 
 **Client Components:**
+
 ```typescript
 'use client'
 import { useSession } from 'next-auth/react'
 
 export default function ClientComponent() {
   const { data: session, status } = useSession()
-  
+
   if (status === 'loading') return <div>Loading...</div>
   if (status === 'unauthenticated') return <div>Please sign in</div>
-  
+
   return <div>Hello, {session?.user?.email}!</div>
 }
 ```
@@ -115,23 +120,23 @@ Server Actions are the primary way to handle mutations in Next.js App Router. Th
 
 ```typescript
 // lib/actions/auth.ts
-'use server'
+'use server';
 
-import { auth, signIn, signOut } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { z } from 'zod'
-import { redirect } from 'next/navigation'
-import { Resend } from 'resend'
+import { auth, signIn, signOut } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { z } from 'zod';
+import { redirect } from 'next/navigation';
+import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  university: z.string().min(1, 'University is required')
-})
+  university: z.string().min(1, 'University is required'),
+});
 
 export async function registerUser(formData: FormData) {
   try {
@@ -140,20 +145,20 @@ export async function registerUser(formData: FormData) {
       password: formData.get('password'),
       firstName: formData.get('firstName'),
       lastName: formData.get('lastName'),
-      university: formData.get('university')
-    })
+      university: formData.get('university'),
+    });
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    })
+      where: { email: validatedData.email },
+    });
 
     if (existingUser) {
-      throw new Error('User already exists with this email')
+      throw new Error('User already exists with this email');
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(validatedData.password, 12)
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
     // Create user
     const user = await prisma.user.create({
@@ -163,9 +168,9 @@ export async function registerUser(formData: FormData) {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
         university: validatedData.university,
-        isVerified: false
-      }
-    })
+        isVerified: false,
+      },
+    });
 
     // Send verification email
     await resend.emails.send({
@@ -178,37 +183,40 @@ export async function registerUser(formData: FormData) {
         <a href="${process.env.NEXTAUTH_URL}/api/auth/verify?token=${user.id}">
           Verify Account
         </a>
-      `
-    })
+      `,
+    });
 
-    return { success: true, message: 'Registration successful. Please check your email.' }
+    return {
+      success: true,
+      message: 'Registration successful. Please check your email.',
+    };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, errors: error.flatten().fieldErrors }
+      return { success: false, errors: error.flatten().fieldErrors };
     }
-    return { success: false, message: error.message }
+    return { success: false, message: error.message };
   }
 }
 
 export async function loginUser(formData: FormData) {
   try {
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
     await signIn('credentials', {
       email,
       password,
-      redirect: false
-    })
+      redirect: false,
+    });
 
-    redirect('/dashboard')
+    redirect('/dashboard');
   } catch (error) {
-    return { success: false, message: 'Invalid credentials' }
+    return { success: false, message: 'Invalid credentials' };
   }
 }
 
 export async function logoutUser() {
-  await signOut({ redirectTo: '/' })
+  await signOut({ redirectTo: '/' });
 }
 ```
 
@@ -216,30 +224,32 @@ export async function logoutUser() {
 
 ```typescript
 // lib/actions/user.ts
-'use server'
+'use server';
 
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import { uploadToCloudinary } from '@/lib/cloudinary'
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
 const updateProfileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
-  preferredLocation: z.enum(['library', 'cafe', 'home', 'study_room', 'any']).optional(),
+  preferredLocation: z
+    .enum(['library', 'cafe', 'home', 'study_room', 'any'])
+    .optional(),
   studyStyle: z.enum(['collaborative', 'quiet', 'mixed']).optional(),
-  studyPace: z.enum(['slow', 'moderate', 'fast']).optional()
-})
+  studyPace: z.enum(['slow', 'moderate', 'fast']).optional(),
+});
 
 export async function updateProfile(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
-  
+
   try {
     const validatedData = updateProfileSchema.parse({
       firstName: formData.get('firstName'),
@@ -247,18 +257,18 @@ export async function updateProfile(formData: FormData) {
       bio: formData.get('bio'),
       preferredLocation: formData.get('preferredLocation'),
       studyStyle: formData.get('studyStyle'),
-      studyPace: formData.get('studyPace')
-    })
+      studyPace: formData.get('studyPace'),
+    });
 
     // Update user profile
     const user = await prisma.user.update({
       where: { id: session.user.id },
       data: {
         firstName: validatedData.firstName,
-        lastName: validatedData.lastName
+        lastName: validatedData.lastName,
       },
-      include: { profile: true }
-    })
+      include: { profile: true },
+    });
 
     // Update or create user profile
     if (user.profile) {
@@ -268,9 +278,9 @@ export async function updateProfile(formData: FormData) {
           bio: validatedData.bio,
           preferredLocation: validatedData.preferredLocation,
           studyStyle: validatedData.studyStyle,
-          studyPace: validatedData.studyPace
-        }
-      })
+          studyPace: validatedData.studyPace,
+        },
+      });
     } else {
       await prisma.userProfile.create({
         data: {
@@ -278,55 +288,55 @@ export async function updateProfile(formData: FormData) {
           bio: validatedData.bio,
           preferredLocation: validatedData.preferredLocation,
           studyStyle: validatedData.studyStyle,
-          studyPace: validatedData.studyPace
-        }
-      })
+          studyPace: validatedData.studyPace,
+        },
+      });
     }
-    
-    revalidatePath('/profile')
-    return { success: true, message: 'Profile updated successfully' }
+
+    revalidatePath('/profile');
+    return { success: true, message: 'Profile updated successfully' };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, errors: error.flatten().fieldErrors }
+      return { success: false, errors: error.flatten().fieldErrors };
     }
-    return { success: false, message: error.message }
+    return { success: false, message: error.message };
   }
 }
 
 export async function uploadProfileImage(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
-  const file = formData.get('image') as File
-  
+  const file = formData.get('image') as File;
+
   if (!file) {
-    return { success: false, message: 'No image provided' }
+    return { success: false, message: 'No image provided' };
   }
 
   try {
     // Upload to Cloudinary
-    const buffer = await file.arrayBuffer()
+    const buffer = await file.arrayBuffer();
     const result = await uploadToCloudinary(Buffer.from(buffer), {
       folder: 'profiles',
       public_id: session.user.id,
       transformation: [
-        { width: 400, height: 400, crop: 'fill', gravity: 'face' }
-      ]
-    })
+        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+      ],
+    });
 
     // Update user profile image URL
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { profileImageUrl: result.secure_url }
-    })
+      data: { profileImageUrl: result.secure_url },
+    });
 
-    revalidatePath('/profile')
-    return { success: true, imageUrl: result.secure_url }
+    revalidatePath('/profile');
+    return { success: true, imageUrl: result.secure_url };
   } catch (error) {
-    return { success: false, message: 'Failed to upload image' }
+    return { success: false, message: 'Failed to upload image' };
   }
 }
 ```
@@ -335,88 +345,88 @@ export async function uploadProfileImage(formData: FormData) {
 
 ```typescript
 // lib/actions/courses.ts
-'use server'
+'use server';
 
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 const enrollCourseSchema = z.object({
-  courseId: z.string().uuid('Invalid course ID')
-})
+  courseId: z.string().uuid('Invalid course ID'),
+});
 
 export async function enrollInCourse(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
   try {
     const { courseId } = enrollCourseSchema.parse({
-      courseId: formData.get('courseId')
-    })
+      courseId: formData.get('courseId'),
+    });
 
     // Check if already enrolled
     const existingEnrollment = await prisma.userCourse.findUnique({
       where: {
         userId_courseId: {
           userId: session.user.id,
-          courseId
-        }
-      }
-    })
+          courseId,
+        },
+      },
+    });
 
     if (existingEnrollment) {
-      return { success: false, message: 'Already enrolled in this course' }
+      return { success: false, message: 'Already enrolled in this course' };
     }
 
     // Enroll in course
     await prisma.userCourse.create({
       data: {
         userId: session.user.id,
-        courseId
-      }
-    })
+        courseId,
+      },
+    });
 
-    revalidatePath('/dashboard')
-    revalidatePath('/profile')
-    return { success: true, message: 'Successfully enrolled in course' }
+    revalidatePath('/dashboard');
+    revalidatePath('/profile');
+    return { success: true, message: 'Successfully enrolled in course' };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, errors: error.flatten().fieldErrors }
+      return { success: false, errors: error.flatten().fieldErrors };
     }
-    return { success: false, message: error.message }
+    return { success: false, message: error.message };
   }
 }
 
 export async function unenrollFromCourse(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
   try {
     const { courseId } = enrollCourseSchema.parse({
-      courseId: formData.get('courseId')
-    })
+      courseId: formData.get('courseId'),
+    });
 
     await prisma.userCourse.delete({
       where: {
         userId_courseId: {
           userId: session.user.id,
-          courseId
-        }
-      }
-    })
+          courseId,
+        },
+      },
+    });
 
-    revalidatePath('/dashboard')
-    revalidatePath('/profile')
-    return { success: true, message: 'Successfully unenrolled from course' }
+    revalidatePath('/dashboard');
+    revalidatePath('/profile');
+    return { success: true, message: 'Successfully unenrolled from course' };
   } catch (error) {
-    return { success: false, message: error.message }
+    return { success: false, message: error.message };
   }
 }
 ```
@@ -425,51 +435,51 @@ export async function unenrollFromCourse(formData: FormData) {
 
 ```typescript
 // lib/actions/availability.ts
-'use server'
+'use server';
 
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 const availabilitySchema = z.object({
   dayOfWeek: z.number().min(0).max(6),
   startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-})
+  endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+});
 
 export async function updateAvailability(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
   try {
-    const availabilityData = JSON.parse(formData.get('availability') as string)
-    
+    const availabilityData = JSON.parse(formData.get('availability') as string);
+
     // Clear existing availability
     await prisma.availability.deleteMany({
-      where: { userId: session.user.id }
-    })
+      where: { userId: session.user.id },
+    });
 
     // Add new availability slots
     const availabilitySlots = availabilityData.map((slot: any) => ({
       userId: session.user.id,
       dayOfWeek: slot.dayOfWeek,
       startTime: slot.startTime,
-      endTime: slot.endTime
-    }))
+      endTime: slot.endTime,
+    }));
 
     await prisma.availability.createMany({
-      data: availabilitySlots
-    })
+      data: availabilitySlots,
+    });
 
-    revalidatePath('/profile')
-    revalidatePath('/matches')
-    return { success: true, message: 'Availability updated successfully' }
+    revalidatePath('/profile');
+    revalidatePath('/matches');
+    return { success: true, message: 'Availability updated successfully' };
   } catch (error) {
-    return { success: false, message: 'Failed to update availability' }
+    return { success: false, message: 'Failed to update availability' };
   }
 }
 ```
@@ -478,43 +488,43 @@ export async function updateAvailability(formData: FormData) {
 
 ```typescript
 // lib/actions/matching.ts
-'use server'
+'use server';
 
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 const findMatchesSchema = z.object({
   courseId: z.string().uuid(),
-  limit: z.number().min(1).max(50).default(20)
-})
+  limit: z.number().min(1).max(50).default(20),
+});
 
 export async function findMatches(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
   try {
     const { courseId, limit } = findMatchesSchema.parse({
       courseId: formData.get('courseId'),
-      limit: Number(formData.get('limit')) || 20
-    })
+      limit: Number(formData.get('limit')) || 20,
+    });
 
     // Check if user is enrolled in the course
     const userEnrollment = await prisma.userCourse.findUnique({
       where: {
         userId_courseId: {
           userId: session.user.id,
-          courseId
-        }
-      }
-    })
+          courseId,
+        },
+      },
+    });
 
     if (!userEnrollment) {
-      return { success: false, message: 'You are not enrolled in this course' }
+      return { success: false, message: 'You are not enrolled in this course' };
     }
 
     // Find potential matches using raw SQL for performance
@@ -579,11 +589,11 @@ export async function findMatches(formData: FormData) {
         AND u.is_verified = TRUE
       ORDER BY availability_score DESC, u.created_at ASC
       LIMIT ${limit}
-    `
+    `;
 
-    return { success: true, matches }
+    return { success: true, matches };
   } catch (error) {
-    return { success: false, message: 'Failed to find matches' }
+    return { success: false, message: 'Failed to find matches' };
   }
 }
 ```
@@ -592,44 +602,44 @@ export async function findMatches(formData: FormData) {
 
 ```typescript
 // lib/actions/connections.ts
-'use server'
+'use server';
 
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 const connectionRequestSchema = z.object({
   targetUserId: z.string().uuid(),
   courseId: z.string().uuid(),
-  message: z.string().max(500, 'Message too long').optional()
-})
+  message: z.string().max(500, 'Message too long').optional(),
+});
 
 export async function sendConnectionRequest(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
   try {
     const { targetUserId, courseId, message } = connectionRequestSchema.parse({
       targetUserId: formData.get('targetUserId'),
       courseId: formData.get('courseId'),
-      message: formData.get('message')
-    })
+      message: formData.get('message'),
+    });
 
     // Check if connection already exists
     const existingConnection = await prisma.connection.findFirst({
       where: {
         requesterId: session.user.id,
         targetId: targetUserId,
-        courseId
-      }
-    })
+        courseId,
+      },
+    });
 
     if (existingConnection) {
-      return { success: false, message: 'Connection request already sent' }
+      return { success: false, message: 'Connection request already sent' };
     }
 
     // Create connection request
@@ -639,63 +649,64 @@ export async function sendConnectionRequest(formData: FormData) {
         targetId: targetUserId,
         courseId,
         status: 'pending',
-        initialMessage: message
-      }
-    })
+        initialMessage: message,
+      },
+    });
 
     // TODO: Send real-time notification via Pusher
 
-    revalidatePath('/matches')
-    revalidatePath('/connections')
-    return { success: true, message: 'Connection request sent successfully' }
+    revalidatePath('/matches');
+    revalidatePath('/connections');
+    return { success: true, message: 'Connection request sent successfully' };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, errors: error.flatten().fieldErrors }
+      return { success: false, errors: error.flatten().fieldErrors };
     }
-    return { success: false, message: error.message }
+    return { success: false, message: error.message };
   }
 }
 
 export async function respondToConnection(formData: FormData) {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session) {
-    throw new Error('Unauthorized')
+    throw new Error('Unauthorized');
   }
 
   try {
-    const connectionId = formData.get('connectionId') as string
-    const action = formData.get('action') as 'accept' | 'decline'
+    const connectionId = formData.get('connectionId') as string;
+    const action = formData.get('action') as 'accept' | 'decline';
 
     const connection = await prisma.connection.findFirst({
       where: {
         id: connectionId,
         targetId: session.user.id,
-        status: 'pending'
-      }
-    })
+        status: 'pending',
+      },
+    });
 
     if (!connection) {
-      return { success: false, message: 'Connection request not found' }
+      return { success: false, message: 'Connection request not found' };
     }
 
     await prisma.connection.update({
       where: { id: connectionId },
       data: {
         status: action,
-        respondedAt: new Date()
-      }
-    })
+        respondedAt: new Date(),
+      },
+    });
 
-    revalidatePath('/connections')
-    return { success: true, message: `Connection ${action}ed successfully` }
+    revalidatePath('/connections');
+    return { success: true, message: `Connection ${action}ed successfully` };
   } catch (error) {
-    return { success: false, message: 'Failed to respond to connection' }
+    return { success: false, message: 'Failed to respond to connection' };
   }
 }
 ```
 
 **Usage in Components:**
+
 ```typescript
 // components/ProfileForm.tsx
 import { updateProfile } from '@/lib/actions/user'
@@ -784,30 +795,30 @@ export default function ProfileForm() {
 
 ### HTTP Status Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | OK - Request successful |
-| 201 | Created - Resource created successfully |
-| 400 | Bad Request - Invalid request data |
-| 401 | Unauthorized - Invalid or missing token |
-| 403 | Forbidden - Insufficient permissions |
-| 404 | Not Found - Resource not found |
-| 409 | Conflict - Resource already exists |
-| 422 | Unprocessable Entity - Validation failed |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error - Server error |
+| Code | Description                              |
+| ---- | ---------------------------------------- |
+| 200  | OK - Request successful                  |
+| 201  | Created - Resource created successfully  |
+| 400  | Bad Request - Invalid request data       |
+| 401  | Unauthorized - Invalid or missing token  |
+| 403  | Forbidden - Insufficient permissions     |
+| 404  | Not Found - Resource not found           |
+| 409  | Conflict - Resource already exists       |
+| 422  | Unprocessable Entity - Validation failed |
+| 429  | Too Many Requests - Rate limit exceeded  |
+| 500  | Internal Server Error - Server error     |
 
 ### Error Codes
 
-| Code | Description |
-|------|-------------|
-| `VALIDATION_ERROR` | Input validation failed |
-| `AUTHENTICATION_ERROR` | Invalid credentials or token |
-| `AUTHORIZATION_ERROR` | Insufficient permissions |
-| `RESOURCE_NOT_FOUND` | Requested resource doesn't exist |
-| `RESOURCE_CONFLICT` | Resource already exists |
-| `RATE_LIMIT_EXCEEDED` | Too many requests |
-| `INTERNAL_ERROR` | Server internal error |
+| Code                   | Description                      |
+| ---------------------- | -------------------------------- |
+| `VALIDATION_ERROR`     | Input validation failed          |
+| `AUTHENTICATION_ERROR` | Invalid credentials or token     |
+| `AUTHORIZATION_ERROR`  | Insufficient permissions         |
+| `RESOURCE_NOT_FOUND`   | Requested resource doesn't exist |
+| `RESOURCE_CONFLICT`    | Resource already exists          |
+| `RATE_LIMIT_EXCEEDED`  | Too many requests                |
+| `INTERNAL_ERROR`       | Server internal error            |
 
 ---
 
@@ -816,13 +827,14 @@ export default function ProfileForm() {
 ### Authentication & Authorization
 
 **NextAuth.js Configuration:**
+
 ```typescript
 // lib/auth/config.ts
-import NextAuth from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { PrismaAdapter } from '@auth/prisma-adapter'
-import { prisma } from '@/lib/db'
-import bcrypt from 'bcryptjs'
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prisma } from '@/lib/db';
+import bcrypt from 'bcryptjs';
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
@@ -831,39 +843,39 @@ export const authConfig = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
-          include: { profile: true }
-        })
+          include: { profile: true },
+        });
 
         if (!user || !user.isVerified) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.passwordHash
-        )
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
           id: user.id,
           email: user.email,
           name: `${user.firstName} ${user.lastName}`,
-          image: user.profileImageUrl
-        }
-      }
-    })
+          image: user.profileImageUrl,
+        };
+      },
+    }),
   ],
   session: {
     strategy: 'jwt',
@@ -875,25 +887,25 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id
+        token.userId = user.id;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.userId as string
+        session.user.id = token.userId as string;
       }
-      return session
-    }
+      return session;
+    },
   },
   pages: {
     signIn: '/login',
     signUp: '/register',
-    error: '/auth/error'
-  }
-}
+    error: '/auth/error',
+  },
+};
 
-export const { auth, signIn, signOut } = NextAuth(authConfig)
+export const { auth, signIn, signOut } = NextAuth(authConfig);
 ```
 
 ### Rate Limiting
@@ -906,141 +918,156 @@ Rate limiting is implemented using Upstash Redis with Next.js middleware:
 - **API endpoints:** 500 requests per hour per user
 
 **Enhanced Middleware Implementation:**
+
 ```typescript
 // middleware.ts
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 // Different rate limits for different endpoints
 const authRatelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(10, '1 m'), // 10 requests per minute
-})
+});
 
 const apiRatelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(500, '1 h'), // 500 requests per hour
-})
+});
 
 const generalRatelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
-})
+});
 
 export async function middleware(request: NextRequest) {
-  const ip = request.ip ?? '127.0.0.1'
-  const { pathname } = request.nextUrl
+  const ip = request.ip ?? '127.0.0.1';
+  const { pathname } = request.nextUrl;
 
   // Determine which rate limit to apply
-  let ratelimit
-  let identifier = ip
+  let ratelimit;
+  let identifier = ip;
 
   if (pathname.startsWith('/api/auth/')) {
-    ratelimit = authRatelimit
+    ratelimit = authRatelimit;
   } else if (pathname.startsWith('/api/')) {
-    ratelimit = apiRatelimit
+    ratelimit = apiRatelimit;
     // For API routes, use user ID if available
-    const token = request.cookies.get('next-auth.session-token')?.value
+    const token = request.cookies.get('next-auth.session-token')?.value;
     if (token) {
       // In production, decode JWT to get user ID
       // For now, use IP as fallback
-      identifier = ip
+      identifier = ip;
     }
   } else {
-    ratelimit = generalRatelimit
+    ratelimit = generalRatelimit;
   }
 
-  const { success, limit, reset, remaining } = await ratelimit.limit(identifier)
+  const { success, limit, reset, remaining } =
+    await ratelimit.limit(identifier);
 
-  const response = NextResponse.next()
+  const response = NextResponse.next();
 
   // Add rate limit headers
-  response.headers.set('X-RateLimit-Limit', limit.toString())
-  response.headers.set('X-RateLimit-Remaining', remaining.toString())
-  response.headers.set('X-RateLimit-Reset', new Date(reset).toISOString())
+  response.headers.set('X-RateLimit-Limit', limit.toString());
+  response.headers.set('X-RateLimit-Remaining', remaining.toString());
+  response.headers.set('X-RateLimit-Reset', new Date(reset).toISOString());
 
   if (!success) {
-    return new Response('Too Many Requests', { 
+    return new Response('Too Many Requests', {
       status: 429,
       headers: {
         'X-RateLimit-Limit': limit.toString(),
         'X-RateLimit-Remaining': remaining.toString(),
         'X-RateLimit-Reset': new Date(reset).toISOString(),
-        'Retry-After': Math.round((reset - Date.now()) / 1000).toString()
-      }
-    })
+        'Retry-After': Math.round((reset - Date.now()) / 1000).toString(),
+      },
+    });
   }
 
   // Security headers
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=()'
+  );
+  response.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains'
+  );
 
-  return response
+  return response;
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ]
-}
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};
 ```
 
 ### Input Validation & Sanitization
 
 **Zod Schema Validation:**
+
 ```typescript
 // lib/validations/schemas.ts
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const userRegistrationSchema = z.object({
-  email: z.string()
+  email: z
+    .string()
     .email('Invalid email format')
     .regex(/^[^@]+@[^@]+\.[^@]+$/, 'Must be a valid email address')
     .refine(email => email.endsWith('.edu'), 'Must use university email'),
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
     .max(128, 'Password must be less than 128 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and number'),
-  firstName: z.string()
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'Password must contain uppercase, lowercase, and number'
+    ),
+  firstName: z
+    .string()
     .min(1, 'First name is required')
     .max(50, 'First name must be less than 50 characters')
     .regex(/^[a-zA-Z\s-']+$/, 'First name contains invalid characters'),
-  lastName: z.string()
+  lastName: z
+    .string()
     .min(1, 'Last name is required')
     .max(50, 'Last name must be less than 50 characters')
     .regex(/^[a-zA-Z\s-']+$/, 'Last name contains invalid characters'),
-  university: z.string()
+  university: z
+    .string()
     .min(1, 'University is required')
-    .max(100, 'University name must be less than 100 characters')
-})
+    .max(100, 'University name must be less than 100 characters'),
+});
 
 export const profileUpdateSchema = z.object({
-  firstName: z.string()
+  firstName: z
+    .string()
     .min(1, 'First name is required')
     .max(50, 'First name must be less than 50 characters')
     .regex(/^[a-zA-Z\s-']+$/, 'First name contains invalid characters'),
-  lastName: z.string()
+  lastName: z
+    .string()
     .min(1, 'Last name is required')
     .max(50, 'Last name must be less than 50 characters')
     .regex(/^[a-zA-Z\s-']+$/, 'Last name contains invalid characters'),
-  bio: z.string()
-    .max(500, 'Bio must be less than 500 characters')
+  bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
+  preferredLocation: z
+    .enum(['library', 'cafe', 'home', 'study_room', 'any'])
     .optional(),
-  preferredLocation: z.enum(['library', 'cafe', 'home', 'study_room', 'any'])
-    .optional(),
-  studyStyle: z.enum(['collaborative', 'quiet', 'mixed'])
-    .optional(),
-  studyPace: z.enum(['slow', 'moderate', 'fast'])
-    .optional()
-})
+  studyStyle: z.enum(['collaborative', 'quiet', 'mixed']).optional(),
+  studyPace: z.enum(['slow', 'moderate', 'fast']).optional(),
+});
 
 export const messageSchema = z.object({
-  content: z.string()
+  content: z
+    .string()
     .min(1, 'Message cannot be empty')
     .max(1000, 'Message must be less than 1000 characters')
     .refine(content => {
@@ -1048,92 +1075,100 @@ export const messageSchema = z.object({
       const dangerousPatterns = [
         /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
         /javascript:/gi,
-        /on\w+\s*=/gi
-      ]
-      return !dangerousPatterns.some(pattern => pattern.test(content))
-    }, 'Message contains potentially harmful content')
-})
+        /on\w+\s*=/gi,
+      ];
+      return !dangerousPatterns.some(pattern => pattern.test(content));
+    }, 'Message contains potentially harmful content'),
+});
 ```
 
 **Input Sanitization:**
+
 ```typescript
 // lib/utils/sanitize.ts
-import DOMPurify from 'isomorphic-dompurify'
+import DOMPurify from 'isomorphic-dompurify';
 
 export function sanitizeInput(input: string): string {
   // Remove HTML tags and dangerous content
   return DOMPurify.sanitize(input, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
-    KEEP_CONTENT: true
-  }).trim()
+    KEEP_CONTENT: true,
+  }).trim();
 }
 
 export function sanitizeHtmlInput(input: string): string {
   // Allow some safe HTML tags for rich content
   return DOMPurify.sanitize(input, {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br'],
-    ALLOWED_ATTR: []
-  })
+    ALLOWED_ATTR: [],
+  });
 }
 
-export function validateFileUpload(file: File): { valid: boolean; error?: string } {
-  const maxSize = 5 * 1024 * 1024 // 5MB
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
-  
+export function validateFileUpload(file: File): {
+  valid: boolean;
+  error?: string;
+} {
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
   if (file.size > maxSize) {
-    return { valid: false, error: 'File size must be less than 5MB' }
+    return { valid: false, error: 'File size must be less than 5MB' };
   }
-  
+
   if (!allowedTypes.includes(file.type)) {
-    return { valid: false, error: 'Only JPEG, PNG, and WebP images are allowed' }
+    return {
+      valid: false,
+      error: 'Only JPEG, PNG, and WebP images are allowed',
+    };
   }
-  
-  return { valid: true }
+
+  return { valid: true };
 }
 ```
 
 ### CSRF Protection
 
 **CSRF Token Implementation:**
+
 ```typescript
 // lib/csrf.ts
-import { randomBytes } from 'crypto'
+import { randomBytes } from 'crypto';
 
-const csrfTokens = new Map<string, { token: string; expires: number }>()
+const csrfTokens = new Map<string, { token: string; expires: number }>();
 
 export function generateCSRFToken(): string {
-  const token = randomBytes(32).toString('hex')
-  const expires = Date.now() + 3600000 // 1 hour
-  
-  csrfTokens.set(token, { token, expires })
-  
+  const token = randomBytes(32).toString('hex');
+  const expires = Date.now() + 3600000; // 1 hour
+
+  csrfTokens.set(token, { token, expires });
+
   // Clean up expired tokens
-  cleanupExpiredTokens()
-  
-  return token
+  cleanupExpiredTokens();
+
+  return token;
 }
 
 export function validateCSRFToken(token: string): boolean {
-  const tokenData = csrfTokens.get(token)
-  
+  const tokenData = csrfTokens.get(token);
+
   if (!tokenData) {
-    return false
+    return false;
   }
-  
+
   if (Date.now() > tokenData.expires) {
-    csrfTokens.delete(token)
-    return false
+    csrfTokens.delete(token);
+    return false;
   }
-  
-  return true
+
+  return true;
 }
 
 function cleanupExpiredTokens(): void {
-  const now = Date.now()
+  const now = Date.now();
   for (const [token, data] of csrfTokens.entries()) {
     if (now > data.expires) {
-      csrfTokens.delete(token)
+      csrfTokens.delete(token);
     }
   }
 }
@@ -1142,107 +1177,120 @@ function cleanupExpiredTokens(): void {
 ### Password Security
 
 **Password Hashing:**
+
 ```typescript
 // lib/auth/password.ts
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
 
 export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 12
-  return bcrypt.hash(password, saltRounds)
+  const saltRounds = 12;
+  return bcrypt.hash(password, saltRounds);
 }
 
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword)
+export async function verifyPassword(
+  password: string,
+  hashedPassword: string
+): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword);
 }
 
-export function validatePasswordStrength(password: string): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
-  
+export function validatePasswordStrength(password: string): {
+  valid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
   if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long')
+    errors.push('Password must be at least 8 characters long');
   }
-  
+
   if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter')
+    errors.push('Password must contain at least one uppercase letter');
   }
-  
+
   if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter')
+    errors.push('Password must contain at least one lowercase letter');
   }
-  
+
   if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number')
+    errors.push('Password must contain at least one number');
   }
-  
+
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-    errors.push('Password must contain at least one special character')
+    errors.push('Password must contain at least one special character');
   }
-  
+
   return {
     valid: errors.length === 0,
-    errors
-  }
+    errors,
+  };
 }
 ```
 
 ### Session Security
 
 **Session Configuration:**
+
 ```typescript
 // lib/auth/session.ts
-import { NextRequest } from 'next/server'
+import { NextRequest } from 'next/server';
 
 export function createSecureSession(userId: string, request: NextRequest) {
-  const userAgent = request.headers.get('user-agent') || 'unknown'
-  const ip = request.ip ?? '127.0.0.1'
-  
+  const userAgent = request.headers.get('user-agent') || 'unknown';
+  const ip = request.ip ?? '127.0.0.1';
+
   return {
     userId,
     userAgent: hashUserAgent(userAgent),
     ip: hashIP(ip),
     createdAt: new Date(),
-    lastActivity: new Date()
-  }
+    lastActivity: new Date(),
+  };
 }
 
 export function validateSession(session: any, request: NextRequest): boolean {
-  const userAgent = request.headers.get('user-agent') || 'unknown'
-  const ip = request.ip ?? '127.0.0.1'
-  
+  const userAgent = request.headers.get('user-agent') || 'unknown';
+  const ip = request.ip ?? '127.0.0.1';
+
   // Check if user agent matches
   if (session.userAgent !== hashUserAgent(userAgent)) {
-    return false
+    return false;
   }
-  
+
   // Check if IP matches (allow some IP changes for mobile users)
   if (session.ip !== hashIP(ip)) {
     // Log suspicious activity
-    console.warn('Session IP mismatch', { sessionId: session.id, expectedIP: session.ip, actualIP: hashIP(ip) })
+    console.warn('Session IP mismatch', {
+      sessionId: session.id,
+      expectedIP: session.ip,
+      actualIP: hashIP(ip),
+    });
   }
-  
+
   // Check if session is not too old
-  const maxAge = 30 * 24 * 60 * 60 * 1000 // 30 days
+  const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
   if (Date.now() - session.createdAt.getTime() > maxAge) {
-    return false
+    return false;
   }
-  
-  return true
+
+  return true;
 }
 
 function hashUserAgent(userAgent: string): string {
   // Simple hash for user agent (in production, use proper hashing)
-  return Buffer.from(userAgent).toString('base64').slice(0, 16)
+  return Buffer.from(userAgent).toString('base64').slice(0, 16);
 }
 
 function hashIP(ip: string): string {
   // Simple hash for IP (in production, use proper hashing)
-  return Buffer.from(ip).toString('base64').slice(0, 16)
+  return Buffer.from(ip).toString('base64').slice(0, 16);
 }
 ```
 
 ### API Security Headers
 
 **Security Headers Configuration:**
+
 ```typescript
 // next.config.js
 /** @type {import('next').NextConfig} */
@@ -1254,38 +1302,40 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'DENY'
+            value: 'DENY',
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: 'nosniff',
           },
           {
             key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin'
+            value: 'strict-origin-when-cross-origin',
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()'
+            value: 'camera=(), microphone=(), geolocation=()',
           },
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload'
+            value: 'max-age=31536000; includeSubDomains; preload',
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';"
-          }
-        ]
-      }
-    ]
-  }
-}
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';",
+          },
+        ],
+      },
+    ];
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 ```
 
 Rate limit headers are included in responses:
+
 ```
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -1315,6 +1365,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1346,6 +1397,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1427,6 +1479,7 @@ Authorization: Bearer <access-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1499,11 +1552,13 @@ Authorization: Bearer <access-token>
 ```
 
 **Query Parameters:**
+
 - `university` (optional): Filter by university
 - `semester` (optional): Filter by semester
 - `search` (optional): Search by course name or code
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1568,18 +1623,17 @@ Authorization: Bearer <access-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "data": {
     "availability": {
       "monday": [
-        {"start": "09:00", "end": "12:00"},
-        {"start": "14:00", "end": "17:00"}
+        { "start": "09:00", "end": "12:00" },
+        { "start": "14:00", "end": "17:00" }
       ],
-      "tuesday": [
-        {"start": "10:00", "end": "13:00"}
-      ],
+      "tuesday": [{ "start": "10:00", "end": "13:00" }]
       // ... other days
     },
     "timezone": "America/Los_Angeles",
@@ -1632,10 +1686,12 @@ Authorization: Bearer <access-token>
 ```
 
 **Query Parameters:**
+
 - `limit` (optional): Number of matches to return (default: 20, max: 50)
 - `minScore` (optional): Minimum compatibility score (default: 30)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1712,6 +1768,7 @@ Authorization: Bearer <access-token>
 ```
 
 **Query Parameters:**
+
 - `type` (optional): "sent" or "received" (default: "received")
 
 #### Accept Connection Request
@@ -1736,6 +1793,7 @@ Authorization: Bearer <access-token>
 ```
 
 **Query Parameters:**
+
 - `courseId` (optional): Filter by course
 - `status` (optional): "accepted", "pending" (default: "accepted")
 
@@ -1758,10 +1816,12 @@ Authorization: Bearer <access-token>
 ```
 
 **Query Parameters:**
+
 - `limit` (optional): Number of messages to return (default: 50, max: 100)
 - `before` (optional): Get messages before this message ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1972,7 +2032,11 @@ class CampusConnectAPI {
   }
 
   // Connection methods
-  async sendConnectionRequest(targetUserId: string, courseId: string, message?: string) {
+  async sendConnectionRequest(
+    targetUserId: string,
+    courseId: string,
+    message?: string
+  ) {
     return this.request('/connections/request', {
       method: 'POST',
       body: JSON.stringify({ targetUserId, courseId, message }),
@@ -2018,7 +2082,7 @@ class CampusConnectAPI:
     def _request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict[str, Any]:
         url = f"{self.base_url}{endpoint}"
         headers = {"Content-Type": "application/json"}
-        
+
         if self.access_token:
             headers["Authorization"] = f"Bearer {self.access_token}"
 
@@ -2028,7 +2092,7 @@ class CampusConnectAPI:
             json=data,
             headers=headers
         )
-        
+
         response.raise_for_status()
         return response.json()
 
@@ -2086,5 +2150,5 @@ print(matches["data"]["matches"])
 
 ---
 
-*Last Updated: Oct. 2025*  
-*API Version: 1.0.0*
+_Last Updated: Oct. 2025_  
+_API Version: 1.0.0_

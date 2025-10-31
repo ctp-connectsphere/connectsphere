@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Card } from '@/components/ui/card';
 import { Logo } from '@/components/ui/logo';
 import { signIn } from 'next-auth/react';
@@ -11,65 +11,65 @@ interface LoginErrors {
 }
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
-  const [errors, setErrors] = useState<LoginErrors>({})
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState<LoginErrors>({});
+  const [loading, setLoading] = useState(false);
 
   // Client-side validation
   const validateForm = (): boolean => {
-    const newErrors: LoginErrors = {}
+    const newErrors: LoginErrors = {};
 
     // Required field validation
-    if (!email.trim()) newErrors.email = 'Email is required'
-    if (!password.trim()) newErrors.password = 'Password is required'
+    if (!email.trim()) newErrors.email = 'Email is required';
+    if (!password.trim()) newErrors.password = 'Password is required';
 
     // Email format validation
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email address'
+      newErrors.email = 'Please enter a valid email address';
     }
 
     // University email validation
     if (email && !email.endsWith('.edu')) {
-      newErrors.email = 'Please use your university email address (.edu)'
+      newErrors.email = 'Please use your university email address (.edu)';
     }
 
     // Password length validation
     if (password && password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters long'
+      newErrors.password = 'Password must be at least 8 characters long';
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return false
+      setErrors(newErrors);
+      return false;
     }
 
-    setErrors({})
-    return true
-  }
+    setErrors({});
+    return true;
+  };
 
   const handleInputChange = (field: 'email' | 'password', value: string) => {
-    if (field === 'email') setEmail(value)
-    if (field === 'password') setPassword(value)
+    if (field === 'email') setEmail(value);
+    if (field === 'password') setPassword(value);
 
     // Clear specific field error when user starts typing
     if (errors[field]) {
-      const newErrors = { ...errors }
-      delete newErrors[field]
-      setErrors(newErrors)
+      const newErrors = { ...errors };
+      delete newErrors[field];
+      setErrors(newErrors);
     }
-  }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setErrors({})
+    e.preventDefault();
+    setLoading(true);
+    setErrors({});
 
     // Client-side validation
     if (!validateForm()) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
 
     try {
@@ -77,29 +77,29 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
-        callbackUrl: '/dashboard'
-      })
+        callbackUrl: '/dashboard',
+      });
 
-      console.log('SignIn response:', res) // Debug log
+      console.log('SignIn response:', res); // Debug log
 
       if (res?.error) {
-        console.error('SignIn error:', res.error) // Debug log
-        setErrors({ general: 'Invalid email or password. Please try again.' })
+        console.error('SignIn error:', res.error); // Debug log
+        setErrors({ general: 'Invalid email or password. Please try again.' });
       } else if (res?.ok) {
-        console.log('SignIn successful, redirecting...') // Debug log
+        console.log('SignIn successful, redirecting...'); // Debug log
         // Redirect manually on success
-        window.location.href = '/dashboard'
+        window.location.href = '/dashboard';
       } else {
-        console.log('SignIn unknown response:', res) // Debug log
-        setErrors({ general: 'An unexpected response. Please try again.' })
+        console.log('SignIn unknown response:', res); // Debug log
+        setErrors({ general: 'An unexpected response. Please try again.' });
       }
     } catch (error) {
-      console.error('SignIn exception:', error) // Debug log
-      setErrors({ general: 'An unexpected error occurred. Please try again.' })
+      console.error('SignIn exception:', error); // Debug log
+      setErrors({ general: 'An unexpected error occurred. Please try again.' });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary py-12 px-4 sm:px-6 lg:px-8">
@@ -108,7 +108,9 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <Logo size="large" variant="full" className="justify-center mb-6" />
             <h1 className="text-title-1 text-primary mb-2">Welcome back</h1>
-            <p className="text-body text-tertiary">Sign in to your ConnectSphere account</p>
+            <p className="text-body text-tertiary">
+              Sign in to your ConnectSphere account
+            </p>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
             {/* Email Field */}
@@ -118,11 +120,15 @@ export default function LoginPage() {
                 placeholder="Email"
                 type="email"
                 value={email}
-                onChange={e => handleInputChange('email', e.target.value.toLocaleLowerCase())}
+                onChange={e =>
+                  handleInputChange('email', e.target.value.toLocaleLowerCase())
+                }
                 required
               />
               {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email.toLowerCase()}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.email.toLowerCase()}
+                </p>
               )}
             </div>
 
@@ -133,11 +139,18 @@ export default function LoginPage() {
                 placeholder="Password"
                 type="password"
                 value={password}
-                onChange={e => handleInputChange('password', e.target.value.toLocaleLowerCase())}
+                onChange={e =>
+                  handleInputChange(
+                    'password',
+                    e.target.value.toLocaleLowerCase()
+                  )
+                }
                 required
               />
               {errors.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password.toLowerCase()}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.password.toLowerCase()}
+                </p>
               )}
             </div>
 
@@ -147,12 +160,15 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={e => setRememberMe(e.target.checked)}
                   className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <a
+                href="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
                 Forgot password?
               </a>
             </div>
@@ -160,7 +176,9 @@ export default function LoginPage() {
             {/* General Error */}
             {errors.general && (
               <div className="bg-red-50 border border-red-200 rounded p-3">
-                <p className="text-sm text-red-600">{errors.general.toLowerCase()}</p>
+                <p className="text-sm text-red-600">
+                  {errors.general.toLowerCase()}
+                </p>
               </div>
             )}
 
@@ -175,7 +193,10 @@ export default function LoginPage() {
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <a href="/register" className="text-blue-600 hover:text-blue-500 font-medium">
+              <a
+                href="/register"
+                className="text-blue-600 hover:text-blue-500 font-medium"
+              >
                 Create one here
               </a>
             </p>
@@ -183,5 +204,5 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

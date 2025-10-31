@@ -1,8 +1,14 @@
 // Database exports
-export { prisma, default as db } from './connection'
+export { prisma, default as db } from './connection';
 
 // Database utilities
-export * from './utils'
+export * from './utils';
 
 // Database types
-export type { User, Course, University, Connection, Message } from '@prisma/client'
+export type {
+  User,
+  Course,
+  University,
+  Connection,
+  Message,
+} from '@prisma/client';

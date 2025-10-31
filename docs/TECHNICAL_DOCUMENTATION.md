@@ -44,6 +44,7 @@ The goal of this documentation is to serve as the single source of truth for the
 The initial development phase is focused on delivering a lean, functional Minimum Viable Product (MVP) to validate the core concept of one-on-one student matching.
 
 **In Scope for MVP:**
+
 - **Student User Authentication:** Secure sign-up and login system. Initial implementation will verify users via their official university (.edu) email address, with a design that allows for future SSO integration.
 - **User Onboarding & Profile Creation:** A guided, multi-step process for new users to input their essential matching data:
   - **Course Registration:** Manual entry of current courses and their specific section numbers.
@@ -54,6 +55,7 @@ The initial development phase is focused on delivering a lean, functional Minimu
 - **1-on-1 Private Chat:** Upon a successful (accepted) connection, a secure and private chat channel is created within the application to enable users to communicate and coordinate logistics.
 
 **Explicitly Out of Scope for MVP:**
+
 - **Group Formation & Management:** All features related to creating or managing study groups of more than two people are deferred to Phase 2.
 - **Monetization & Premium Features:** The MVP will be entirely free to use. All "freemium" features, such as profile boosts or advanced filters, are not part of the initial build.
 - **University Administrative Dashboards:** Any site-license features for university partners, including analytics, are part of the long-term vision and are not included.
@@ -82,35 +84,35 @@ graph TB
         A[Mobile Browser]
         B[Desktop Browser]
     end
-    
+
     subgraph "Edge Network"
         C[Vercel Edge Network<br/>Global CDN]
     end
-    
+
     subgraph "Next.js Application - Vercel"
         D[App Router<br/>Server Components]
         E[API Routes<br/>Route Handlers]
         F[Server Actions<br/>Server Mutations]
         G[Next.js Middleware<br/>Auth & Rate Limiting]
     end
-    
+
     subgraph "Services Layer"
         H[NextAuth.js<br/>Authentication]
         I[Matching Algorithm<br/>Server Component]
         J[Real-time Service<br/>Pusher/Ably]
     end
-    
+
     subgraph "Data Layer"
         K[Neon/Supabase<br/>PostgreSQL 15+]
         L[Upstash Redis<br/>Cache & Sessions]
         M[Cloudinary<br/>File Storage]
     end
-    
+
     subgraph "External Services"
         N[Resend/SendGrid<br/>Email]
         O[PostHog<br/>Analytics]
     end
-    
+
     A --> C
     B --> C
     C --> G
@@ -133,6 +135,7 @@ graph TB
 ### 2.2 Technology Stack
 
 #### Full-Stack Framework
+
 - **Next.js 14+** - React framework with App Router, Server Components, and Server Actions
 - **React 19+** - UI library with concurrent features (via Next.js)
 - **TypeScript 5.8.3** - Type safety across frontend and backend
@@ -140,6 +143,7 @@ graph TB
 - **Shadcn/ui** - High-quality component library built on Radix UI
 
 #### State Management & Data Fetching
+
 - **React Server Components** - Default server-side rendering
 - **Server Actions** - Type-safe server mutations
 - **Zustand** - Client-side state management
@@ -148,6 +152,7 @@ graph TB
 - **TanStack Query** - Client-side data fetching and caching (when needed)
 
 #### Authentication & Security
+
 - **NextAuth.js v5 (Auth.js)** - Complete authentication solution
 - **JWT** - Session tokens (via NextAuth.js)
 - **bcrypt** - Password hashing
@@ -156,16 +161,19 @@ graph TB
 - **Upstash Rate Limit** - API rate limiting
 
 #### Database & Caching
+
 - **PostgreSQL 15+** - Primary relational database
 - **Prisma** - Type-safe database ORM with connection pooling
 - **Upstash Redis** - Serverless Redis for caching and sessions
 - **Neon or Supabase** - Serverless PostgreSQL hosting
 
 #### Real-time & Communication
+
 - **Pusher** or **Ably** - Real-time messaging (serverless WebSocket alternative)
 - **Server-Sent Events (SSE)** - Real-time updates (alternative approach)
 
 #### Infrastructure & DevOps
+
 - **Vercel** - Complete hosting (frontend + backend + Edge functions)
 - **Upstash** - Redis and rate limiting
 - **Neon/Supabase** - PostgreSQL database
@@ -306,8 +314,9 @@ npx prisma studio
 ```
 
 The application will be available at:
+
 - **Application:** http://localhost:3000
-- **API Routes:** http://localhost:3000/api/*
+- **API Routes:** http://localhost:3000/api/\*
 - **Prisma Studio:** http://localhost:5555
 
 ### 3.5 First-Time Sanity Check
@@ -324,10 +333,12 @@ To verify your local setup is working correctly:
    - Should return `{"status": "ok", "timestamp": "..."}`
 
 3. **Database Check:**
+
    ```bash
    cd backend
    npx prisma studio
    ```
+
    - Should open Prisma Studio at http://localhost:5555
    - Verify tables are created
 
@@ -367,12 +378,14 @@ gitgraph
 ```
 
 **Branch Naming Conventions:**
+
 - `feature/description` - New features (e.g., `feature/user-onboarding`)
 - `bugfix/description` - Bug fixes (e.g., `bugfix/auth-token-expiry`)
 - `hotfix/description` - Critical production fixes (e.g., `hotfix/security-patch`)
 - `release/version` - Release preparation (e.g., `release/v1.2.0`)
 
 **Pull Request Process:**
+
 1. Create feature branch from `develop`
 2. Make commits with conventional commit messages
 3. Push branch and create PR to `develop`
@@ -383,6 +396,7 @@ gitgraph
 ### 4.2 Coding Standards
 
 **ESLint Configuration:**
+
 ```javascript
 // eslint.config.js
 export default defineConfig([
@@ -410,6 +424,7 @@ export default defineConfig([
 ```
 
 **Prettier Configuration:**
+
 ```json
 {
   "semi": true,
@@ -422,6 +437,7 @@ export default defineConfig([
 ```
 
 **Naming Conventions:**
+
 - **Files:** kebab-case (`user-profile.tsx`, `auth-service.ts`)
 - **Components:** PascalCase (`UserProfile`, `AuthService`)
 - **Functions/Variables:** camelCase (`getUserProfile`, `authToken`)
@@ -435,7 +451,7 @@ export default defineConfig([
 ├── docs/                          # Technical documentation
 │   ├── API_REFERENCE.md
 │   ├── DATABASE_SCHEMA.md
-│   ├── TESTING_GUIDE.md
+│   ├── TESTING.md
 │   ├── DEPLOYMENT_GUIDE.md
 │   └── CONTRIBUTING.md
 ├── app/                           # Next.js App Router
@@ -510,12 +526,14 @@ export default defineConfig([
 ### 4.4 API Design Principles
 
 **RESTful API Standards:**
+
 - Use HTTP methods appropriately (GET, POST, PUT, DELETE, PATCH)
 - Consistent URL structure: `/api/v1/resource/{id}`
 - Proper HTTP status codes (200, 201, 400, 401, 404, 500)
 - Version API endpoints (`/api/v1/`, `/api/v2/`)
 
 **Request/Response Format:**
+
 ```typescript
 // Success Response
 {
@@ -536,11 +554,13 @@ export default defineConfig([
 ```
 
 **Authentication:**
+
 - JWT tokens in Authorization header: `Bearer <token>`
 - Token refresh endpoint: `POST /api/v1/auth/refresh`
 - Protected routes require valid JWT
 
 **Rate Limiting:**
+
 - 100 requests per minute per IP
 - 1000 requests per hour per authenticated user
 - Separate limits for different endpoint categories
@@ -593,6 +613,7 @@ sequenceDiagram
 ```
 
 **Session Management:**
+
 - **JWT Sessions:** NextAuth.js handles JWT creation and validation
 - **Redis Storage:** Session data cached in Upstash Redis for serverless
 - **Automatic Refresh:** Sessions auto-refresh via NextAuth.js
@@ -604,6 +625,7 @@ sequenceDiagram
 For detailed database schema documentation, see [docs/DATABASE_SCHEMA.md](./docs/DATABASE_SCHEMA.md).
 
 **Core Entities:**
+
 - **Users** - User accounts and profiles
 - **Courses** - Academic courses and sections
 - **UserCourses** - User enrollment in courses
@@ -617,21 +639,22 @@ The matching algorithm is the heart of Campus Connect. It calculates compatibili
 
 ```typescript
 interface MatchingCriteria {
-  courseOverlap: number;        // 40% weight
-  timeAvailability: number;     // 30% weight
-  studyPreferences: number;     // 20% weight
-  profileCompleteness: number;  // 10% weight
+  courseOverlap: number; // 40% weight
+  timeAvailability: number; // 30% weight
+  studyPreferences: number; // 20% weight
+  profileCompleteness: number; // 10% weight
 }
 
 interface MatchResult {
   userId: string;
-  compatibilityScore: number;  // 0-100
+  compatibilityScore: number; // 0-100
   matchingReasons: string[];
   commonAvailability: TimeSlot[];
 }
 ```
 
 **Algorithm Steps:**
+
 1. **Course Filtering:** Find users enrolled in the same course section
 2. **Availability Analysis:** Calculate overlapping free time slots
 3. **Preference Matching:** Compare study location, style, and pace preferences
@@ -643,6 +666,7 @@ interface MatchResult {
 For complete API documentation, see [docs/API_REFERENCE.md](./docs/API_REFERENCE.md).
 
 **Key Endpoints:**
+
 - `POST /api/v1/auth/register` - User registration
 - `POST /api/v1/auth/login` - User login
 - `GET /api/v1/users/profile` - Get user profile
@@ -685,6 +709,7 @@ const Button: React.FC<ButtonProps> = ({
 ```
 
 **Component Categories:**
+
 - **UI Components:** Button, Input, Modal, Card, Badge
 - **Form Components:** FormField, Select, Checkbox, RadioGroup
 - **Layout Components:** Header, Sidebar, Footer, Container
@@ -709,16 +734,16 @@ const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: localStorage.getItem('token'),
   isAuthenticated: false,
-  
+
   login: async (email, password) => {
     const response = await authService.login(email, password);
-    set({ 
-      user: response.user, 
+    set({
+      user: response.user,
       token: response.token,
-      isAuthenticated: true 
+      isAuthenticated: true,
     });
   },
-  
+
   logout: () => {
     localStorage.removeItem('token');
     set({ user: null, token: null, isAuthenticated: false });
@@ -729,6 +754,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
 ### 6.3 Routing
 
 **Route Structure:**
+
 ```typescript
 // App.tsx
 const App = () => {
@@ -739,7 +765,7 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        
+
         {/* Protected Routes */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
@@ -748,7 +774,7 @@ const App = () => {
             </DashboardLayout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/profile" element={
           <ProtectedRoute>
             <DashboardLayout>
@@ -756,7 +782,7 @@ const App = () => {
             </DashboardLayout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/matches/:courseId" element={
           <ProtectedRoute>
             <DashboardLayout>
@@ -764,7 +790,7 @@ const App = () => {
             </DashboardLayout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/chat/:connectionId" element={
           <ProtectedRoute>
             <DashboardLayout>
@@ -781,6 +807,7 @@ const App = () => {
 ### 6.4 Theming & Styling
 
 **TailwindCSS Configuration:**
+
 ```javascript
 // tailwind.config.js
 module.exports = {
@@ -804,14 +831,12 @@ module.exports = {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
+  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
 ```
 
 **CSS Architecture:**
+
 - **Global Styles:** `src/styles/globals.css`
 - **Component Styles:** Co-located with components using Tailwind classes
 - **Dark Mode:** Implemented using Tailwind's dark mode utilities
@@ -824,17 +849,19 @@ module.exports = {
 ### 7.1 Testing Strategy
 
 **Testing Pyramid:**
+
 ```mermaid
 graph TB
     A[E2E Tests<br/>Playwright] --> B[Integration Tests<br/>Jest + Supertest]
     B --> C[Unit Tests<br/>Vitest + Testing Library]
-    
+
     A1[User Flows<br/>Registration to Chat] --> A
     B1[API Endpoints<br/>Database Integration] --> B
     C1[Components<br/>Utilities<br/>Services] --> C
 ```
 
 **Test Categories:**
+
 - **Unit Tests (70%):** Individual functions, components, utilities
 - **Integration Tests (20%):** API endpoints, database operations
 - **E2E Tests (10%):** Critical user journeys
@@ -860,16 +887,18 @@ npm run test:all          # Run frontend + backend tests
 ### 7.3 Test Environment & Data
 
 **Test Database:**
+
 - Separate PostgreSQL instance for testing
 - Automated schema migrations
 - Seed data for consistent test scenarios
 
 **Mock Services:**
+
 - Email service (SendGrid) - mocked in tests
 - File storage (Cloudinary) - mocked in tests
 - External APIs - mocked with MSW (Mock Service Worker)
 
-For detailed testing documentation, see [docs/TESTING_GUIDE.md](./docs/TESTING_GUIDE.md).
+For detailed testing documentation, see [docs/TESTING.md](./docs/TESTING.md).
 
 ---
 
@@ -881,13 +910,14 @@ For detailed testing documentation, see [docs/TESTING_GUIDE.md](./docs/TESTING_G
 graph LR
     A[Development<br/>Local] --> B[Staging<br/>Vercel Preview]
     B --> C[Production<br/>Vercel]
-    
+
     A1[localhost:3000<br/>Local DB + Redis] --> A
     B1[preview.campusconnect.app<br/>Neon + Upstash] --> B
     C1[campusconnect.app<br/>Neon + Upstash] --> C
 ```
 
 **Environment Configuration:**
+
 - **Development:** Local Next.js with hot reload and local services
 - **Staging:** Vercel preview deployments with staging database
 - **Production:** Vercel production with optimized performance and monitoring
@@ -913,6 +943,7 @@ graph TB
 ```
 
 **GitHub Actions Workflow:**
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI/CD Pipeline
@@ -956,6 +987,7 @@ jobs:
 ### 8.3 Manual Deployment Process
 
 **Pre-deployment Checklist:**
+
 - [ ] All tests passing
 - [ ] Code review completed
 - [ ] Database migrations tested
@@ -964,6 +996,7 @@ jobs:
 - [ ] Monitoring alerts configured
 
 **Deployment Steps:**
+
 1. Merge feature branch to `main`
 2. Monitor CI/CD pipeline
 3. Verify staging deployment
@@ -975,11 +1008,13 @@ jobs:
 ### 8.4 Rollback Procedure
 
 **Automated Rollback Triggers:**
+
 - Error rate > 5% for 5 minutes
 - Response time > 2 seconds average
 - Database connection failures
 
 **Manual Rollback Process:**
+
 1. Identify the problematic deployment
 2. Revert to previous stable version
 3. Update database if necessary
@@ -1001,25 +1036,25 @@ graph TB
         B[Static Assets]
         C[Serverless Functions]
     end
-    
+
     subgraph "Next.js Serverless Functions"
         D[API Routes]
         E[Server Actions]
         F[Edge Runtime]
     end
-    
+
     subgraph "Database - Neon PostgreSQL"
         G[Primary Database]
         H[Read Replicas]
         I[Automated Backups]
     end
-    
+
     subgraph "External Services"
         J[Cloudinary CDN]
         K[SendGrid API]
         L[Analytics]
     end
-    
+
     A --> D
     B --> J
     C --> D
@@ -1031,6 +1066,7 @@ graph TB
 ```
 
 **Infrastructure Details:**
+
 - **Frontend:** Vercel Edge Network with global CDN
 - **Backend:** Next.js Serverless Functions with Edge Runtime
 - **Database:** Neon PostgreSQL with automated backups and read replicas
@@ -1040,12 +1076,14 @@ graph TB
 ### 9.2 Logging
 
 **Log Levels:**
+
 - **ERROR:** Application errors, failed requests
 - **WARN:** Non-critical issues, deprecated API usage
 - **INFO:** Important business events, user actions
 - **DEBUG:** Detailed execution information (development only)
 
 **Log Structure:**
+
 ```json
 {
   "timestamp": "2024-01-15T10:30:00Z",
@@ -1059,12 +1097,14 @@ graph TB
 ```
 
 **Log Aggregation:**
+
 - **Development:** Console output
 - **Staging/Production:** Vercel logs + external service (LogTail or DataDog)
 
 ### 9.3 Monitoring & Alerting
 
 **Key Metrics:**
+
 - **Uptime:** 99.9% target
 - **Response Time:** < 200ms average
 - **Error Rate:** < 1% target
@@ -1072,11 +1112,13 @@ graph TB
 - **User Engagement:** DAU, MAU, session duration
 
 **Alerting Rules:**
+
 - **Critical:** Service down, database unavailable
 - **Warning:** High error rate, slow response times
 - **Info:** Deployment success, new user registrations
 
 **Monitoring Dashboard:**
+
 - Vercel built-in metrics and analytics
 - Custom PostHog analytics dashboard
 - Neon database performance metrics
@@ -1089,12 +1131,14 @@ graph TB
 ### 10.1 Submitting an Issue
 
 **Bug Reports:**
+
 - Use the bug report template
 - Include steps to reproduce
 - Provide environment details
 - Add screenshots if applicable
 
 **Feature Requests:**
+
 - Use the feature request template
 - Describe the problem being solved
 - Provide mockups or examples
@@ -1103,6 +1147,7 @@ graph TB
 ### 10.2 Submitting a Pull Request
 
 **PR Process:**
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -1111,6 +1156,7 @@ graph TB
 6. Submit PR with description
 
 **Code Review Checklist:**
+
 - [ ] Code follows style guidelines
 - [ ] Tests are included and passing
 - [ ] Documentation is updated
@@ -1133,6 +1179,7 @@ We follow [Semantic Versioning 2.0.0](https://semver.org/):
 - **PATCH** (0.0.1): Bug fixes, backward compatible
 
 **Pre-release Versions:**
+
 - **Alpha** (0.1.0-alpha.1): Early development, unstable
 - **Beta** (0.1.0-beta.1): Feature complete, testing phase
 - **RC** (0.1.0-rc.1): Release candidate, final testing
@@ -1142,23 +1189,28 @@ We follow [Semantic Versioning 2.0.0](https://semver.org/):
 See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 
 **Changelog Format:**
+
 ```markdown
 ## [1.0.0] - 2024-01-15
 
 ### Added
+
 - User authentication system
 - Study partner matching algorithm
 - Real-time chat functionality
 
 ### Changed
+
 - Improved matching algorithm accuracy
 - Updated UI/UX design
 
 ### Fixed
+
 - Fixed authentication token expiry issue
 - Resolved chat message ordering bug
 
 ### Security
+
 - Updated dependencies to address vulnerabilities
 ```
 
@@ -1169,6 +1221,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 ### 12.1 Future Features (Phase 2)
 
 **Planned Enhancements:**
+
 - **Group Formation:** Multi-person study groups
 - **Advanced Matching:** Machine learning improvements
 - **Mobile Apps:** Native iOS and Android applications
@@ -1177,6 +1230,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 - **Premium Features:** Advanced filters, profile boosts
 
 **Technical Improvements:**
+
 - **Performance:** Caching layer, CDN optimization
 - **Scalability:** Microservices architecture
 - **Security:** Enhanced authentication, audit logging
@@ -1185,16 +1239,19 @@ See [CHANGELOG.md](./CHANGELOG.md) for detailed release notes.
 ### 12.2 Key Contacts
 
 **Development Team:**
+
 - **Lead Developer:** [Name] - [email]
 - **Frontend Developer:** [Name] - [email]
 - **Backend Developer:** [Name] - [email]
 - **DevOps Engineer:** [Name] - [email]
 
 **Project Management:**
+
 - **Product Manager:** [Name] - [email]
 - **Technical Lead:** [Name] - [email]
 
 **External Services:**
+
 - **Vercel Support:** support@vercel.com
 - **Neon Support:** support@neon.tech
 - **Database Hosting:** Neon PostgreSQL
@@ -1211,6 +1268,6 @@ For the most up-to-date information, always refer to the latest version of this 
 
 ---
 
-*Last Updated: Oct. 2025*  
-*Version: 1.0.0*  
-*Document Status: Draft*
+_Last Updated: Oct. 2025_  
+_Version: 1.0.0_  
+_Document Status: Draft_

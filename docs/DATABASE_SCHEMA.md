@@ -197,23 +197,27 @@ erDiagram
 ## Database Design Principles
 
 ### 1. Normalization
+
 - **3rd Normal Form (3NF)** to eliminate redundancy
 - Separate entities for users, courses, and connections
 - Junction tables for many-to-many relationships
 
 ### 2. Performance Optimization
+
 - **UUID primary keys** for distributed systems compatibility
 - **Composite indexes** on frequently queried columns
 - **Partial indexes** for conditional queries
 - **JSON columns** for flexible data storage (match results)
 
 ### 3. Data Integrity
+
 - **Foreign key constraints** to maintain referential integrity
 - **Check constraints** for data validation
 - **Unique constraints** where appropriate
 - **Soft deletes** using `is_active` flags
 
 ### 4. Scalability
+
 - **Horizontal partitioning** ready design
 - **Efficient indexing** strategy for large datasets
 - **Caching layer** integration points
@@ -256,8 +260,8 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
+CREATE TRIGGER update_users_updated_at
+    BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -282,8 +286,8 @@ CREATE INDEX idx_user_profiles_study_style ON user_profiles(study_style);
 CREATE INDEX idx_user_profiles_study_pace ON user_profiles(study_pace);
 
 -- Triggers
-CREATE TRIGGER update_user_profiles_updated_at 
-    BEFORE UPDATE ON user_profiles 
+CREATE TRIGGER update_user_profiles_updated_at
+    BEFORE UPDATE ON user_profiles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -329,8 +333,8 @@ CREATE INDEX idx_courses_is_active ON courses(is_active);
 CREATE UNIQUE INDEX idx_courses_unique ON courses(code, section, semester, university_id);
 
 -- Triggers
-CREATE TRIGGER update_courses_updated_at 
-    BEFORE UPDATE ON courses 
+CREATE TRIGGER update_courses_updated_at
+    BEFORE UPDATE ON courses
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -403,8 +407,8 @@ CREATE INDEX idx_availability_user_day_global ON availability(user_id, day_of_we
 CREATE INDEX idx_availability_matching_global ON availability(user_id, day_of_week, start_time, end_time);
 
 -- Triggers
-CREATE TRIGGER update_availability_updated_at 
-    BEFORE UPDATE ON availability 
+CREATE TRIGGER update_availability_updated_at
+    BEFORE UPDATE ON availability
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -434,8 +438,8 @@ CREATE INDEX idx_connections_requested_at ON connections(requested_at);
 CREATE UNIQUE INDEX idx_connections_unique ON connections(requester_id, target_id, course_id);
 
 -- Triggers
-CREATE TRIGGER update_connections_updated_at 
-    BEFORE UPDATE ON connections 
+CREATE TRIGGER update_connections_updated_at
+    BEFORE UPDATE ON connections
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -461,8 +465,8 @@ CREATE INDEX idx_messages_is_read ON messages(is_read);
 CREATE INDEX idx_messages_connection_created ON messages(connection_id, created_at);
 
 -- Triggers
-CREATE TRIGGER update_messages_updated_at 
-    BEFORE UPDATE ON messages 
+CREATE TRIGGER update_messages_updated_at
+    BEFORE UPDATE ON messages
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -505,8 +509,8 @@ CREATE UNIQUE INDEX idx_user_sessions_refresh_token ON user_sessions(refresh_tok
 CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
 
 -- Triggers
-CREATE TRIGGER update_user_sessions_updated_at 
-    BEFORE UPDATE ON user_sessions 
+CREATE TRIGGER update_user_sessions_updated_at
+    BEFORE UPDATE ON user_sessions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -568,7 +572,7 @@ INSERT INTO universities (name, domain) VALUES
 
 ```sql
 INSERT INTO courses (name, code, section, semester, instructor, university_id) VALUES
-('Data Structures and Algorithms', 'CS 161', '001', 'Spring 2024', 'Dr. Smith', 
+('Data Structures and Algorithms', 'CS 161', '001', 'Spring 2024', 'Dr. Smith',
  (SELECT id FROM universities WHERE domain = 'berkeley.edu')),
 ('Machine Learning', 'CS 189', '001', 'Spring 2024', 'Dr. Johnson',
  (SELECT id FROM universities WHERE domain = 'berkeley.edu')),
@@ -589,7 +593,7 @@ INSERT INTO users (email, password_hash, first_name, last_name, university) VALU
 
 ```sql
 INSERT INTO user_profiles (user_id, preferred_location, study_style, study_pace, bio) VALUES
-((SELECT id FROM users WHERE email = 'john.doe@berkeley.edu'), 'library', 'collaborative', 'moderate', 
+((SELECT id FROM users WHERE email = 'john.doe@berkeley.edu'), 'library', 'collaborative', 'moderate',
  'Computer Science student passionate about algorithms and data structures.'),
 ((SELECT id FROM users WHERE email = 'jane.smith@berkeley.edu'), 'cafe', 'quiet', 'fast',
  'Graduate student in Machine Learning. Love discussing AI concepts and implementations.'),
@@ -879,18 +883,20 @@ npx prisma generate
 ### Upstash Redis Usage Patterns
 
 **Session Storage:**
+
 ```typescript
 // Session key pattern: session:{sessionToken}
-const sessionKey = `session:${sessionToken}`
+const sessionKey = `session:${sessionToken}`;
 const sessionData = {
-  userId: "user_123",
-  email: "user@university.edu",
-  expires: "2024-01-15T10:30:00Z"
-}
+  userId: 'user_123',
+  email: 'user@university.edu',
+  expires: '2024-01-15T10:30:00Z',
+};
 // TTL: 30 days
 ```
 
 **Match Results Caching:**
+
 ```typescript
 // Match cache key pattern: matches:{userId}:{courseId}
 const matchKey = `matches:${userId}:${courseId}`
@@ -903,13 +909,15 @@ const matchData = {
 ```
 
 **Rate Limiting:**
+
 ```typescript
 // Rate limit key pattern: rate_limit:{identifier}
-const rateLimitKey = `rate_limit:${userId || ipAddress}`
+const rateLimitKey = `rate_limit:${userId || ipAddress}`;
 // TTL: Sliding window (1 hour)
 ```
 
 **User Profile Caching:**
+
 ```typescript
 // Profile cache key pattern: profile:{userId}
 const profileKey = `profile:${userId}`
@@ -925,12 +933,12 @@ const profileData = {
 
 ```typescript
 // lib/redis.ts
-import { Redis } from '@upstash/redis'
+import { Redis } from '@upstash/redis';
 
 export const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+});
 
 // Connection pooling for serverless
 export const redisWithPooling = new Redis({
@@ -938,7 +946,7 @@ export const redisWithPooling = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3,
-})
+});
 ```
 
 ---
@@ -951,21 +959,26 @@ export const redisWithPooling = new Redis({
 
 ```typescript
 // lib/db/connection.ts
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+  prisma: PrismaClient | undefined;
+};
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
-  },
-  log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['warn', 'error'],
-  errorFormat: 'pretty'
-})
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+    log:
+      process.env.NODE_ENV === 'development'
+        ? ['query', 'info', 'warn', 'error']
+        : ['warn', 'error'],
+    errorFormat: 'pretty',
+  });
 
 // Connection pool configuration for production
 const connectionPoolConfig = {
@@ -974,28 +987,29 @@ const connectionPoolConfig = {
   timeout: 60000,
   reconnect: true,
   idleTimeoutMillis: 30000,
-  maxUses: 7500
-}
+  maxUses: 7500,
+};
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 ```
 
 #### 2. Query Optimization
 
 **Optimized Matching Algorithm Query:**
+
 ```sql
 -- High-performance matching query with partitioning
 WITH user_course_mates AS (
   SELECT uc2.user_id
   FROM user_courses uc1
   JOIN user_courses uc2 ON uc1.course_id = uc2.course_id
-  WHERE uc1.user_id = $1 
+  WHERE uc1.user_id = $1
     AND uc1.course_id = $2
     AND uc2.user_id != $1
     AND uc2.is_active = TRUE
 ),
 availability_overlaps AS (
-  SELECT 
+  SELECT
     ucm.user_id,
     COUNT(*) as overlap_count,
     ARRAY_AGG(
@@ -1014,19 +1028,19 @@ availability_overlaps AS (
   GROUP BY ucm.user_id
 ),
 preference_scores AS (
-  SELECT 
+  SELECT
     ucm.user_id,
-    CASE 
+    CASE
       WHEN up1.preferred_location = up2.preferred_location THEN 1.0
       WHEN up1.preferred_location = 'any' OR up2.preferred_location = 'any' THEN 0.5
       ELSE 0.0
     END +
-    CASE 
+    CASE
       WHEN up1.study_style = up2.study_style THEN 1.0
       WHEN up1.study_style = 'mixed' OR up2.study_style = 'mixed' THEN 0.5
       ELSE 0.0
     END +
-    CASE 
+    CASE
       WHEN up1.study_pace = up2.study_pace THEN 1.0
       WHEN ABS(
         CASE up1.study_pace WHEN 'slow' THEN 1 WHEN 'moderate' THEN 2 ELSE 3 END -
@@ -1038,7 +1052,7 @@ preference_scores AS (
   JOIN user_profiles up1 ON ucm.user_id = up1.user_id
   JOIN user_profiles up2 ON $1 = up2.user_id
 )
-SELECT 
+SELECT
   u.id,
   u.first_name,
   u.last_name,
@@ -1051,12 +1065,12 @@ SELECT
   COALESCE(ao.common_slots, '{}') as common_availability,
   COALESCE(ps.preference_score, 0) as preference_score,
   (
-    COALESCE(ao.overlap_count, 0) * 0.4 + 
+    COALESCE(ao.overlap_count, 0) * 0.4 +
     COALESCE(ps.preference_score, 0) * 0.3 +
     CASE WHEN up.bio IS NOT NULL THEN 0.2 ELSE 0.0 END +
     CASE WHEN u.profile_image_url IS NOT NULL THEN 0.1 ELSE 0.0 END
   ) as compatibility_score,
-  CASE 
+  CASE
     WHEN c.id IS NOT NULL THEN 'connected'
     WHEN c2.id IS NOT NULL THEN 'pending'
     ELSE 'none'
@@ -1084,22 +1098,22 @@ LIMIT $3;
 
 ```sql
 -- Composite indexes for complex queries
-CREATE INDEX idx_users_active_verified ON users(is_active, is_verified) 
+CREATE INDEX idx_users_active_verified ON users(is_active, is_verified)
   WHERE is_active = TRUE AND is_verified = TRUE;
 
-CREATE INDEX idx_user_courses_active_enrollment ON user_courses(user_id, course_id, is_active) 
+CREATE INDEX idx_user_courses_active_enrollment ON user_courses(user_id, course_id, is_active)
   WHERE is_active = TRUE;
 
-CREATE INDEX idx_connections_course_status_time ON connections(course_id, status, requested_at) 
+CREATE INDEX idx_connections_course_status_time ON connections(course_id, status, requested_at)
   WHERE status IN ('pending', 'accepted');
 
 CREATE INDEX idx_messages_connection_read_time ON messages(connection_id, is_read, created_at DESC);
 
 -- Partial indexes for frequently filtered data
-CREATE INDEX idx_courses_current_semester ON courses(university_id, code, section) 
+CREATE INDEX idx_courses_current_semester ON courses(university_id, code, section)
   WHERE semester = 'Spring 2024' AND is_active = TRUE;
 
-CREATE INDEX idx_users_university_domain ON users(university, email) 
+CREATE INDEX idx_users_university_domain ON users(university, email)
   WHERE is_active = TRUE AND is_verified = TRUE;
 
 -- GIN indexes for JSON data
@@ -1114,7 +1128,7 @@ CREATE INDEX idx_users_full_name ON users USING GIN ((first_name || ' ' || last_
 ```sql
 -- Materialized view for active course enrollments
 CREATE MATERIALIZED VIEW mv_active_enrollments AS
-SELECT 
+SELECT
   uc.user_id,
   uc.course_id,
   c.name as course_name,
@@ -1125,9 +1139,9 @@ SELECT
 FROM user_courses uc
 JOIN courses c ON uc.course_id = c.id
 JOIN users u ON uc.user_id = u.id
-WHERE uc.is_active = TRUE 
-  AND c.is_active = TRUE 
-  AND u.is_active = TRUE 
+WHERE uc.is_active = TRUE
+  AND c.is_active = TRUE
+  AND u.is_active = TRUE
   AND u.is_verified = TRUE;
 
 CREATE UNIQUE INDEX idx_mv_active_enrollments_unique ON mv_active_enrollments(user_id, course_id);
@@ -1150,81 +1164,86 @@ SELECT cron.schedule('refresh-enrollments', '0 * * * *', 'SELECT refresh_active_
 
 ```typescript
 // lib/cache/redis.ts
-import { Redis } from '@upstash/redis'
+import { Redis } from '@upstash/redis';
 
 export const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+});
 
 export class CacheService {
   // Match results caching
   static async getMatches(userId: string, courseId: string) {
-    const key = `matches:${userId}:${courseId}`
-    const cached = await redis.get(key)
-    
+    const key = `matches:${userId}:${courseId}`;
+    const cached = await redis.get(key);
+
     if (cached) {
-      return JSON.parse(cached as string)
+      return JSON.parse(cached as string);
     }
-    
-    return null
+
+    return null;
   }
 
-  static async setMatches(userId: string, courseId: string, matches: any[], ttl = 300) {
-    const key = `matches:${userId}:${courseId}`
-    await redis.setex(key, ttl, JSON.stringify(matches))
+  static async setMatches(
+    userId: string,
+    courseId: string,
+    matches: any[],
+    ttl = 300
+  ) {
+    const key = `matches:${userId}:${courseId}`;
+    await redis.setex(key, ttl, JSON.stringify(matches));
   }
 
   // User profile caching
   static async getUserProfile(userId: string) {
-    const key = `profile:${userId}`
-    const cached = await redis.get(key)
-    
+    const key = `profile:${userId}`;
+    const cached = await redis.get(key);
+
     if (cached) {
-      return JSON.parse(cached as string)
+      return JSON.parse(cached as string);
     }
-    
-    return null
+
+    return null;
   }
 
   static async setUserProfile(userId: string, profile: any, ttl = 900) {
-    const key = `profile:${userId}`
-    await redis.setex(key, ttl, JSON.stringify(profile))
+    const key = `profile:${userId}`;
+    await redis.setex(key, ttl, JSON.stringify(profile));
   }
 
   // Course data caching
   static async getCourses(universityId?: string) {
-    const key = universityId ? `courses:${universityId}` : 'courses:all'
-    const cached = await redis.get(key)
-    
+    const key = universityId ? `courses:${universityId}` : 'courses:all';
+    const cached = await redis.get(key);
+
     if (cached) {
-      return JSON.parse(cached as string)
+      return JSON.parse(cached as string);
     }
-    
-    return null
+
+    return null;
   }
 
   static async setCourses(courses: any[], universityId?: string, ttl = 3600) {
-    const key = universityId ? `courses:${universityId}` : 'courses:all'
-    await redis.setex(key, ttl, JSON.stringify(courses))
+    const key = universityId ? `courses:${universityId}` : 'courses:all';
+    await redis.setex(key, ttl, JSON.stringify(courses));
   }
 
   // Cache invalidation
   static async invalidateUserCache(userId: string) {
-    const pattern = `*:${userId}:*`
-    const keys = await redis.keys(pattern)
-    
+    const pattern = `*:${userId}:*`;
+    const keys = await redis.keys(pattern);
+
     if (keys.length > 0) {
-      await redis.del(...keys)
+      await redis.del(...keys);
     }
   }
 
   static async invalidateCourseCache(courseId: string) {
-    const pattern = `matches:*:${courseId}`
-    const keys = await redis.keys(pattern)
-    
+    const pattern = `matches:*:${courseId}`;
+    const keys = await redis.keys(pattern);
+
     if (keys.length > 0) {
-      await redis.del(...keys)
+      await redis.del(...keys);
     }
   }
 }
@@ -1237,26 +1256,26 @@ export class CacheService {
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 
 -- Monitor slow queries
-SELECT 
+SELECT
   query,
   calls,
   total_time,
   mean_time,
   rows
-FROM pg_stat_statements 
+FROM pg_stat_statements
 WHERE mean_time > 1000  -- Queries taking more than 1 second
 ORDER BY mean_time DESC
 LIMIT 10;
 
 -- Index usage monitoring
-SELECT 
+SELECT
   schemaname,
   tablename,
   indexname,
   idx_scan,
   idx_tup_read,
   idx_tup_fetch,
-  CASE 
+  CASE
     WHEN idx_scan = 0 THEN 'UNUSED'
     WHEN idx_tup_read::float / NULLIF(idx_scan, 0) > 100 THEN 'INEFFICIENT'
     ELSE 'OK'
@@ -1265,11 +1284,11 @@ FROM pg_stat_user_indexes
 ORDER BY idx_scan DESC;
 
 -- Table size monitoring
-SELECT 
+SELECT
   schemaname,
   tablename,
   pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
-FROM pg_tables 
+FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
@@ -1288,24 +1307,24 @@ ANALYZE messages;
 
 ```typescript
 // lib/db/replica.ts
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
 // Read replica for read-heavy operations
 export const readReplica = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_READ_REPLICA_URL || process.env.DATABASE_URL
-    }
+      url: process.env.DATABASE_READ_REPLICA_URL || process.env.DATABASE_URL,
+    },
   },
-  log: ['warn', 'error']
-})
+  log: ['warn', 'error'],
+});
 
 // Use read replica for matching queries
 export async function findMatchesWithReplica(userId: string, courseId: string) {
   return readReplica.$queryRaw`
     -- Use the optimized matching query here
     SELECT * FROM mv_active_enrollments WHERE course_id = ${courseId}
-  `
+  `;
 }
 ```
 
@@ -1319,5 +1338,5 @@ export async function findMatchesWithReplica(userId: string, courseId: string) {
 
 ---
 
-*Last Updated: Oct. 2025*  
-*Schema Version: 1.0.0*
+_Last Updated: Oct. 2025_  
+_Schema Version: 1.0.0_

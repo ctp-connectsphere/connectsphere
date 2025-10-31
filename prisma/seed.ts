@@ -1,13 +1,13 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding...')
+  console.log('🌱 Starting database seeding...');
 
   // Create universities
-  console.log('📚 Creating universities...')
+  console.log('📚 Creating universities...');
   const universities = await Promise.all([
     prisma.university.upsert({
       where: { domain: 'berkeley.edu' },
@@ -54,13 +54,13 @@ async function main() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${universities.length} universities`)
+  console.log(`✅ Created ${universities.length} universities`);
 
   // Create courses for each university
-  console.log('📖 Creating courses...')
-  const courses = []
+  console.log('📖 Creating courses...');
+  const courses = [];
 
   for (const university of universities) {
     const universityCourses = await Promise.all([
@@ -171,16 +171,16 @@ async function main() {
           isActive: true,
         },
       }),
-    ])
+    ]);
 
-    courses.push(...universityCourses)
+    courses.push(...universityCourses);
   }
 
-  console.log(`✅ Created ${courses.length} courses`)
+  console.log(`✅ Created ${courses.length} courses`);
 
   // Create sample users
-  console.log('👥 Creating sample users...')
-  const hashedPassword = await bcrypt.hash('password123', 12)
+  console.log('👥 Creating sample users...');
+  const hashedPassword = await bcrypt.hash('password123', 12);
 
   const users = await Promise.all([
     prisma.user.upsert({
@@ -248,12 +248,12 @@ async function main() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${users.length} users`)
+  console.log(`✅ Created ${users.length} users`);
 
   // Create user profiles
-  console.log('👤 Creating user profiles...')
+  console.log('👤 Creating user profiles...');
   const profiles = await Promise.all([
     prisma.userProfile.upsert({
       where: { userId: users[0].id },
@@ -310,15 +310,19 @@ async function main() {
         bio: 'Harvard student studying various subjects. Flexible with study arrangements.',
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${profiles.length} user profiles`)
+  console.log(`✅ Created ${profiles.length} user profiles`);
 
   // Create course enrollments
-  console.log('📚 Creating course enrollments...')
-  const berkeleyUniversity = universities.find(u => u.domain === 'berkeley.edu')!
-  const berkeleyCourses = courses.filter(c => c.universityId === berkeleyUniversity.id)
-  
+  console.log('📚 Creating course enrollments...');
+  const berkeleyUniversity = universities.find(
+    u => u.domain === 'berkeley.edu'
+  )!;
+  const berkeleyCourses = courses.filter(
+    c => c.universityId === berkeleyUniversity.id
+  );
+
   const enrollments = await Promise.all([
     // John Doe enrollments
     prisma.userCourse.upsert({
@@ -378,12 +382,12 @@ async function main() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${enrollments.length} course enrollments`)
+  console.log(`✅ Created ${enrollments.length} course enrollments`);
 
   // Create availability data
-  console.log('⏰ Creating availability data...')
+  console.log('⏰ Creating availability data...');
   const availability = await Promise.all([
     // John Doe availability
     prisma.availability.create({
@@ -444,25 +448,25 @@ async function main() {
         endTime: '17:00',
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${availability.length} availability entries`)
+  console.log(`✅ Created ${availability.length} availability entries`);
 
-  console.log('🎉 Database seeding completed successfully!')
-  console.log(`📊 Summary:`)
-  console.log(`   - Universities: ${universities.length}`)
-  console.log(`   - Courses: ${courses.length}`)
-  console.log(`   - Users: ${users.length}`)
-  console.log(`   - Profiles: ${profiles.length}`)
-  console.log(`   - Enrollments: ${enrollments.length}`)
-  console.log(`   - Availability: ${availability.length}`)
+  console.log('🎉 Database seeding completed successfully!');
+  console.log(`📊 Summary:`);
+  console.log(`   - Universities: ${universities.length}`);
+  console.log(`   - Courses: ${courses.length}`);
+  console.log(`   - Users: ${users.length}`);
+  console.log(`   - Profiles: ${profiles.length}`);
+  console.log(`   - Enrollments: ${enrollments.length}`);
+  console.log(`   - Availability: ${availability.length}`);
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Seeding failed:', e)
-    process.exit(1)
+  .catch(e => {
+    console.error('❌ Seeding failed:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

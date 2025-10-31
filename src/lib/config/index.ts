@@ -1,5 +1,5 @@
 // Configuration exports
-export * from './env'
+export * from './env';
 
 // Re-export config for convenience
-export { config } from './env'
+export { config } from './env';

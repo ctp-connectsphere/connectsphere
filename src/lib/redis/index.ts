@@ -1,6 +1,11 @@
 // Redis exports
-export { default as redis, redisWithPooling, checkRedisHealth, getRedisInfo } from './connection'
+export {
+  default as redis,
+  redisWithPooling,
+  checkRedisHealth,
+  getRedisInfo,
+} from './connection';
 
 // Redis services
-export * from './cache'
-export * from './session'
+export * from './cache';
+export * from './session';
