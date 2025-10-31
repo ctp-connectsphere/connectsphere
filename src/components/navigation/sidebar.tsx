@@ -52,7 +52,7 @@ export function Sidebar({ navItems, className = '' }: SidebarProps) {
       </nav>
 
       {/* User Profile Section */}
-      <div className="mt-auto pt-6 border-t border-gray-200">
+      <div className="sidebar-user mt-auto pt-6 border-t border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
             <span className="text-white font-semibold text-sm">U</span>
