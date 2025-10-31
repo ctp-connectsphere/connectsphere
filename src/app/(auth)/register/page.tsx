@@ -22,7 +22,7 @@
 //     </div>
 //   );
 // }
-'use client'
+'use client';
 import { registerUser } from '@/lib/actions/auth';
 import { useState } from 'react';
 
@@ -36,101 +36,111 @@ export default function RegisterPage() {
     password: '',
     firstName: '',
     lastName: '',
-    university: ''
-  })
-  const [message, setMessage] = useState<string | null>(null)
-  const [errors, setErrors] = useState<FormErrors | null>(null)
-  const [loading, setLoading] = useState(false)
+    university: '',
+  });
+  const [message, setMessage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // Client-side validation
   const validateForm = (): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: FormErrors = {};
 
     // Required field validation
-    if (!form.firstName.trim()) newErrors.firstName = ['First name is required']
-    if (!form.lastName.trim()) newErrors.lastName = ['Last name is required']
-    if (!form.email.trim()) newErrors.email = ['Email is required']
-    if (!form.password.trim()) newErrors.password = ['Password is required']
-    if (!form.university.trim()) newErrors.university = ['University is required']
+    if (!form.firstName.trim())
+      newErrors.firstName = ['First name is required'];
+    if (!form.lastName.trim()) newErrors.lastName = ['Last name is required'];
+    if (!form.email.trim()) newErrors.email = ['Email is required'];
+    if (!form.password.trim()) newErrors.password = ['Password is required'];
+    if (!form.university.trim())
+      newErrors.university = ['University is required'];
 
     // Email format validation
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = ['Please enter a valid email address']
+      newErrors.email = ['Please enter a valid email address'];
     }
 
     // University email validation
     if (form.email && !form.email.endsWith('.edu')) {
-      newErrors.email = ['Please use a university email address (.edu)']
+      newErrors.email = ['Please use a university email address (.edu)'];
     }
 
     // Password strength validation
     if (form.password && form.password.length < 8) {
-      newErrors.password = ['Password must be at least 8 characters long']
+      newErrors.password = ['Password must be at least 8 characters long'];
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return false
+      setErrors(newErrors);
+      return false;
     }
 
-    setErrors(null)
-    return true
-  }
+    setErrors(null);
+    return true;
+  };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setForm({ ...form, [name]: value })
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
 
     // Clear specific field error when user starts typing
     if (errors && errors[name]) {
-      const newErrors = { ...errors }
-      delete newErrors[name]
-      setErrors(Object.keys(newErrors).length > 0 ? newErrors : null)
+      const newErrors = { ...errors };
+      delete newErrors[name];
+      setErrors(Object.keys(newErrors).length > 0 ? newErrors : null);
     }
-  }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage(null)
-    setErrors(null)
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+    setErrors(null);
 
     // Client-side validation
     if (!validateForm()) {
-      setLoading(false)
-      return
+      setLoading(false);
+      return;
     }
 
     try {
-      const fd = new FormData()
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v))
-      const res = await registerUser(fd)
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      const res = await registerUser(fd);
 
       if (res.success) {
-        setMessage(res.message || 'Account created successfully!')
+        setMessage(res.message || 'Account created successfully!');
         // Clear form on success
         setForm({
           email: '',
           password: '',
           firstName: '',
           lastName: '',
-          university: ''
-        })
+          university: '',
+        });
       } else {
-        setErrors((res as any).errors || { general: ['Registration failed. Please try again.'] })
+        setErrors(
+          (res as any).errors || {
+            general: ['Registration failed. Please try again.'],
+          }
+        );
       }
     } catch (error) {
-      setErrors({ general: ['An unexpected error occurred. Please try again.'] })
+      setErrors({
+        general: ['An unexpected error occurred. Please try again.'],
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">Create an account</h1>
+          <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
+            Create an account
+          </h1>
           <form onSubmit={onSubmit} className="space-y-4">
             {/* First Name */}
             <div>
@@ -143,7 +153,9 @@ export default function RegisterPage() {
                 required
               />
               {errors?.firstName && (
-                <p className="text-sm text-red-600 mt-1">{errors.firstName[0]}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.firstName[0]}
+                </p>
               )}
             </div>
 
@@ -158,7 +170,9 @@ export default function RegisterPage() {
                 required
               />
               {errors?.lastName && (
-                <p className="text-sm text-red-600 mt-1">{errors.lastName[0]}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.lastName[0]}
+                </p>
               )}
             </div>
 
@@ -190,7 +204,9 @@ export default function RegisterPage() {
                 required
               />
               {errors?.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password[0]}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.password[0]}
+                </p>
               )}
             </div>
 
@@ -205,7 +221,9 @@ export default function RegisterPage() {
                 required
               />
               {errors?.university && (
-                <p className="text-sm text-red-600 mt-1">{errors.university[0]}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.university[0]}
+                </p>
               )}
             </div>
 
@@ -234,7 +252,10 @@ export default function RegisterPage() {
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
-              <a href="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+              <a
+                href="/login"
+                className="text-blue-600 hover:text-blue-500 font-medium"
+              >
                 Sign in here
               </a>
             </p>
@@ -242,5 +263,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -21,6 +21,7 @@
 This guide covers the complete deployment process for Campus Connect using Next.js 14+ with modern serverless architecture. The deployment strategy follows a unified, cloud-native approach using Vercel for hosting, serverless databases, and automated CI/CD pipelines.
 
 **Deployment Architecture:**
+
 - **Application:** Vercel (Next.js App Router with Edge Runtime)
 - **Database:** Neon or Supabase (Serverless PostgreSQL)
 - **Caching:** Upstash Redis (Serverless Redis)
@@ -82,6 +83,7 @@ ENABLE_METRICS=true
 ### Environment-Specific Configurations
 
 **Development:**
+
 ```bash
 # Local development
 NODE_ENV=development
@@ -92,6 +94,7 @@ LOG_LEVEL=debug
 ```
 
 **Staging:**
+
 ```bash
 # Staging environment
 NODE_ENV=staging
@@ -102,6 +105,7 @@ LOG_LEVEL=info
 ```
 
 **Production:**
+
 ```bash
 # Production environment
 NODE_ENV=production
@@ -239,20 +243,23 @@ staging.campusconnect.app CNAME staging.vercel.app
 ```javascript
 // Cloudflare Workers script for security headers
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-})
+  event.respondWith(handleRequest(event.request));
+});
 
 async function handleRequest(request) {
-  const response = await fetch(request)
-  
+  const response = await fetch(request);
+
   // Add security headers
-  const newResponse = new Response(response.body, response)
-  newResponse.headers.set('X-Frame-Options', 'DENY')
-  newResponse.headers.set('X-Content-Type-Options', 'nosniff')
-  newResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  newResponse.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  
-  return newResponse
+  const newResponse = new Response(response.body, response);
+  newResponse.headers.set('X-Frame-Options', 'DENY');
+  newResponse.headers.set('X-Content-Type-Options', 'nosniff');
+  newResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  newResponse.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=()'
+  );
+
+  return newResponse;
 }
 ```
 
@@ -328,12 +335,12 @@ async function handleRequest(request) {
 
 ```typescript
 // vite.config.ts
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  
+  const env = loadEnv(mode, process.cwd(), '');
+
   return {
     plugins: [react()],
     define: {
@@ -346,10 +353,10 @@ export default defineConfig(({ command, mode }) => {
           manualChunks: {
             vendor: ['react', 'react-dom'],
             router: ['react-router-dom'],
-            ui: ['@headlessui/react', '@heroicons/react']
-          }
-        }
-      }
+            ui: ['@headlessui/react', '@heroicons/react'],
+          },
+        },
+      },
     },
     server: {
       port: 5173,
@@ -357,12 +364,12 @@ export default defineConfig(({ command, mode }) => {
         '/api': {
           target: env.VITE_API_BASE_URL || 'http://localhost:3001',
           changeOrigin: true,
-          secure: true
-        }
-      }
-    }
-  }
-})
+          secure: true,
+        },
+      },
+    },
+  };
+});
 ```
 
 ### Deployment Commands
@@ -477,25 +484,25 @@ PORT = "3001"
 
 ```typescript
 // scripts/migrate.ts
-import { PrismaClient } from '@prisma/client'
-import { execSync } from 'child_process'
+import { PrismaClient } from '@prisma/client';
+import { execSync } from 'child_process';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function migrate() {
   try {
-    console.log('Running database migrations...')
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' })
-    console.log('Migrations completed successfully')
+    console.log('Running database migrations...');
+    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+    console.log('Migrations completed successfully');
   } catch (error) {
-    console.error('Migration failed:', error)
-    process.exit(1)
+    console.error('Migration failed:', error);
+    process.exit(1);
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
-migrate()
+migrate();
 ```
 
 **2. Pre-deployment Migration:**
@@ -529,27 +536,30 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 ```typescript
 // src/config/database.ts
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL
-    }
+      url: process.env.DATABASE_URL,
+    },
   },
-  log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['warn', 'error'],
-  errorFormat: 'pretty'
-})
+  log:
+    process.env.NODE_ENV === 'development'
+      ? ['query', 'info', 'warn', 'error']
+      : ['warn', 'error'],
+  errorFormat: 'pretty',
+});
 
 // Connection pool configuration
 const dbConfig = {
   connectionLimit: parseInt(process.env.DATABASE_POOL_SIZE || '10'),
   acquireTimeoutMillis: 60000,
   timeout: 60000,
-  reconnect: true
-}
+  reconnect: true,
+};
 
-export default prisma
+export default prisma;
 ```
 
 ### Database Backup Strategy
@@ -586,7 +596,7 @@ name: Database Backup
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
 
 jobs:
   backup:
@@ -787,11 +797,11 @@ jobs:
 
 ```typescript
 // src/routes/health.ts
-import { Router } from 'express'
-import prisma from '../config/database'
-import redis from '../config/redis'
+import { Router } from 'express';
+import prisma from '../config/database';
+import redis from '../config/redis';
 
-const router = Router()
+const router = Router();
 
 router.get('/health', async (req, res) => {
   try {
@@ -804,26 +814,26 @@ router.get('/health', async (req, res) => {
       services: {
         database: 'unknown',
         redis: 'unknown',
-        external: 'unknown'
-      }
-    }
+        external: 'unknown',
+      },
+    };
 
     // Check database
     try {
-      await prisma.$queryRaw`SELECT 1`
-      checks.services.database = 'healthy'
+      await prisma.$queryRaw`SELECT 1`;
+      checks.services.database = 'healthy';
     } catch (error) {
-      checks.services.database = 'unhealthy'
-      checks.status = 'unhealthy'
+      checks.services.database = 'unhealthy';
+      checks.status = 'unhealthy';
     }
 
     // Check Redis
     try {
-      await redis.ping()
-      checks.services.redis = 'healthy'
+      await redis.ping();
+      checks.services.redis = 'healthy';
     } catch (error) {
-      checks.services.redis = 'unhealthy'
-      checks.status = 'unhealthy'
+      checks.services.redis = 'unhealthy';
+      checks.status = 'unhealthy';
     }
 
     // Check external services
@@ -831,131 +841,149 @@ router.get('/health', async (req, res) => {
       // Check SendGrid
       const response = await fetch('https://api.sendgrid.com/v3/user/profile', {
         headers: {
-          'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`
-        }
-      })
-      checks.services.external = response.ok ? 'healthy' : 'unhealthy'
+          Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+        },
+      });
+      checks.services.external = response.ok ? 'healthy' : 'unhealthy';
     } catch (error) {
-      checks.services.external = 'unhealthy'
+      checks.services.external = 'unhealthy';
     }
 
-    const statusCode = checks.status === 'healthy' ? 200 : 503
-    res.status(statusCode).json(checks)
+    const statusCode = checks.status === 'healthy' ? 200 : 503;
+    res.status(statusCode).json(checks);
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: error.message
-    })
+      error: error.message,
+    });
   }
-})
+});
 
 router.get('/ready', async (req, res) => {
   try {
     // Check if all critical services are ready
-    await prisma.$queryRaw`SELECT 1`
-    await redis.ping()
-    
+    await prisma.$queryRaw`SELECT 1`;
+    await redis.ping();
+
     res.status(200).json({
       status: 'ready',
-      timestamp: new Date().toISOString()
-    })
+      timestamp: new Date().toISOString(),
+    });
   } catch (error) {
     res.status(503).json({
       status: 'not ready',
       timestamp: new Date().toISOString(),
-      error: error.message
-    })
+      error: error.message,
+    });
   }
-})
+});
 
-export default router
+export default router;
 ```
 
 ### Monitoring Dashboard
 
 ```typescript
 // src/middleware/metrics.ts
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express';
 
 interface Metrics {
-  requests: number
-  errors: number
-  responseTime: number
-  memoryUsage: NodeJS.MemoryUsage
+  requests: number;
+  errors: number;
+  responseTime: number;
+  memoryUsage: NodeJS.MemoryUsage;
 }
 
 const metrics: Metrics = {
   requests: 0,
   errors: 0,
   responseTime: 0,
-  memoryUsage: process.memoryUsage()
-}
+  memoryUsage: process.memoryUsage(),
+};
 
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now()
-  
+export const metricsMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const start = Date.now();
+
   res.on('finish', () => {
-    const duration = Date.now() - start
-    metrics.requests++
-    metrics.responseTime = duration
-    
-    if (res.statusCode >= 400) {
-      metrics.errors++
-    }
-    
-    // Update memory usage
-    metrics.memoryUsage = process.memoryUsage()
-  })
-  
-  next()
-}
+    const duration = Date.now() - start;
+    metrics.requests++;
+    metrics.responseTime = duration;
 
-export const getMetrics = () => metrics
+    if (res.statusCode >= 400) {
+      metrics.errors++;
+    }
+
+    // Update memory usage
+    metrics.memoryUsage = process.memoryUsage();
+  });
+
+  next();
+};
+
+export const getMetrics = () => metrics;
 ```
 
 ### Alerting Configuration
 
 ```typescript
 // src/services/alerting.ts
-import { WebhookClient } from 'discord.js'
-import fetch from 'node-fetch'
+import { WebhookClient } from 'discord.js';
+import fetch from 'node-fetch';
 
 class AlertingService {
-  private discordWebhook: WebhookClient
-  private slackWebhookUrl: string
+  private discordWebhook: WebhookClient;
+  private slackWebhookUrl: string;
 
   constructor() {
     this.discordWebhook = new WebhookClient({
-      url: process.env.DISCORD_WEBHOOK_URL!
-    })
-    this.slackWebhookUrl = process.env.SLACK_WEBHOOK_URL!
+      url: process.env.DISCORD_WEBHOOK_URL!,
+    });
+    this.slackWebhookUrl = process.env.SLACK_WEBHOOK_URL!;
   }
 
-  async sendAlert(level: 'info' | 'warning' | 'error', message: string, details?: any) {
+  async sendAlert(
+    level: 'info' | 'warning' | 'error',
+    message: string,
+    details?: any
+  ) {
     const alert = {
       level,
       message,
       details,
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV
-    }
+      environment: process.env.NODE_ENV,
+    };
 
     // Send to Discord
     try {
       await this.discordWebhook.send({
         content: `🚨 **${level.toUpperCase()}** - ${message}`,
-        embeds: [{
-          color: this.getColor(level),
-          fields: [
-            { name: 'Environment', value: process.env.NODE_ENV, inline: true },
-            { name: 'Timestamp', value: alert.timestamp, inline: true },
-            { name: 'Details', value: JSON.stringify(details, null, 2), inline: false }
-          ]
-        }]
-      })
+        embeds: [
+          {
+            color: this.getColor(level),
+            fields: [
+              {
+                name: 'Environment',
+                value: process.env.NODE_ENV,
+                inline: true,
+              },
+              { name: 'Timestamp', value: alert.timestamp, inline: true },
+              {
+                name: 'Details',
+                value: JSON.stringify(details, null, 2),
+                inline: false,
+              },
+            ],
+          },
+        ],
+      });
     } catch (error) {
-      console.error('Failed to send Discord alert:', error)
+      console.error('Failed to send Discord alert:', error);
     }
 
     // Send to Slack
@@ -965,32 +993,46 @@ class AlertingService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: `${level.toUpperCase()}: ${message}`,
-          attachments: [{
-            color: this.getColor(level),
-            fields: [
-              { title: 'Environment', value: process.env.NODE_ENV, short: true },
-              { title: 'Timestamp', value: alert.timestamp, short: true },
-              { title: 'Details', value: JSON.stringify(details, null, 2), short: false }
-            ]
-          }]
-        })
-      })
+          attachments: [
+            {
+              color: this.getColor(level),
+              fields: [
+                {
+                  title: 'Environment',
+                  value: process.env.NODE_ENV,
+                  short: true,
+                },
+                { title: 'Timestamp', value: alert.timestamp, short: true },
+                {
+                  title: 'Details',
+                  value: JSON.stringify(details, null, 2),
+                  short: false,
+                },
+              ],
+            },
+          ],
+        }),
+      });
     } catch (error) {
-      console.error('Failed to send Slack alert:', error)
+      console.error('Failed to send Slack alert:', error);
     }
   }
 
   private getColor(level: string): number {
     switch (level) {
-      case 'info': return 0x3498db
-      case 'warning': return 0xf39c12
-      case 'error': return 0xe74c3c
-      default: return 0x95a5a6
+      case 'info':
+        return 0x3498db;
+      case 'warning':
+        return 0xf39c12;
+      case 'error':
+        return 0xe74c3c;
+      default:
+        return 0x95a5a6;
     }
   }
 }
 
-export const alertingService = new AlertingService()
+export const alertingService = new AlertingService();
 ```
 
 ---
@@ -1001,14 +1043,14 @@ export const alertingService = new AlertingService()
 
 ```typescript
 // src/middleware/rollback.ts
-import { Request, Response, NextFunction } from 'express'
-import { alertingService } from '../services/alerting'
+import { Request, Response, NextFunction } from 'express';
+import { alertingService } from '../services/alerting';
 
 interface RollbackMetrics {
-  errorRate: number
-  responseTime: number
-  requests: number
-  errors: number
+  errorRate: number;
+  responseTime: number;
+  requests: number;
+  errors: number;
 }
 
 class RollbackService {
@@ -1016,78 +1058,83 @@ class RollbackService {
     errorRate: 0,
     responseTime: 0,
     requests: 0,
-    errors: 0
-  }
+    errors: 0,
+  };
 
-  private readonly ERROR_RATE_THRESHOLD = 0.05 // 5%
-  private readonly RESPONSE_TIME_THRESHOLD = 2000 // 2 seconds
+  private readonly ERROR_RATE_THRESHOLD = 0.05; // 5%
+  private readonly RESPONSE_TIME_THRESHOLD = 2000; // 2 seconds
 
   checkRollbackConditions(req: Request, res: Response, next: NextFunction) {
-    const start = Date.now()
+    const start = Date.now();
 
     res.on('finish', () => {
-      const duration = Date.now() - start
-      
-      this.metrics.requests++
-      this.metrics.responseTime = duration
-      
+      const duration = Date.now() - start;
+
+      this.metrics.requests++;
+      this.metrics.responseTime = duration;
+
       if (res.statusCode >= 400) {
-        this.metrics.errors++
+        this.metrics.errors++;
       }
 
-      this.metrics.errorRate = this.metrics.errors / this.metrics.requests
+      this.metrics.errorRate = this.metrics.errors / this.metrics.requests;
 
       // Check rollback conditions
       if (this.shouldRollback()) {
-        this.initiateRollback()
+        this.initiateRollback();
       }
-    })
+    });
 
-    next()
+    next();
   }
 
   private shouldRollback(): boolean {
     return (
       this.metrics.errorRate > this.ERROR_RATE_THRESHOLD ||
       this.metrics.responseTime > this.RESPONSE_TIME_THRESHOLD
-    )
+    );
   }
 
   private async initiateRollback() {
-    console.log('🚨 Rollback conditions met, initiating rollback...')
-    
+    console.log('🚨 Rollback conditions met, initiating rollback...');
+
     await alertingService.sendAlert('error', 'Automatic rollback initiated', {
       errorRate: this.metrics.errorRate,
       responseTime: this.metrics.responseTime,
-      requests: this.metrics.requests
-    })
+      requests: this.metrics.requests,
+    });
 
     // Trigger rollback via Railway API
     try {
-      const response = await fetch(`https://backboard.railway.app/projects/${process.env.RAILWAY_PROJECT_ID}/deployments`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RAILWAY_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          rollback: true
-        })
-      })
+      const response = await fetch(
+        `https://backboard.railway.app/projects/${process.env.RAILWAY_PROJECT_ID}/deployments`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.RAILWAY_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            rollback: true,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`Rollback failed: ${response.statusText}`)
+        throw new Error(`Rollback failed: ${response.statusText}`);
       }
 
-      console.log('✅ Rollback initiated successfully')
+      console.log('✅ Rollback initiated successfully');
     } catch (error) {
-      console.error('❌ Rollback failed:', error)
-      await alertingService.sendAlert('error', 'Automatic rollback failed', { error: error.message })
+      console.error('❌ Rollback failed:', error);
+      await alertingService.sendAlert('error', 'Automatic rollback failed', {
+        error: error.message,
+      });
     }
   }
 }
 
-export const rollbackService = new RollbackService()
+export const rollbackService = new RollbackService();
 ```
 
 ### Manual Rollback Process
@@ -1157,12 +1204,12 @@ server {
 
     ssl_certificate /path/to/certificate.crt;
     ssl_certificate_key /path/to/private.key;
-    
+
     # SSL configuration
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;
     ssl_prefer_server_ciphers off;
-    
+
     # Security headers
     add_header Strict-Transport-Security "max-age=63072000" always;
     add_header X-Frame-Options DENY;
@@ -1192,8 +1239,8 @@ CREATE POLICY message_isolation ON messages
     USING (
         sender_id = current_setting('app.current_user_id')::uuid OR
         connection_id IN (
-            SELECT id FROM connections 
-            WHERE requester_id = current_setting('app.current_user_id')::uuid 
+            SELECT id FROM connections
+            WHERE requester_id = current_setting('app.current_user_id')::uuid
                OR target_id = current_setting('app.current_user_id')::uuid
         )
     );
@@ -1275,5 +1322,5 @@ curl https://api.campusconnect.app/metrics
 
 ---
 
-*Last Updated: Oct 2025*  
-*Deployment Guide Version: 1.0.0*
+_Last Updated: Oct 2025_  
+_Deployment Guide Version: 1.0.0_

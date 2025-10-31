@@ -20,20 +20,10 @@ const protectedRoutes = [
 ];
 
 // Auth routes that should redirect if already authenticated
-const authRoutes = [
-  '/login',
-  '/register',
-  '/forgot-password',
-];
+const authRoutes = ['/login', '/register', '/forgot-password'];
 
 // Public routes that don't require authentication
-const publicRoutes = [
-  '/',
-  '/about',
-  '/contact',
-  '/privacy',
-  '/terms',
-];
+const publicRoutes = ['/', '/about', '/contact', '/privacy', '/terms'];
 
 function getRateLimitKey(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
@@ -57,12 +47,18 @@ function isRateLimited(request: NextRequest): boolean {
   const current = rateLimitStore.get(key);
 
   if (!current) {
-    rateLimitStore.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    rateLimitStore.set(key, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW_MS,
+    });
     return false;
   }
 
   if (current.resetTime < now) {
-    rateLimitStore.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    rateLimitStore.set(key, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW_MS,
+    });
     return false;
   }
 
@@ -77,7 +73,10 @@ function isRateLimited(request: NextRequest): boolean {
 async function isAuthenticated(request: NextRequest): Promise<boolean> {
   try {
     const session = await auth();
-    console.log('🔍 Middleware auth check:', { hasSession: !!session, user: session?.user?.email });
+    console.log('🔍 Middleware auth check:', {
+      hasSession: !!session,
+      user: session?.user?.email,
+    });
 
     if (!session?.user) {
       console.log('❌ No session or user found');
@@ -123,14 +122,14 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(
       JSON.stringify({
         error: 'Too many requests',
-        message: 'Rate limit exceeded. Please try again later.'
+        message: 'Rate limit exceeded. Please try again later.',
       }),
       {
         status: 429,
         headers: {
           'Content-Type': 'application/json',
-          'Retry-After': '900' // 15 minutes
-        }
+          'Retry-After': '900', // 15 minutes
+        },
       }
     );
   }

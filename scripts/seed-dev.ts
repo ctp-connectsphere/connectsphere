@@ -1,32 +1,32 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
-import { config } from '../src/lib/config/env'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { config } from '../src/lib/config/env';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 // Check if we're in development mode
 if (config.isProduction) {
-  console.error('❌ Development seeding is not allowed in production')
-  process.exit(1)
+  console.error('❌ Development seeding is not allowed in production');
+  process.exit(1);
 }
 
 async function seedDevelopment() {
-  console.log('🌱 Starting development database seeding...')
+  console.log('🌱 Starting development database seeding...');
 
   // Clear existing data (development only)
-  console.log('🧹 Clearing existing data...')
-  await prisma.matchCache.deleteMany()
-  await prisma.message.deleteMany()
-  await prisma.connection.deleteMany()
-  await prisma.availability.deleteMany()
-  await prisma.userCourse.deleteMany()
-  await prisma.userProfile.deleteMany()
-  await prisma.user.deleteMany()
-  await prisma.course.deleteMany()
-  await prisma.university.deleteMany()
+  console.log('🧹 Clearing existing data...');
+  await prisma.matchCache.deleteMany();
+  await prisma.message.deleteMany();
+  await prisma.connection.deleteMany();
+  await prisma.availability.deleteMany();
+  await prisma.userCourse.deleteMany();
+  await prisma.userProfile.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.course.deleteMany();
+  await prisma.university.deleteMany();
 
   // Create universities
-  console.log('📚 Creating universities...')
+  console.log('📚 Creating universities...');
   const universities = await Promise.all([
     prisma.university.create({
       data: {
@@ -42,12 +42,12 @@ async function seedDevelopment() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${universities.length} universities`)
+  console.log(`✅ Created ${universities.length} universities`);
 
   // Create courses
-  console.log('📖 Creating courses...')
+  console.log('📖 Creating courses...');
   const courses = await Promise.all([
     prisma.course.create({
       data: {
@@ -73,13 +73,13 @@ async function seedDevelopment() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${courses.length} courses`)
+  console.log(`✅ Created ${courses.length} courses`);
 
   // Create test users
-  console.log('👥 Creating test users...')
-  const hashedPassword = await bcrypt.hash('password123', 12)
+  console.log('👥 Creating test users...');
+  const hashedPassword = await bcrypt.hash('password123', 12);
 
   const users = await Promise.all([
     prisma.user.create({
@@ -104,12 +104,12 @@ async function seedDevelopment() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log(`✅ Created ${users.length} test users`)
+  console.log(`✅ Created ${users.length} test users`);
 
   // Create user profiles
-  console.log('👤 Creating user profiles...')
+  console.log('👤 Creating user profiles...');
   await Promise.all([
     prisma.userProfile.create({
       data: {
@@ -129,12 +129,12 @@ async function seedDevelopment() {
         bio: 'Demo user for showcasing application features.',
       },
     }),
-  ])
+  ]);
 
-  console.log('✅ Created user profiles')
+  console.log('✅ Created user profiles');
 
   // Create course enrollments
-  console.log('📚 Creating course enrollments...')
+  console.log('📚 Creating course enrollments...');
   await Promise.all([
     prisma.userCourse.create({
       data: {
@@ -157,12 +157,12 @@ async function seedDevelopment() {
         isActive: true,
       },
     }),
-  ])
+  ]);
 
-  console.log('✅ Created course enrollments')
+  console.log('✅ Created course enrollments');
 
   // Create availability
-  console.log('⏰ Creating availability data...')
+  console.log('⏰ Creating availability data...');
   await Promise.all([
     prisma.availability.create({
       data: {
@@ -180,32 +180,32 @@ async function seedDevelopment() {
         endTime: '13:00',
       },
     }),
-  ])
+  ]);
 
-  console.log('✅ Created availability data')
+  console.log('✅ Created availability data');
 
-  console.log('🎉 Development seeding completed!')
-  console.log('')
-  console.log('📧 Test credentials:')
-  console.log('   - test@berkeley.edu / password123')
-  console.log('   - demo@berkeley.edu / password123')
-  console.log('')
-  console.log('🔗 Useful links:')
-  console.log('   - Prisma Studio: npm run db:studio')
-  console.log('   - Database Manager: npm run db:manager')
-  console.log('   - Debug Database: npm run debug:db')
-  console.log('')
-  console.log('💡 Tips:')
-  console.log('   - Use these credentials to test the application')
-  console.log('   - Check Prisma Studio to explore the data')
-  console.log('   - Run npm run db:reset:dev to reset and reseed')
+  console.log('🎉 Development seeding completed!');
+  console.log('');
+  console.log('📧 Test credentials:');
+  console.log('   - test@berkeley.edu / password123');
+  console.log('   - demo@berkeley.edu / password123');
+  console.log('');
+  console.log('🔗 Useful links:');
+  console.log('   - Prisma Studio: npm run db:studio');
+  console.log('   - Database Manager: npm run db:manager');
+  console.log('   - Debug Database: npm run debug:db');
+  console.log('');
+  console.log('💡 Tips:');
+  console.log('   - Use these credentials to test the application');
+  console.log('   - Check Prisma Studio to explore the data');
+  console.log('   - Run npm run db:reset:dev to reset and reseed');
 }
 
 seedDevelopment()
-  .catch((e) => {
-    console.error('❌ Development seeding failed:', e)
-    process.exit(1)
+  .catch(e => {
+    console.error('❌ Development seeding failed:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

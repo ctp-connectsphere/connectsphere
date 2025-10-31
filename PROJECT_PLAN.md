@@ -5,8 +5,9 @@ This document outlines the step-by-step implementation plan for the Campus Conne
 ## ⚠️ Important Considerations
 
 **MVP Recommendation:** For faster initial launch, consider focusing on a leaner MVP consisting of:
+
 - **Phase 1:** Project Foundation & Infrastructure
-- **Phase 2:** Authentication System  
+- **Phase 2:** Authentication System
 - **Phase 3:** Core User Features
 - **Phase 4:** Core Matching Algorithm (Epic 11-12 only)
 - **Phase 6:** Essential Testing (Epic 19-20)
@@ -18,6 +19,7 @@ Defer Phase 5 (Real-time Features) and advanced Phase 4 features until post-MVP.
 For rapid initial deployment, focus on these essential components:
 
 ### Core MVP Features:
+
 - ✅ User registration and authentication
 - ✅ Basic profile management
 - ✅ Course enrollment system
@@ -27,6 +29,7 @@ For rapid initial deployment, focus on these essential components:
 - ✅ Essential testing and deployment
 
 ### MVP Exclusions (Post-Launch):
+
 - Real-time messaging and notifications
 - Advanced connection management
 - Online status and presence
@@ -55,6 +58,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want the project to be properly initialized with Next.js 14+ App Router, TypeScript, and essential development tools so that I can start building the application efficiently.
 
 **Tasks:**
+
 - [ ] [Backend] Initialize Next.js 14+ project with App Router and TypeScript
   - **Commit Message:** `chore(project): Initialize Next.js 14 project with TypeScript`
 - [ ] [Backend] Configure ESLint and Prettier with strict TypeScript settings
@@ -81,6 +85,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want the database schema to be properly configured with Prisma and PostgreSQL so that I can store and retrieve user data efficiently.
 
 **Tasks:**
+
 - [ ] [Backend] Set up Neon PostgreSQL database instance
   - **Commit Message:** `chore(db): Configure Neon PostgreSQL instance`
 - [ ] [Backend] Configure Prisma client with connection pooling
@@ -105,6 +110,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want a properly configured development environment so that I can develop, test, and debug the application efficiently.
 
 **Tasks:**
+
 - [ ] [Backend] Configure VS Code workspace settings and recommended extensions
   - **Commit Message:** `chore(dev): Configure VS Code workspace settings`
 - [ ] [Backend] Set up development database connection with proper error handling
@@ -129,6 +135,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to be able to authenticate securely using my university email and password so that I can access the application.
 
 **Tasks:**
+
 - [ ] [Backend] Install and configure NextAuth.js v5 with proper TypeScript types
   - **Commit Message:** `feat(auth): Install and configure NextAuth.js v5`
 - [ ] [Backend] Set up credentials provider for email/password authentication
@@ -151,6 +158,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a new user, I want to register for an account using my university email so that I can start using the application.
 
 **Tasks:**
+
 - [ ] [Frontend] Create registration form component with proper validation
   - **Commit Message:** `feat(auth): Create registration form component`
 - [ ] [Backend] Implement registration Server Action with Zod schema validation
@@ -173,6 +181,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a registered user, I want to log in securely and maintain my session so that I can access the application without re-authenticating.
 
 **Tasks:**
+
 - [ ] [Frontend] Create login form component with proper validation
   - **Commit Message:** `feat(auth): Create login form component`
 - [ ] [Backend] Implement login Server Action with credential verification
@@ -197,6 +206,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to create and manage my profile with study preferences so that the matching algorithm can find compatible study partners.
 
 **Tasks:**
+
 - [ ] [Frontend] Create profile creation form with study preference fields
   - **Commit Message:** `feat(profile): Create profile creation form`
 - [ ] [Backend] Implement profile creation Server Action with validation
@@ -219,6 +229,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to search for and enroll in courses so that I can find study partners for my classes.
 
 **Tasks:**
+
 - [ ] [Frontend] Create course search interface with filtering options
   - **Commit Message:** `feat(courses): Create course search interface`
 - [ ] [Backend] Implement course search functionality with database queries
@@ -241,6 +252,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to set my weekly availability so that the matching algorithm can find partners with overlapping free time.
 
 **Tasks:**
+
 - [ ] [Frontend] Create availability grid component with time slot selection
   - **Commit Message:** `feat(availability): Create availability grid component`
 - [ ] [Backend] Implement availability management Server Actions
@@ -263,6 +275,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want a comprehensive dashboard that shows my profile overview, courses, and navigation so that I can easily access all features.
 
 **Tasks:**
+
 - [ ] [Frontend] Design and implement dashboard layout with responsive design
   - **Commit Message:** `feat(dashboard): Design and implement dashboard layout`
 - [ ] [Frontend] Create profile overview section with key information
@@ -287,6 +300,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want the system to find compatible study partners based on shared courses, availability, and preferences so that I can find the best matches.
 
 **Tasks:**
+
 - [ ] [Backend] Implement core matching algorithm with compatibility scoring
   - **Commit Message:** `feat(matching): Implement core matching algorithm`
 - [ ] [Backend] Create course overlap detection and filtering
@@ -309,6 +323,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to see my potential study partners with filtering options so that I can find the most suitable matches.
 
 **Tasks:**
+
 - [ ] [Frontend] Create match results display component with card layout
   - **Commit Message:** `feat(matching): Create match results display component`
 - [ ] [Frontend] Implement match filtering options (score, availability, preferences)
@@ -331,6 +346,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to send and receive connection requests so that I can connect with potential study partners.
 
 **Tasks:**
+
 - [ ] [Frontend] Create connection request interface with message input
   - **Commit Message:** `feat(connections): Create connection request interface`
 - [ ] [Backend] Implement connection request Server Action with validation
@@ -353,6 +369,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to manage my connections and view connection history so that I can track my study partnerships.
 
 **Tasks:**
+
 - [ ] [Frontend] Create connections list interface with status indicators
   - **Commit Message:** `feat(connections): Create connections list interface`
 - [ ] [Frontend] Build connection history view with filtering options
@@ -377,6 +394,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want real-time communication features so that I can receive instant notifications and messages.
 
 **Tasks:**
+
 - [ ] [Backend] Set up Pusher account and configuration
   - **Commit Message:** `chore(realtime): Set up Pusher account and configuration`
 - [ ] [Backend] Implement Pusher client setup with authentication
@@ -399,6 +417,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a connected user, I want to send and receive messages in real-time so that I can communicate with my study partners.
 
 **Tasks:**
+
 - [ ] [Frontend] Create chat interface components with message display
   - **Commit Message:** `feat(chat): Create chat interface components`
 - [ ] [Backend] Implement message sending Server Action with validation
@@ -421,6 +440,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to receive real-time notifications for connection requests and messages so that I can respond promptly.
 
 **Tasks:**
+
 - [ ] [Backend] Create notification system architecture with Pusher
   - **Commit Message:** `feat(notifications): Create notification system architecture`
 - [ ] [Backend] Implement connection request notification delivery
@@ -443,6 +463,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want to see when my study partners are online so that I can know when they're available to study.
 
 **Tasks:**
+
 - [ ] [Backend] Implement online status tracking with Pusher presence
   - **Commit Message:** `feat(presence): Implement online status tracking`
 - [ ] [Frontend] Create presence indicators in chat and connection lists
@@ -467,6 +488,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want comprehensive testing infrastructure so that I can ensure code quality and prevent regressions.
 
 **Tasks:**
+
 - [ ] [Backend] Configure Vitest for unit testing with TypeScript support
   - **Commit Message:** `chore(testing): Configure Vitest for unit testing`
 - [ ] [Backend] Set up Playwright for end-to-end testing
@@ -489,6 +511,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want comprehensive unit and integration tests so that I can verify all functionality works correctly.
 
 **Tasks:**
+
 - [ ] [Backend] Write unit tests for all Server Actions and utilities
   - **Commit Message:** `test(unit): Add tests for server actions and utils`
 - [ ] [Backend] Create integration tests for database operations
@@ -511,6 +534,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want end-to-end tests for critical user journeys so that I can ensure the complete application works as expected.
 
 **Tasks:**
+
 - [ ] [Backend] Create E2E tests for user registration and login flow
   - **Commit Message:** `test(e2e): Add tests for registration and login flow`
 - [ ] [Backend] Test profile creation and editing complete workflow
@@ -535,6 +559,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want the application deployed to production with proper configuration so that users can access the live application.
 
 **Tasks:**
+
 - [ ] [Backend] Configure Vercel project settings and environment variables
   - **Commit Message:** `chore(deploy): Configure Vercel project settings`
 - [ ] [Backend] Set up production environment variables and secrets
@@ -557,6 +582,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want comprehensive monitoring and analytics so that I can track application performance and user behavior.
 
 **Tasks:**
+
 - [ ] [Backend] Set up Vercel Analytics for performance monitoring
   - **Commit Message:** `feat(monitoring): Set up Vercel Analytics`
 - [ ] [Backend] Configure error tracking with Sentry
@@ -579,6 +605,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want the application to be secure in production so that user data is protected and the application is safe from attacks.
 
 **Tasks:**
+
 - [ ] [Backend] Implement production rate limiting with Upstash
   - **Commit Message:** `chore(security): Implement production rate limiting`
 - [ ] [Backend] Set up security headers and CORS policies
@@ -601,6 +628,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want the application to be fast and responsive so that I can use it efficiently without delays.
 
 **Tasks:**
+
 - [ ] [Backend] Optimize database queries and add proper indexing
   - **Commit Message:** `perf(db): Optimize queries and add indexes`
 - [ ] [Backend] Implement caching optimizations for frequently accessed data
@@ -625,6 +653,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a user, I want comprehensive documentation and help so that I can understand how to use the application effectively.
 
 **Tasks:**
+
 - [ ] [Frontend] Create user onboarding flow with interactive tutorials
   - **Commit Message:** `feat(docs): Create user onboarding flow`
 - [ ] [Frontend] Write comprehensive user help documentation
@@ -647,6 +676,7 @@ For rapid initial deployment, focus on these essential components:
 **User Story:** As a developer, I want to conduct final testing and prepare for launch so that the application is ready for public use.
 
 **Tasks:**
+
 - [ ] [Backend] Conduct final integration testing across all features
   - **Commit Message:** `test(integration): Conduct final integration testing`
 - [ ] [Backend] Perform comprehensive security audit and penetration testing
@@ -667,6 +697,7 @@ For rapid initial deployment, focus on these essential components:
 ## Implementation Notes
 
 ### Dependencies and Order
+
 - **Phase 1** must be completed before any other phases
 - **Phase 2** (Authentication) must be completed before Phase 3
 - **Phase 3** (Core Features) must be completed before Phase 4
@@ -677,6 +708,7 @@ For rapid initial deployment, focus on these essential components:
 - **Phase 8** (Documentation) can be done in parallel with Phase 7
 
 ### Technology Stack Reference
+
 - **Framework:** Next.js 14+ with App Router
 - **Database:** PostgreSQL with Prisma ORM
 - **Caching:** Upstash Redis
@@ -688,14 +720,16 @@ For rapid initial deployment, focus on these essential components:
 - **Monitoring:** Vercel Analytics + Sentry
 
 ### Key Files to Reference
+
 - **Database Schema:** `docs/DATABASE_SCHEMA.md`
 - **API Reference:** `docs/API_REFERENCE.md`
 - **Architecture Decisions:** `docs/ARCHITECTURE_DECISIONS.md`
-- **Testing Guide:** `docs/TESTING_GUIDE.md`
+- **Testing Guide:** `docs/TESTING.md`
 - **Deployment Guide:** `docs/DEPLOYMENT_GUIDE.md`
 - **Technical Documentation:** `docs/TECHNICAL_DOCUMENTATION.md`
 
 ### Success Criteria
+
 - All user stories must have working functionality
 - All tasks must include proper error handling and validation
 - All code must follow the established patterns and conventions
@@ -705,6 +739,7 @@ For rapid initial deployment, focus on these essential components:
 - The application must be fully responsive and mobile-friendly
 
 ### Developer Notes
+
 - **Task Tagging:** Tasks are tagged as `[Backend]` or `[Frontend]` to indicate primary responsibility, but Next.js App Router blurs these lines. Some "Backend" tasks involve frontend components and vice versa.
 - **Scope Management:** This is a comprehensive plan. Consider implementing in iterations, starting with the MVP scope outlined above.
 - **Testing Strategy:** Implement testing throughout development, not just at the end. Each epic should include test implementation.
@@ -712,4 +747,4 @@ For rapid initial deployment, focus on these essential components:
 
 ---
 
-*This project plan serves as the comprehensive implementation guide for Campus Connect. Each task should be completed with attention to detail, proper testing, and documentation updates.*
+_This project plan serves as the comprehensive implementation guide for Campus Connect. Each task should be completed with attention to detail, proper testing, and documentation updates._

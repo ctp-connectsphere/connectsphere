@@ -1,3 +1,3 @@
-import { GET, POST } from '@/lib/auth/config'
+import { GET, POST } from '@/lib/auth/config';
 
-export { GET, POST }
+export { GET, POST };
