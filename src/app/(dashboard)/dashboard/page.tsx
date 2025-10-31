@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-secondary">
-      <div className="flex">
+      <div className="flex items-stretch">
         {/* Sidebar Navigation */}
         <div className="hidden md:block">
           <Sidebar navItems={navigationItems} />
