@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import {
   Card,
   CardContent,
@@ -11,7 +12,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const email = searchParams.get('email');
@@ -45,7 +46,9 @@ export default function VerifyEmailPage() {
 
       if (result.success) {
         setStatus('success');
-        setMessage(result.message || 'Your email has been verified successfully!');
+        setMessage(
+          result.message || 'Your email has been verified successfully!'
+        );
       } else {
         if (result.errorType === 'EXPIRED') {
           setStatus('expired');
@@ -88,7 +91,8 @@ export default function VerifyEmailPage() {
         );
       } else {
         setMessage(
-          result.message || 'Failed to resend verification email. Please try again.'
+          result.message ||
+            'Failed to resend verification email. Please try again.'
         );
       }
     } catch (error) {
@@ -243,3 +247,10 @@ export default function VerifyEmailPage() {
   );
 }
 
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
