@@ -84,18 +84,17 @@ export default function ForgotPasswordPage() {
                     </p>
                     <a
                       href={
-                        (message.match(/https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/) || [])
-                          [0] || '#'
+                        (message.match(
+                          /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
+                        ) || [])[0] || '#'
                       }
                       className="text-sm text-blue-600 underline break-all"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {
-                        (message.match(
-                          /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
-                        ) || [])[0] || 'Link unavailable'
-                      }
+                      {(message.match(
+                        /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
+                      ) || [])[0] || 'Link unavailable'}
                     </a>
                     <p className="text-xs text-blue-600 mt-2">
                       Click the link above to reset your password

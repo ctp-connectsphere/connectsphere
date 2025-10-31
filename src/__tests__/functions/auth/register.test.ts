@@ -68,7 +68,9 @@ describe('registerUser', () => {
 
     expect(result.success).toBe(false);
     expect(
-      result.errors && typeof result.errors === 'object' && 'email' in result.errors
+      result.errors &&
+        typeof result.errors === 'object' &&
+        'email' in result.errors
     ).toBe(true);
   });
 
@@ -113,7 +115,9 @@ describe('registerUser', () => {
 
     expect(result.success).toBe(false);
     expect(
-      result.errors && typeof result.errors === 'object' && 'email' in result.errors
+      result.errors &&
+        typeof result.errors === 'object' &&
+        'email' in result.errors
     ).toBe(true);
   });
 });
