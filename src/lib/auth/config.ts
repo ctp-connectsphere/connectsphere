@@ -34,7 +34,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         try {
           const user = await prisma.user.findUnique({ where: { email } });
-          if (!user || !user.isVerified) {
+          if (!user) {
+            return null;
+          }
+
+          // Temporarily allow unverified sign-in for demo if explicitly enabled
+          const allowUnverified = process.env.ALLOW_UNVERIFIED_SIGNIN === 'true';
+          if (!user.isVerified && !allowUnverified) {
             return null;
           }
 
