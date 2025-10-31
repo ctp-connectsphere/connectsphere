@@ -1,5 +1,6 @@
 'use client';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
@@ -104,7 +105,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <Card variant="elevated" className="p-8">
+        <Card className="p-8 bg-white text-gray-900 shadow-md">
           <div className="text-center mb-8">
             <Logo size="large" variant="full" className="justify-center mb-6" />
             <h1 className="text-title-1 text-primary mb-2">Welcome back</h1>
@@ -182,12 +183,9 @@ export default function LoginPage() {
               </div>
             )}
 
-            <button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
-            >
+            <Button variant="primary" fullWidth disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-4 text-center">
