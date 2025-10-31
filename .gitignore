@@ -193,3 +193,7 @@ secrets/
 *.pem
 
 /generated/prisma
+
+# Project planning docs (keep local only)
+/PROJECT_PLAN.md
+/docs/PROJECT_PROGRESS.md
