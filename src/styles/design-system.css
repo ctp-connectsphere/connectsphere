@@ -322,7 +322,7 @@
 
 /* Apple Navigation Styles */
 .nav-sidebar {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-card);
   border-right: 1px solid var(--color-gray-200);
   padding: var(--space-6);
   min-height: 100vh;
