@@ -40,7 +40,7 @@ export default async function DashboardPage() {
 
             {/* Email Verification Banner */}
             {session.user && !(session as any).user?.emailVerifiedAt && (
-              <Card variant="filled" className="mb-6 border-yellow-200">
+              <Card className="mb-6 border-yellow-200 bg-white text-gray-900 shadow-sm">
                 <CardContent className="pt-6">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
 
             {/* Status Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <Card variant="elevated">
+              <Card className="bg-white text-gray-900 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card variant="elevated">
+              <Card className="bg-white text-gray-900 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card variant="elevated">
+              <Card className="bg-white text-gray-900 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
@@ -185,7 +185,7 @@ export default async function DashboardPage() {
 
             {/* User Information Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <Card>
+              <Card className="bg-white text-gray-900 shadow-sm">
                 <CardHeader>
                   <CardTitle>Profile Information</CardTitle>
                   <CardDescription>
@@ -217,7 +217,7 @@ export default async function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white text-gray-900 shadow-sm">
                 <CardHeader>
                   <CardTitle>Session Details</CardTitle>
                   <CardDescription>
@@ -252,7 +252,7 @@ export default async function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <Card>
+            <Card className="bg-white text-gray-900 shadow-sm">
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
                 <CardDescription>
