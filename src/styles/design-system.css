@@ -325,10 +325,13 @@
   background-color: var(--bg-card);
   border-right: 1px solid var(--color-gray-200);
   padding: var(--space-6);
+  padding-bottom: var(--space-2);
   height: 100vh; /* ensure full viewport height */
   width: 280px;
-  display: flex;          /* allow pushing user section to bottom */
+  display: flex; /* allow pushing user section to bottom */
   flex-direction: column; /* stack items vertically */
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .nav-item {
