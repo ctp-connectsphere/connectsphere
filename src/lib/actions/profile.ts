@@ -159,11 +159,15 @@ export async function uploadProfileImage(formData: FormData) {
       if (oldPublicId) {
         // Note: We don't await this to avoid blocking the upload
         // Cloudinary will clean up old images automatically
-        import('@/lib/storage/cloudinary').then(({ deleteFromCloudinary }) =>
-          deleteFromCloudinary(oldPublicId).catch(() => {
-            // Silently fail - old image cleanup is not critical
+        import('@/lib/storage/cloudinary')
+          .then(({ deleteFromCloudinary }) => {
+            if (deleteFromCloudinary) {
+              return deleteFromCloudinary(oldPublicId);
+            }
           })
-        );
+          .catch(() => {
+            // Silently fail - old image cleanup is not critical
+          });
       }
     }
 
