@@ -2,13 +2,23 @@
 
 /**
  * Test email service functionality
+ * 
+ * Tests all email types: verification, password reset, welcome
+ * 
+ * Usage:
+ *   npm run test:email
+ *   TEST_EMAIL_TO=your-email@example.com npm run test:email
  */
 
 import 'dotenv/config';
-import { sendPasswordResetEmail } from '../../../src/lib/email/service';
+import {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from '../../../src/lib/email/service';
 
 async function testEmailService() {
-  console.log('📧 Testing email service...');
+  console.log('📧 Testing email service...\n');
 
   // Check environment variables
   console.log('🔧 Environment check:');
@@ -33,6 +43,7 @@ async function testEmailService() {
     console.log(
       '4. Add to .env file: EMAIL_FROM=your-verified-domain@example.com'
     );
+    console.log('\n📚 See docs/EMAIL_DOMAIN_SETUP.md for full setup guide');
     return;
   }
 
@@ -48,26 +59,72 @@ async function testEmailService() {
     console.log(
       '   💡 To send to other emails, verify a domain: https://resend.com/domains'
     );
+    console.log('   📚 See docs/EMAIL_DOMAIN_SETUP.md for domain verification');
+  } else {
+    console.log(`\n✅ Using verified domain: ${emailFrom}`);
+    console.log(`   Sending to: ${testEmail}`);
   }
 
-  try {
-    console.log('\n📤 Sending test password reset email...');
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const testUserName = 'Test User';
 
-    const result = await sendPasswordResetEmail(
+  // Test 1: Verification Email
+  console.log('\n📤 Test 1: Sending verification email...');
+  try {
+    const verifyResult = await sendVerificationEmail(
       testEmail,
-      'http://localhost:3000/reset-password?token=test-token-123',
-      'Yiming Gao'
+      `${baseUrl}/verify-email?token=test-verification-token-123`,
+      testUserName
     );
 
-    if (result.success) {
-      console.log('✅ Email sent successfully!');
-      console.log('📧 Check your email inbox for the password reset email');
+    if (verifyResult.success) {
+      console.log('✅ Verification email sent successfully!');
     } else {
-      console.log('❌ Email sending failed:', result.error);
+      console.log('❌ Verification email failed:', verifyResult.error);
     }
   } catch (error) {
-    console.error('❌ Email service error:', error);
+    console.error('❌ Verification email error:', error);
   }
+
+  // Test 2: Password Reset Email
+  console.log('\n📤 Test 2: Sending password reset email...');
+  try {
+    const resetResult = await sendPasswordResetEmail(
+      testEmail,
+      `${baseUrl}/reset-password?token=test-reset-token-123`,
+      testUserName
+    );
+
+    if (resetResult.success) {
+      console.log('✅ Password reset email sent successfully!');
+    } else {
+      console.log('❌ Password reset email failed:', resetResult.error);
+    }
+  } catch (error) {
+    console.error('❌ Password reset email error:', error);
+  }
+
+  // Test 3: Welcome Email
+  console.log('\n📤 Test 3: Sending welcome email...');
+  try {
+    const welcomeResult = await sendWelcomeEmail(testEmail, testUserName);
+
+    if (welcomeResult.success) {
+      console.log('✅ Welcome email sent successfully!');
+    } else {
+      console.log('❌ Welcome email failed:', welcomeResult.error);
+    }
+  } catch (error) {
+    console.error('❌ Welcome email error:', error);
+  }
+
+  console.log('\n📧 Check your email inbox for all test emails!');
+  console.log('📊 Check Resend dashboard → Logs to see delivery status');
+  console.log('\n💡 Tips:');
+  console.log('  - If emails don\'t arrive, check spam folder');
+  console.log('  - Verify domain for better deliverability');
+  console.log('  - See docs/EMAIL_DOMAIN_SETUP.md for full setup guide');
 }
 
 testEmailService().catch(console.error);

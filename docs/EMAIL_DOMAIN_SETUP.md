@@ -1,237 +1,518 @@
-# Email Domain Setup Guide
+# Email Domain Setup Guide - Resend
 
-Complete guide for purchasing a domain and configuring Resend for email sending.
-
-## 📋 Overview
-
-To send emails from ConnectSphere (password resets, notifications, etc.), you need to:
-
-1. **Purchase a domain** (e.g., `connectsphere.com`)
-2. **Add DNS records** in your domain registrar (Namecheap)
-3. **Verify the domain** in Resend
-4. **Configure `.env`** with your verified email address
+This guide explains how to set up email verification with Resend using your own verified domain for production.
 
 ---
 
-## Step 1: Purchase Domain on Namecheap
+## Table of Contents
 
-### 1.1 Search for Available Domains
-
-1. Go to [Namecheap.com](https://www.namecheap.com)
-2. Search for your desired domain:
-   - **Preferred**: `connectsphere.com`
-   - **Alternative**: `connectsphere.app` (often cheaper)
-   - **Other options**: `.io`, `.co`, `.net`
-
-3. **Recommendation**: Use `.com` for professional credibility, but `.app` is cheaper if budget is a concern.
-
-### 1.2 Purchase the Domain
-
-1. Add the domain to cart
-2. Select registration period (1 year minimum recommended)
-3. Complete checkout
-4. **Wait 24-48 hours** for DNS propagation (after DNS setup in Step 2)
+1. [Overview](#overview)
+2. [Resend Basics](#resend-basics)
+3. [Domain Verification Process](#domain-verification-process)
+4. [Step-by-Step Setup](#step-by-step-setup)
+5. [Configuration](#configuration)
+6. [Testing](#testing)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
-## Step 2: Configure DNS Records in Namecheap
+## Overview
 
-### 2.1 Access Namecheap DNS Settings
+### What is Resend?
 
-1. Log into Namecheap account
-2. Go to **Domain List** → Select your domain (`connectsphere.com`)
-3. Click **Manage** → **Advanced DNS** tab
+Resend is a modern email API for developers. It provides:
 
-### 2.2 Add Resend DNS Records
+- **Simple API** - Easy integration with Next.js
+- **High deliverability** - Emails reach inboxes, not spam
+- **Domain verification** - Send from your own domain (production)
+- **Test domain** - `onboarding@resend.dev` works in development
 
-Resend requires **3 DNS records** for domain verification:
+### Why Domain Verification?
 
-#### **Record 1: SPF (TXT)**
+**Development (No Domain Needed):**
 
-```
-Type: TXT
-Host: @
-Value: v=spf1 include:_spf.resend.com ~all
-TTL: Automatic (or 3600)
-```
+- ✅ Use Resend's test domain: `onboarding@resend.dev`
+- ✅ Works immediately with just an API key
+- ✅ Perfect for local development and testing
 
-#### **Record 2: DKIM (TXT)**
+**Production (Domain Required):**
 
-You'll get this from Resend after adding the domain (Step 3.1):
+- ✅ Send from your own domain: `noreply@yourdomain.com`
+- ✅ Better deliverability (emails less likely to go to spam)
+- ✅ Professional branding
+- ✅ Requires DNS verification
 
-```
-Type: TXT
-Host: resend._domainkey (or resend._domainkey.connectsphere.com)
-Value: [Copied from Resend dashboard]
-TTL: Automatic (or 3600)
-```
+### ⚠️ Important: Personal Emails Cannot Be Used
 
-#### **Record 3: DMARC (TXT)** - Optional but recommended
+**You cannot use personal emails** (Gmail, Yahoo, Outlook, university emails, etc.) as `EMAIL_FROM` in Resend. Resend requires **domain verification** for production email sending.
 
-```
-Type: TXT
-Host: _dmarc
-Value: v=DMARC1; p=none; rua=mailto:your-email@connectsphere.com
-TTL: Automatic (or 3600)
-```
+**Why Personal Emails Don't Work:**
 
-### 2.3 Save DNS Records
+- Resend will reject them with "Invalid from field" error
+- Email providers prevent third-party sending from their domains
+- This is a security measure to prevent email spoofing
 
-- Click **Save All Changes** (green checkmark)
-- **Wait 24-48 hours** for DNS propagation (can check with `dig` or DNS checker tools)
+**Solution:** Use `onboarding@resend.dev` for development, or verify your own domain for production.
 
 ---
 
-## Step 3: Verify Domain in Resend
+## Resend Basics
 
-### 3.1 Add Domain to Resend
+### How It Works
 
-1. Log into [Resend Dashboard](https://resend.com/domains)
-2. Click **Add Domain**
-3. Enter your domain: `connectsphere.com`
-4. Click **Add Domain**
+1. **Sign up** at [resend.com](https://resend.com)
+2. **Get API key** - Use this in `RESEND_API_KEY` environment variable
+3. **Add domain** (for production) - Verify ownership via DNS records
+4. **Send emails** - Use Resend API in your code
 
-### 3.2 Copy DKIM Record
+### Current Setup
 
-1. Resend will show you a **DKIM record** (looks like a long string)
-2. **Copy this value** → Go back to Namecheap
-3. Add it as a **TXT record** with host `resend._domainkey` (see Step 2.2)
+Your code already uses Resend:
 
-### 3.3 Wait for Verification
+- ✅ `src/lib/email/service.ts` - Email service with Resend
+- ✅ `src/lib/config/env.ts` - Email configuration
+- ✅ Verification emails already implemented
 
-- Resend will verify your domain automatically
-- **Status**: Shows "Pending" → "Verified" (usually 24-48 hours)
-- You'll receive an email when verified
+**Current Configuration:**
+
+```typescript
+// src/lib/config/env.ts
+export const EMAIL_CONFIG = {
+  apiKey: process.env.RESEND_API_KEY!,
+  from: process.env.EMAIL_FROM || 'onboarding@resend.dev', // Fallback to test domain
+};
+```
 
 ---
 
-## Step 4: Configure `.env` File
+## Domain Verification Process
 
-### 4.1 Update Email Configuration
+### What Happens When You Verify a Domain?
 
-Once domain is verified, update your `.env`:
+1. **Resend generates DNS records** you need to add
+2. **You add these records** to your domain's DNS settings
+3. **Resend verifies** the records (usually takes 5-60 minutes)
+4. **Once verified**, you can send from `anything@yourdomain.com`
+
+### DNS Records Required
+
+Resend requires 3 types of DNS records:
+
+1. **SPF Record** - Authorizes Resend to send emails from your domain
+2. **DKIM Record** - Cryptographic signature to prevent email spoofing
+3. **DMARC Record** (optional but recommended) - Email authentication policy
+
+### Example DNS Records
+
+After adding your domain in Resend dashboard, you'll see something like:
+
+```
+Type    Name                    Value
+TXT     @                       v=spf1 include:resend.com ~all
+TXT     resend._domainkey       [long-dkim-key]
+TXT     _dmarc                  v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com
+```
+
+---
+
+## Step-by-Step Setup
+
+### Step 1: Sign Up for Resend
+
+1. Go to [resend.com](https://resend.com)
+2. Click **"Sign Up"** (free tier available)
+3. Create your account
+4. Verify your email address
+
+### Step 2: Get Your API Key
+
+1. In Resend dashboard, go to **"API Keys"**
+2. Click **"Create API Key"**
+3. Give it a name (e.g., "ConnectSphere Production")
+4. Copy the key (starts with `re_...`)
+5. **Save it securely** - you can only see it once!
+
+### Step 3: Add API Key to Your Environment
+
+**Local Development (`.env.local`):**
 
 ```env
-# Resend API Key (from Resend Dashboard → API Keys)
+RESEND_API_KEY=re_your_api_key_here
+EMAIL_FROM=onboarding@resend.dev  # Test domain (no verification needed)
+```
+
+**Vercel Production:**
+
+1. Go to your Vercel project
+2. Settings → Environment Variables
+3. Add `RESEND_API_KEY` with your key
+4. Add `EMAIL_FROM` (we'll set this after domain verification)
+
+### Step 4: Purchase a Domain (If Needed)
+
+If you don't have a domain yet:
+
+**Recommended Domain Registrars:**
+
+- **Namecheap** - Affordable, easy to use
+- **Google Domains** - Simple interface
+- **Cloudflare** - Free privacy protection
+- **GoDaddy** - Popular but more expensive
+
+**Domain Suggestions:**
+
+- `connectsphere.app`
+- `connectsphere.io`
+- `connectsphere.com`
+- `yourname-connectsphere.com`
+
+**Cost:** Usually $10-15/year for `.com`, less for `.app` or `.io`
+
+### Step 5: Add Domain to Resend
+
+1. In Resend dashboard, go to **"Domains"**
+2. Click **"Add Domain"**
+3. Enter your domain (e.g., `connectsphere.app`)
+4. Click **"Add Domain"**
+
+### Step 6: Get DNS Records from Resend
+
+After adding the domain, Resend will show you the DNS records you need to add:
+
+```
+✅ SPF Record
+✅ DKIM Record
+✅ DMARC Record (optional)
+```
+
+**Copy all these records** - you'll add them to your domain's DNS settings.
+
+### Step 7: Add DNS Records to Your Domain
+
+The process varies by domain registrar. Here's the general process:
+
+**Example: Namecheap**
+
+1. Log in to Namecheap
+2. Go to **Domain List** → Select your domain
+3. Click **"Advanced DNS"**
+4. Add each record:
+   - Click **"Add New Record"**
+   - Select record type (TXT)
+   - Enter the name (e.g., `@` or `resend._domainkey`)
+   - Enter the value from Resend
+   - Click save
+
+**Example: Cloudflare**
+
+1. Log in to Cloudflare
+2. Select your domain
+3. Go to **DNS** tab
+4. Click **"Add record"**
+5. Add each TXT record from Resend
+
+**Example: Google Domains**
+
+1. Log in to Google Domains
+2. Select your domain
+3. Go to **DNS** section
+4. Scroll to **"Custom resource records"**
+5. Add each TXT record
+
+### Step 8: Wait for Verification
+
+1. After adding DNS records, go back to Resend dashboard
+2. Click **"Verify"** or wait for automatic verification
+3. **Wait 5-60 minutes** for DNS propagation
+4. Status will change from "Pending" to "Verified" ✅
+
+**Note:** DNS changes can take up to 48 hours, but usually complete within an hour.
+
+### Step 9: Update Environment Variables
+
+Once your domain is verified:
+
+**Vercel Production Environment Variables:**
+
+```env
+RESEND_API_KEY=re_your_api_key_here
+EMAIL_FROM=noreply@yourdomain.com  # Use your verified domain!
+```
+
+**Or use different addresses for different purposes:**
+
+```env
+EMAIL_FROM=noreply@connectsphere.app
+EMAIL_SUPPORT=support@connectsphere.app
+EMAIL_VERIFY=verify@connectsphere.app
+```
+
+---
+
+## Configuration
+
+### Environment Variables
+
+**Development (`.env.local`):**
+
+```env
+# Resend API Key (get from resend.com)
 RESEND_API_KEY=re_your_api_key_here
 
-# Email sender address (MUST match your verified domain)
-EMAIL_FROM=noreply@connectsphere.com
+# Use test domain in development (no verification needed)
+EMAIL_FROM=onboarding@resend.dev
+
+# Or use your verified domain if you want to test with real domain
+# EMAIL_FROM=noreply@yourdomain.com
 ```
 
-**Important**:
-
-- ✅ `EMAIL_FROM` **must** be on your verified domain (`@connectsphere.com`)
-- ❌ Cannot use Gmail or other unverified domains in production
-- ✅ You can use any subdomain: `noreply@`, `hello@`, `support@`, etc.
-
-### 4.2 Alternative Email Addresses
-
-You can use different "from" addresses on the same domain:
+**Production (Vercel):**
 
 ```env
-# Password reset emails
-EMAIL_FROM=noreply@connectsphere.com
+# Resend API Key
+RESEND_API_KEY=re_your_production_key
 
-# Welcome emails (if you add this feature later)
-EMAIL_FROM=hello@connectsphere.com
-
-# Support emails
-EMAIL_FROM=support@connectsphere.com
+# Your verified domain
+EMAIL_FROM=noreply@yourdomain.com
 ```
+
+### Code Configuration
+
+Your code is already set up! The email service uses:
+
+```typescript
+// src/lib/config/env.ts
+export const EMAIL_CONFIG = {
+  apiKey: process.env.RESEND_API_KEY!,
+  from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+};
+```
+
+**No code changes needed!** Just update environment variables.
+
+### Email Templates
+
+Your email templates are already implemented:
+
+- ✅ `sendVerificationEmail()` - Email verification
+- ✅ `sendPasswordResetEmail()` - Password reset
+- ✅ `sendWelcomeEmail()` - Welcome message
+
+All emails will automatically use your verified domain once `EMAIL_FROM` is set.
 
 ---
 
-## Step 5: Test Email Sending
+## Testing
 
-### 5.1 Run Test Script
+### Test Email Sending
+
+**Option 1: Test Script**
 
 ```bash
-# Test email service
 npm run test:email
-
-# Or use the comprehensive test
-npm run test:email:comprehensive
 ```
 
-### 5.2 Verify in Resend Dashboard
+**Option 2: Manual Test**
 
-1. Go to [Resend Dashboard → Logs](https://resend.com/emails)
-2. Check **Sent** tab for test emails
-3. Verify **Delivery Status**: "Delivered"
+1. Register a new user
+2. Check email inbox (or Resend dashboard → Logs)
+3. Verify email link works
 
----
+### Check Resend Dashboard
 
-## 🔧 Troubleshooting
+1. Go to Resend dashboard → **"Logs"**
+2. See all sent emails
+3. Check delivery status
+4. View any errors
 
-### Domain Not Verifying
+### Test Domain Verification
 
-**Problem**: Resend shows "Pending" after 48 hours
+**Before verification:**
 
-**Solutions**:
+- ❌ Sending from `noreply@yourdomain.com` will fail
+- ✅ Sending from `onboarding@resend.dev` works
 
-1. Check DNS propagation: Use [dnschecker.org](https://dnschecker.org) to verify records globally
-2. Verify TXT records in Namecheap match Resend exactly (no extra spaces)
-3. Wait longer (DNS can take up to 72 hours)
-4. Contact Namecheap support if DNS records not appearing
+**After verification:**
 
-### Emails Going to Spam
+- ✅ Sending from `noreply@yourdomain.com` works
+- ✅ Sending from `onboarding@resend.dev` still works
 
-**Solutions**:
+### Verify DNS Records
 
-1. Add **DMARC record** (Step 2.2, Record 3)
-2. Use a **professional email address** (`noreply@connectsphere.com` not `test@connectsphere.com`)
-3. Avoid spam trigger words in subject lines
-4. Gradually warm up your domain (start with low volume)
+Use online tools to check your DNS records:
 
-### "Invalid from field" Error
+1. **MXToolbox** - [mxtoolbox.com/spf.aspx](https://mxtoolbox.com/spf.aspx)
+   - Enter your domain
+   - Check SPF, DKIM, DMARC records
 
-**Problem**: Resend returns "Invalid from field"
-
-**Solutions**:
-
-1. Check `EMAIL_FROM` in `.env` matches verified domain exactly
-2. Ensure domain status in Resend is **"Verified"** (not "Pending")
-3. Use lowercase email address (no uppercase)
-4. Format: `name@domain.com` (not `name@subdomain.domain.com` unless subdomain is verified)
+2. **DNS Checker** - [dnschecker.org](https://dnschecker.org)
+   - Enter your domain
+   - Check TXT records
 
 ---
 
-## 📝 Quick Checklist
+## Troubleshooting
 
-- [ ] Domain purchased on Namecheap (`connectsphere.com`)
-- [ ] DNS records added in Namecheap (SPF, DKIM, DMARC)
-- [ ] Domain added in Resend dashboard
-- [ ] DKIM record from Resend added to Namecheap DNS
-- [ ] Domain verified in Resend (status: "Verified")
-- [ ] `RESEND_API_KEY` added to `.env`
-- [ ] `EMAIL_FROM=noreply@connectsphere.com` in `.env`
-- [ ] Test email sent successfully
-- [ ] Email received in inbox (not spam)
+### Common Issues
+
+**1. "Domain not verified" error**
+
+**Problem:** Trying to send from unverified domain
+
+**Solution:**
+
+- Use `onboarding@resend.dev` in development
+- Verify domain in Resend dashboard before using custom domain
+- Wait for DNS propagation (can take up to 48 hours)
+
+**2. DNS records not found**
+
+**Problem:** DNS records not propagating
+
+**Solution:**
+
+- Wait 5-60 minutes (DNS can be slow)
+- Check DNS records with online tools (MXToolbox)
+- Verify you added records to correct domain registrar
+- Check for typos in DNS record values
+
+**3. "Invalid API key" error**
+
+**Problem:** API key is incorrect or missing
+
+**Solution:**
+
+- Check `RESEND_API_KEY` in environment variables
+- Verify key starts with `re_`
+- Regenerate key in Resend dashboard if needed
+- Make sure key is set in Vercel environment variables
+
+**4. Emails going to spam**
+
+**Problem:** Poor deliverability
+
+**Solution:**
+
+- Use verified domain (not test domain)
+- Add DMARC record (recommended)
+- Keep email content clean (avoid spam trigger words)
+- Warm up domain gradually (start with low volume)
+
+**5. "Rate limit exceeded"**
+
+**Problem:** Sending too many emails too quickly
+
+**Solution:**
+
+- Resend free tier: 100 emails/day
+- Upgrade to paid plan for higher limits
+- Implement rate limiting in your code
+- Use email queue for bulk sends
+
+### Getting Help
+
+1. **Resend Documentation** - [resend.com/docs](https://resend.com/docs)
+2. **Resend Support** - Email support@resend.com
+3. **Resend Discord** - [discord.gg/resend](https://discord.gg/resend)
 
 ---
 
-## 💰 Cost Estimate
+## 🚀 Quick Start
 
-- **Domain**: `connectsphere.com` ~$10-15/year (Namecheap)
-- **Resend**: Free tier = 3,000 emails/month, then $20/month for 50k emails
-- **Total First Year**: ~$10-15 (domain only, free Resend tier)
+### Development Setup (No Domain Needed)
+
+**Steps:**
+
+1. Sign up at [resend.com](https://resend.com)
+2. Get API key from dashboard
+3. Add to `.env.local`:
+   ```env
+   RESEND_API_KEY=re_your_api_key_here
+   EMAIL_FROM=onboarding@resend.dev
+   ```
+
+✅ **Works immediately!** No verification needed.
+
+**Note:** Test domain (`onboarding@resend.dev`) only works with your Resend account email address.
+
+### Production Setup (With Domain)
+
+**Steps:**
+
+1. Get API key (same as above)
+2. Purchase domain (if needed) - $10-15/year
+3. Add domain in Resend dashboard
+4. Add DNS records to domain registrar
+5. Wait for verification (5-60 minutes)
+6. Update environment:
+   ```env
+   RESEND_API_KEY=re_your_api_key_here
+   EMAIL_FROM=noreply@yourdomain.com
+   ```
+
+**See:** [Step-by-Step Setup](#step-by-step-setup) for detailed instructions.
 
 ---
 
-## 🚀 Next Steps
+## Quick Reference
 
-After domain setup:
+| Scenario   | EMAIL_FROM               | Verification Required |
+| ---------- | ------------------------ | --------------------- |
+| Local Dev  | `onboarding@resend.dev`  | ❌ No                 |
+| Testing    | `onboarding@resend.dev`  | ❌ No                 |
+| Production | `noreply@yourdomain.com` | ✅ Yes                |
 
-1. ✅ Update `.env` with verified `EMAIL_FROM`
-2. ✅ Test password reset emails
-3. ✅ Monitor Resend logs for delivery rates
-4. 📧 Consider adding welcome emails, verification emails, etc.
+### Environment Variables Checklist
+
+**Local Development:**
+
+- [ ] `RESEND_API_KEY` in `.env.local`
+- [ ] `EMAIL_FROM=onboarding@resend.dev` (or your verified domain)
+
+**Vercel Production:**
+
+- [ ] `RESEND_API_KEY` in Vercel environment variables
+- [ ] `EMAIL_FROM=noreply@yourdomain.com` (verified domain)
+- [ ] `NEXTAUTH_URL` matches your Vercel URL
+- [ ] `NEXT_PUBLIC_APP_URL` matches your Vercel URL
 
 ---
 
-## 📚 Additional Resources
+## ❓ FAQ
 
-- [Resend Domain Verification Guide](https://resend.com/docs/dashboard/domains/introduction)
-- [Namecheap DNS Management](https://www.namecheap.com/support/knowledgebase/article.aspx/767/10/how-to-manage-dns-for-your-domain/)
-- [DNS Checker Tool](https://dnschecker.org)
+**Q: Can I use my university email?**
+
+- ❌ No. University emails are also personal emails and won't work.
+
+**Q: Do I need to buy a domain right away?**
+
+- ❌ No. Use `onboarding@resend.dev` for development. Buy domain when ready for production.
+
+**Q: Can I test emails without a domain?**
+
+- ✅ Yes. Use `onboarding@resend.dev` for testing.
+- ⚠️ **Important**: Test domain only sends to your Resend account email (the one you signed up with)
+
+**Q: Can I send to any email with `onboarding@resend.dev`?**
+
+- ❌ No. Test domain only works with your Resend account email. To send to other emails, verify a domain.
+
+**Q: Will emails from `onboarding@resend.dev` be delivered?**
+
+- ✅ Yes, to your account email. For sending to other users, verify a domain for better deliverability.
+
+---
+
+## Next Steps
+
+1. ✅ **Get Resend API key** - Sign up and create API key
+2. ✅ **Add to environment** - Set `RESEND_API_KEY` in `.env.local` and Vercel
+3. ✅ **Test in development** - Use `onboarding@resend.dev` (works immediately)
+4. 🔄 **Purchase domain** (if needed) - Get a domain for production
+5. 🔄 **Verify domain** - Add DNS records and verify in Resend
+6. 🔄 **Update production** - Set `EMAIL_FROM` to your verified domain
+
+---
+
+_Last Updated: Nov. 2025_  
+_Email Setup Guide Version: 1.0.0_
