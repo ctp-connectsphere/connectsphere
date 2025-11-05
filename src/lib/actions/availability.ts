@@ -92,12 +92,7 @@ export async function createAvailability(formData: FormData) {
         error: firstError?.message || 'Validation error',
       };
     }
-    if (error instanceof Error) {
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+    // Don't expose internal error messages
     return {
       success: false,
       error: 'Failed to create availability',
@@ -115,11 +110,23 @@ export async function updateAvailability(formData: FormData) {
       redirect('/login');
     }
 
+    const availabilityIdRaw = formData.get('availabilityId');
+    if (!availabilityIdRaw || typeof availabilityIdRaw !== 'string') {
+      return {
+        success: false,
+        error: 'Invalid availability ID',
+      };
+    }
+
+    const dayOfWeek = formData.get('dayOfWeek');
+    const startTime = formData.get('startTime');
+    const endTime = formData.get('endTime');
+
     const data = updateAvailabilitySchema.parse({
-      availabilityId: formData.get('availabilityId') as string,
-      dayOfWeek: formData.get('dayOfWeek') ? Number(formData.get('dayOfWeek')) : undefined,
-      startTime: (formData.get('startTime') as string) || undefined,
-      endTime: (formData.get('endTime') as string) || undefined,
+      availabilityId: availabilityIdRaw,
+      dayOfWeek: dayOfWeek ? Number(dayOfWeek) : undefined,
+      startTime: startTime ? String(startTime) : undefined,
+      endTime: endTime ? String(endTime) : undefined,
     });
 
     // Check if the availability belongs to the user
@@ -249,8 +256,16 @@ export async function deleteAvailability(formData: FormData) {
       redirect('/login');
     }
 
+    const availabilityId = formData.get('availabilityId');
+    if (!availabilityId || typeof availabilityId !== 'string') {
+      return {
+        success: false,
+        error: 'Invalid availability ID',
+      };
+    }
+
     const data = deleteAvailabilitySchema.parse({
-      availabilityId: formData.get('availabilityId') as string,
+      availabilityId: availabilityId,
     });
 
     // Check if the availability belongs to the user
@@ -302,12 +317,7 @@ export async function deleteAvailability(formData: FormData) {
         error: firstError?.message || 'Validation error',
       };
     }
-    if (error instanceof Error) {
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
+    // Don't expose internal error messages
     return {
       success: false,
       error: 'Failed to delete availability',

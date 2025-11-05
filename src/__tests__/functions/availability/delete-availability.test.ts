@@ -41,7 +41,7 @@ describe('deleteAvailability', () => {
   });
 
   it('should delete availability slot successfully', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: mockSession.user.id,
@@ -70,7 +70,7 @@ describe('deleteAvailability', () => {
   });
 
   it('should return error if availability not found', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
 
     vi.mocked(prisma.availability.findUnique).mockResolvedValue(null);
 
@@ -87,7 +87,7 @@ describe('deleteAvailability', () => {
   });
 
   it('should return error if user does not own the availability', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: '00000000-0000-0000-0000-000000000456', // Different user
@@ -117,7 +117,7 @@ describe('deleteAvailability', () => {
     const { redirect } = await import('next/navigation');
 
     const formData = new FormData();
-    formData.append('availabilityId', '00000000-0000-0000-0000-000000000999');
+    formData.append('availabilityId', '00000000-0000-4000-8000-000000000999');
 
     await deleteAvailability(formData);
 
@@ -125,7 +125,7 @@ describe('deleteAvailability', () => {
   });
 
   it('should handle database errors gracefully', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: mockSession.user.id,

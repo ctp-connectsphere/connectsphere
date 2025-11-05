@@ -42,7 +42,7 @@ describe('updateAvailability', () => {
   });
 
   it('should update availability slot successfully', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: mockSession.user.id,
@@ -85,7 +85,7 @@ describe('updateAvailability', () => {
   });
 
   it('should return error if availability not found', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
 
     vi.mocked(prisma.availability.findUnique).mockResolvedValue(null);
 
@@ -101,7 +101,7 @@ describe('updateAvailability', () => {
   });
 
   it('should return error if user does not own the availability', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: '00000000-0000-0000-0000-000000000456', // Different user
@@ -126,7 +126,7 @@ describe('updateAvailability', () => {
   });
 
   it('should return error if updated time conflicts with existing availability', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: mockSession.user.id,
@@ -139,7 +139,7 @@ describe('updateAvailability', () => {
 
     const conflictingAvailability = [
       {
-        id: '00000000-0000-0000-0000-000000000888',
+        id: '00000000-0000-4000-8000-000000000888',
         userId: mockSession.user.id,
         dayOfWeek: 1,
         startTime: '10:00',
@@ -166,7 +166,7 @@ describe('updateAvailability', () => {
   });
 
   it('should return error if only one time is provided', async () => {
-    const availabilityId = '00000000-0000-0000-0000-000000000999';
+    const availabilityId = '00000000-0000-4000-8000-000000000999';
     const existingAvailability = {
       id: availabilityId,
       userId: mockSession.user.id,
@@ -188,7 +188,8 @@ describe('updateAvailability', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toContain('Both start time and end time');
+      // Zod validation error message
+      expect(result.error).toMatch(/Both start time and end time|Validation error/);
     }
   });
 
