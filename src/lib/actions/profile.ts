@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
 import { profileSchema } from '@/lib/validations/profile';
 import { uploadToCloudinary, extractPublicIdFromUrl } from '@/lib/storage/cloudinary';
+import { calculateProfileCompletion } from '@/lib/utils/profile';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -47,9 +48,26 @@ export async function createOrUpdateProfile(formData: FormData) {
     revalidatePath('/profile');
     revalidatePath('/dashboard');
 
+    // Calculate completion
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { profileImageUrl: true },
+    });
+
+    const completion = calculateProfileCompletion({
+      hasBio: !!data.bio,
+      hasPreferredLocation: !!data.preferredLocation,
+      hasStudyStyle: !!data.studyStyle,
+      hasStudyPace: !!data.studyPace,
+      hasProfileImage: !!user?.profileImageUrl,
+    });
+
     return {
       success: true,
-      data: profile,
+      data: {
+        profile,
+        completion,
+      },
     };
   } catch (error) {
     if (error instanceof Error) {
@@ -96,9 +114,21 @@ export async function getUserProfile() {
       },
     });
 
+    // Calculate completion
+    const completion = calculateProfileCompletion({
+      hasBio: !!profile?.bio,
+      hasPreferredLocation: !!profile?.preferredLocation,
+      hasStudyStyle: !!profile?.studyStyle,
+      hasStudyPace: !!profile?.studyPace,
+      hasProfileImage: !!profile?.user?.profileImageUrl,
+    });
+
     return {
       success: true,
-      data: profile,
+      data: {
+        profile,
+        completion,
+      },
     };
   } catch (error) {
     return {
