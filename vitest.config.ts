@@ -26,4 +26,10 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  // Mock Next.js server modules
+  server: {
+    deps: {
+      inline: ['next-auth'],
+    },
+  },
 });
