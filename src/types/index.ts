@@ -14,3 +14,12 @@ export interface Group {
   course: string;
   nextMeeting: string;
 }
+
+export interface User {
+  name: string;
+  email: string;
+  major: string;
+  courses: string[];
+  availability: string[];
+  studyPreferences: string;
+}

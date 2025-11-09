@@ -5,11 +5,20 @@ import DashboardView from "./components/DashboardView";
 import MatchesView from "./components/MatchesView";
 import GroupsView from "./components/GroupsView";
 import ProfileView from "./components/ProfileView";
-import type { Match, Group } from "./types";
+import type { Match, Group, User } from "./types";
 
 function App() {
   const [currentView, setCurrentView] = useState<string>("dashboard");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+
+  const [user, setUser] = useState<User>({
+    name: "Shaine Lomenario",
+    email: "shaine.lomenario41@qmail.cuny.edu",
+    major: "Computer Science",
+    courses: ["Computer Science 101", "Data Structures"],
+    availability: [],
+    studyPreferences: "",
+  });
 
   // Sample data
   const matches: Match[] = [
@@ -68,11 +77,13 @@ function App() {
         setIsLoggedIn={setIsLoggedIn}
       />
       {currentView === "dashboard" && (
-        <DashboardView matches={matches} groups={groups} />
+        <DashboardView matches={matches} groups={groups} user={user} />
       )}
       {currentView === "matches" && <MatchesView matches={matches} />}
       {currentView === "groups" && <GroupsView groups={groups} />}
-      {currentView === "profile" && <ProfileView />}
+      {currentView === "profile" && (
+        <ProfileView user={user} setUser={setUser} />
+      )}
     </div>
   );
 }

@@ -1,16 +1,23 @@
 import { Users, Search, Calendar, BookOpen } from "lucide-react";
-import type { Match, Group } from "../types";
+import type { Match, Group, User } from "../types";
+import ProfileView from "./ProfileView";
 
 interface DashboardViewProps {
   matches: Match[];
   groups: Group[];
+  user: User;
 }
 
-export default function DashboardView({ matches, groups }: DashboardViewProps) {
+export default function DashboardView({
+  matches,
+  groups,
+  user,
+}: DashboardViewProps) {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h2 className="text-3xl font-bold text-gray-900 mb-6">
-        Welcome back, Alex!
+        {" "}
+        Welcome back, {user.name.split(" ")[0]}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
