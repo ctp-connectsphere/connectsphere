@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { UserProvider } from "./context/UserContext";
 import Navigation from "./components/Navigation";
 import LoginView from "./components/LoginView";
 import DashboardView from "./components/DashboardView";

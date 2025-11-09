@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useUser } from "../context/UserContext";
 import type { User } from "../types";
 
 interface ProfileViewProps {

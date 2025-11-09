@@ -1,6 +1,6 @@
 import { Users, Search, Calendar, BookOpen } from "lucide-react";
+import { useUser } from "../context/UserContext";
 import type { Match, Group, User } from "../types";
-import ProfileView from "./ProfileView";
 
 interface DashboardViewProps {
   matches: Match[];
