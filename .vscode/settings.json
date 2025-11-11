@@ -1,0 +1,56 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.includeLanguages": {
+    "typescript": "typescript",
+    "typescriptreact": "typescriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "emmet.includeLanguages": {
+    "typescript": "html",
+    "typescriptreact": "html"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/dist": true,
+    "**/.next": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.git": true,
+    "**/dist": true,
+    "**/.next": true,
+    "**/coverage": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "prisma.showPrismaDataPlatformNotification": false,
+  "debug.console.fontSize": 14,
+  "debug.console.lineHeight": 18,
+  "debug.console.fontFamily": "'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace",
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.showBreakpointsInOverviewRuler": true,
+  "debug.showInlineBreakpointCandidates": true,
+  "debug.openDebug": "openOnDebugBreak",
+  "debug.inlineValues": true,
+  "debug.showSubSessionsInToolBar": true,
+  "debug.toolBarLocation": "docked",
+  "debug.focusEditorOnBreak": true,
+  "debug.openExplorerOnEnd": true,
+  "debug.console.acceptSuggestionOnEnter": "on",
+  "debug.console.historyLength": 1000
+}

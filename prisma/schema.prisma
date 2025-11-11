@@ -1,0 +1,263 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+// Enhanced generator for better development experience
+generator prismaClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  university        String
+  profileImageUrl   String?   @map("profile_image_url")
+  isVerified        Boolean   @default(false) @map("is_verified")
+  isActive          Boolean   @default(true) @map("is_active")
+  emailVerifiedAt   DateTime? @map("email_verified_at")
+  lastLoginAt       DateTime? @map("last_login_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  profile           UserProfile?
+  userCourses       UserCourse[]
+  availability      Availability[]
+  sentConnections   Connection[] @relation("ConnectionRequester")
+  receivedConnections Connection[] @relation("ConnectionTarget")
+  sentMessages      Message[]
+  matchCache        MatchCache[]
+  sessions          UserSession[]
+  accounts          Account[]
+  session           Session[]
+
+  @@map("users")
+}
+
+model PasswordReset {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  usedAt    DateTime? @map("used_at")
+
+  @@map("password_resets")
+}
+
+model UserProfile {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String    @unique @map("user_id") @db.Uuid
+  preferredLocation String?   @map("preferred_location")
+  studyStyle        String?   @map("study_style")
+  studyPace         String?   @map("study_pace")
+  bio               String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model University {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String    @unique
+  domain    String    @unique
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  courses   Course[]
+
+  @@map("universities")
+}
+
+model Course {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  code        String
+  section     String
+  semester    String
+  instructor  String?
+  schedule    String?
+  universityId String   @map("university_id") @db.Uuid
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  university  University @relation(fields: [universityId], references: [id])
+  userCourses UserCourse[]
+  connections Connection[]
+  matchCache  MatchCache[]
+
+  @@unique([code, section, semester, universityId])
+  @@map("courses")
+}
+
+model UserCourse {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  courseId   String   @map("course_id") @db.Uuid
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+  isActive   Boolean  @default(true) @map("is_active")
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("user_courses")
+}
+
+model Availability {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  dayOfWeek   Int      @map("day_of_week")
+  startTime   String   @map("start_time")
+  endTime     String   @map("end_time")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("availability")
+}
+
+model Connection {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requesterId    String    @map("requester_id") @db.Uuid
+  targetId       String    @map("target_id") @db.Uuid
+  courseId       String    @map("course_id") @db.Uuid
+  status         String    @default("pending")
+  initialMessage String?   @map("initial_message")
+  requestedAt    DateTime  @default(now()) @map("requested_at")
+  respondedAt    DateTime? @map("responded_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  requester      User      @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  target         User      @relation("ConnectionTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  messages       Message[]
+
+  @@unique([requesterId, targetId, courseId])
+  @@map("connections")
+}
+
+model Message {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  connectionId String   @map("connection_id") @db.Uuid
+  senderId     String   @map("sender_id") @db.Uuid
+  content      String
+  messageType  String   @default("text") @map("message_type")
+  isRead       Boolean  @default(false) @map("is_read")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  sender       User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model MatchCache {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  courseId      String   @map("course_id") @db.Uuid
+  matchResults  Json     @map("match_results")
+  calculatedAt  DateTime @default(now()) @map("calculated_at")
+  expiresAt     DateTime @map("expires_at")
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("match_cache")
+}
+
+model UserSession {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  refreshToken String   @unique @map("refresh_token")
+  deviceInfo   String?  @map("device_info")
+  ipAddress    String?  @map("ip_address") @db.Inet
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+// NextAuth.js Tables
+model Account {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String    @map("provider_account_id")
+  refresh_token     String?   @db.Text
+  access_token      String?   @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?   @db.Text
+  session_state     String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
