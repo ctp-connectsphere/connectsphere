@@ -1,4 +1,4 @@
-import { Course } from '@/components/ui/course';
+import { Course, NewCourse } from '@/components/ui/course';
 import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/auth/config';
 import { redirect } from 'next/navigation';
@@ -16,9 +16,7 @@ export default async function CoursesPage() {
         <div className="px-4 py-6 sm:px-0">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">My Courses</h1>
           <div className="bg-white shadow rounded-lg p-6">
-            <Button variant="primary" size="medium" className="mb-6">
-              Add New Course
-            </Button>
+            <NewCourse />
             <h2 className="text-xl font-bold mb-6">Current</h2>
             <Course title="Math" description="Mathy math stuff"/>
             <Course title="English" description="Words and more words"/>
