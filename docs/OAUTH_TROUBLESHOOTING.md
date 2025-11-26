@@ -9,6 +9,7 @@ If OAuth login buttons appear but clicking them doesn't work (redirects back to 
 I've created a debug endpoint to check if your environment variables are being loaded:
 
 1. **Visit this URL in your browser:**
+
    ```
    https://connectsphere-eight.vercel.app/api/auth/debug
    ```
@@ -19,6 +20,7 @@ I've created a debug endpoint to check if your environment variables are being l
    - `nextAuth.url` should show your production URL
 
 **If any of these are false or missing:**
+
 - The environment variables aren't being loaded
 - See Step 2 below
 
@@ -45,6 +47,7 @@ I've created a debug endpoint to check if your environment variables are being l
 ### Step 3: Redeploy Your Application
 
 **Option A: Redeploy via Vercel Dashboard**
+
 1. Go to **Deployments** tab
 2. Find the latest deployment
 3. Click the **"⋯"** (three dots) menu
@@ -52,6 +55,7 @@ I've created a debug endpoint to check if your environment variables are being l
 5. Wait for deployment to complete
 
 **Option B: Trigger via Git**
+
 ```bash
 # Make a small change and push
 git commit --allow-empty -m "Trigger redeploy for OAuth env vars"
@@ -63,11 +67,13 @@ git push
 After redeploying, check if providers are available:
 
 1. **Visit the providers endpoint:**
+
    ```
    https://connectsphere-eight.vercel.app/api/auth/providers
    ```
 
 2. **Expected response:**
+
    ```json
    {
      "google": { ... },
@@ -129,6 +135,7 @@ After redeploying, check if providers are available:
 #### Issue: Environment variables show in Vercel but not loaded at runtime
 
 **Solution:**
+
 - Make sure variables are set for **Production** environment
 - Redeploy the application
 - Check that variable names match exactly (case-sensitive)
@@ -136,6 +143,7 @@ After redeploying, check if providers are available:
 #### Issue: OAuth redirect fails with "redirect_uri_mismatch"
 
 **Solution:**
+
 - Verify redirect URI in OAuth app matches exactly
 - No trailing slashes
 - Use `https://` not `http://`
@@ -144,6 +152,7 @@ After redeploying, check if providers are available:
 #### Issue: Providers endpoint shows empty object
 
 **Solution:**
+
 - Environment variables aren't loaded
 - Redeploy application
 - Check debug endpoint (`/api/auth/debug`)
@@ -178,4 +187,3 @@ If after all these steps it's still not working:
 2. **Test locally** first with `.env.local` to verify OAuth flow works
 3. **Verify** you're testing on the production domain, not a preview deployment
 4. **Double-check** all URLs match exactly (no typos, correct protocol)
-

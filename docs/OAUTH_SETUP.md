@@ -11,6 +11,7 @@ The `.env-pro` file is just a reference template. **You must set these environme
 Go to: `Vercel Dashboard → Your Project → Settings → Environment Variables`
 
 **Required Variables for Production:**
+
 ```
 NEXTAUTH_URL=https://connectsphere-eight.vercel.app
 NEXT_PUBLIC_APP_URL=https://connectsphere-eight.vercel.app
@@ -22,10 +23,12 @@ NEXTAUTH_SECRET=your-nextauth-secret-here
 ```
 
 ⚠️ **Note**: Get your actual OAuth credentials from:
+
 - Google: [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
 - GitHub: [GitHub Developer Settings](https://github.com/settings/developers)
 
 ⚠️ **Important**: Make sure to:
+
 - Select **Production** environment when adding these
 - Optionally also add to **Preview** and **Development** if needed
 
@@ -69,12 +72,14 @@ You must configure the redirect URIs in both Google and GitHub OAuth apps:
 ### 4. Testing Locally
 
 For local development, your `.env.local` should have:
+
 ```
 NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 And add to Google/GitHub OAuth apps:
+
 - Google: `http://localhost:3000/api/auth/callback/google`
 - GitHub: `http://localhost:3000/api/auth/callback/github`
 
@@ -96,4 +101,3 @@ If OAuth still doesn't work after these changes:
 2. **Verify** environment variables are actually set (check Vercel dashboard)
 3. **Confirm** redirect URIs match exactly (no trailing slashes, correct protocol https://)
 4. **Wait a few minutes** - OAuth changes can take time to propagate
-

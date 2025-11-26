@@ -21,6 +21,7 @@ See the repository for environment variable templates. Copy the template and fil
 If you've accidentally committed secrets to git:
 
 1. **Remove the file from git tracking immediately:**
+
    ```bash
    git rm --cached .env-pro
    git commit -m "security: remove secrets from tracking"
@@ -45,4 +46,3 @@ If you've accidentally committed secrets to git:
 - Verify `.gitignore` rules before committing
 - Regularly rotate secrets
 - Use different credentials for development and production
-
