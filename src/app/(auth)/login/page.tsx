@@ -39,8 +39,11 @@ export default function LoginPage() {
   };
 
   const handleInputChange = (field: 'email' | 'password', value: string) => {
-    if (field === 'email') setEmail(value);
-    else if (field === 'password') setPassword(value);
+    if (field === 'email') {
+      setEmail(value);
+    } else if (field === 'password') {
+      setPassword(value);
+    }
     if (errors[field]) {
       const newErrors = { ...errors };
       delete newErrors[field];
