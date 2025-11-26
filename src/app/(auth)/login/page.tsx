@@ -39,8 +39,11 @@ export default function LoginPage() {
   };
 
   const handleInputChange = (field: 'email' | 'password', value: string) => {
-    if (field === 'email') setEmail(value);
-    if (field === 'password') setPassword(value);
+    if (field === 'email') {
+      setEmail(value);
+    } else if (field === 'password') {
+      setPassword(value);
+    }
     if (errors[field]) {
       const newErrors = { ...errors };
       delete newErrors[field];
@@ -58,7 +61,7 @@ export default function LoginPage() {
     }
     try {
       const res = await signIn('credentials', {
-        email,
+        email: email.toLowerCase(),
         password,
         redirect: false,
         callbackUrl: '/dashboard',
@@ -181,7 +184,7 @@ export default function LoginPage() {
                 placeholder="you@university.edu"
                 type="email"
                 value={email}
-                onChange={e => handleInputChange('email', e.target.value.toLowerCase())}
+                onChange={e => handleInputChange('email', e.target.value)}
                 required
               />
               {errors.email && (
@@ -227,7 +230,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => {}} className="w-full" disabled={loading}>
+            <GlowingButton type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : (
                 <>
                   Sign In <ArrowRight size={18} className="ml-2" />

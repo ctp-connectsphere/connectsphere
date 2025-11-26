@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => {}} className="w-full" disabled={loading}>
+            <GlowingButton type="submit" className="w-full" disabled={loading}>
               {loading ? 'Sending...' : 'Send Reset Link'}
             </GlowingButton>
           </form>

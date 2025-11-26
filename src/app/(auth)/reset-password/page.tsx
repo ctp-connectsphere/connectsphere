@@ -130,7 +130,7 @@ function ResetPasswordContent() {
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => {}} className="w-full" disabled={loading || !!message}>
+            <GlowingButton type="submit" className="w-full" disabled={loading || !!message}>
               {loading ? 'Resetting...' : 'Reset Password'}
             </GlowingButton>
           </form>

@@ -4,12 +4,14 @@ import { registerUser } from '@/lib/actions/auth';
 import { ArrowRight, Sparkles, Users, Zap, Github } from 'lucide-react';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface FormErrors {
   [key: string]: string[];
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -72,7 +74,7 @@ export default function RegisterPage() {
         setMessage(res.message || 'Account created successfully!');
         setForm({ email: '', password: '', firstName: '', lastName: '', university: '' });
         setTimeout(() => {
-          window.location.href = '/login';
+          router.push('/login');
         }, 2000);
       } else {
         setErrors((res as any).errors || { general: ['Registration failed. Please try again.'] });
@@ -228,7 +230,7 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => { }} className="w-full" disabled={loading}>
+            <GlowingButton type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creating account...' : (
                 <>
                   Create Account <ArrowRight size={18} className="ml-2" />

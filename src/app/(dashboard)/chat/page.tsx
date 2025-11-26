@@ -18,7 +18,7 @@ export default function ChatPage() {
 
   if (status === 'loading') {
     return (
-      <div className="w-full h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="w-full h-screen bg-[#050508] flex items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
     );
@@ -29,7 +29,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-[#0a0a0a] text-slate-200 font-sans overflow-hidden">
+    <div className="w-full h-screen bg-[#050508] text-slate-200 font-sans overflow-hidden">
       <ChatView />
     </div>
   );
