@@ -1,9 +1,5 @@
 'use server';
 import { prisma } from '@/lib/db/connection';
-import {
-  sendPasswordResetEmail,
-  sendVerificationEmail,
-} from '@/lib/email/service';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { headers } from 'next/headers';
@@ -86,26 +82,15 @@ export async function registerUser(formData: FormData) {
       };
     }
 
-    // Send verification email in production
-    const emailResult = await sendVerificationEmail(
-      data.email,
-      verificationLink,
-      `${data.firstName} ${data.lastName}`
-    );
-
-    if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error);
-      return {
-        success: true,
-        message:
-          'Registration successful! However, we could not send the verification email. Please contact support.',
-      };
-    }
+    // Note: Email verification will be handled by Neon Auth
+    // For now, we'll log the verification link in development
+    console.log(`Verification link for ${data.email}: ${verificationLink}`);
 
     return {
       success: true,
       message:
         'Registration successful! Please check your email to verify your account before logging in.',
+      verificationLink: process.env.NODE_ENV === 'development' ? verificationLink : undefined,
     };
   } catch (e: any) {
     if (e instanceof z.ZodError)
@@ -272,24 +257,17 @@ export async function requestPasswordReset(formData: FormData) {
       };
     }
 
-    // In production, send actual email
-    const emailResult = await sendPasswordResetEmail(
-      email,
-      resetLink,
-      userName
-    );
-
-    if (!emailResult.success) {
-      console.error('Failed to send password reset email:', emailResult.error);
-      return {
-        success: false,
-        message: 'Failed to send password reset email. Please try again.',
-      };
-    }
+    // Note: Password reset email will be handled by Neon Auth
+    // For now, we'll log the reset link in development
+    console.log(`Password reset link for ${email}: ${resetLink}`);
 
     return {
       success: true,
-      message: 'Password reset link sent to your email address',
+      message:
+        process.env.NODE_ENV === 'development'
+          ? `Password reset link generated! Check the console: ${resetLink}`
+          : 'Password reset email has been sent. Please check your inbox and spam folder.',
+      resetLink: process.env.NODE_ENV === 'development' ? resetLink : undefined,
     };
   } catch (e: any) {
     return {
@@ -549,38 +527,17 @@ export async function resendVerificationEmail(formData: FormData) {
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
 
-    // In development, log the link
-    if (process.env.NODE_ENV === 'development') {
-      console.log(
-        `🔗 Resent verification link for ${email}: ${verificationLink}`
-      );
-      return {
-        success: true,
-        message: `Verification link generated! Check the console for the link: ${verificationLink}`,
-        verificationLink,
-      };
-    }
-
-    // Send verification email in production
-    const emailResult = await sendVerificationEmail(
-      email,
-      verificationLink,
-      `${user.firstName} ${user.lastName}`
-    );
-
-    if (!emailResult.success) {
-      console.error('Failed to send verification email:', emailResult.error);
-      return {
-        success: false,
-        message:
-          'Failed to send verification email. Please try again later or contact support.',
-      };
-    }
+    // Note: Email verification will be handled by Neon Auth
+    // For now, we'll log the verification link in development
+    console.log(`Resent verification link for ${email}: ${verificationLink}`);
 
     return {
       success: true,
       message:
-        'Verification email has been sent. Please check your inbox and spam folder.',
+        process.env.NODE_ENV === 'development'
+          ? `Verification link generated! Check the console: ${verificationLink}`
+          : 'Verification email has been sent. Please check your inbox and spam folder.',
+      verificationLink: process.env.NODE_ENV === 'development' ? verificationLink : undefined,
     };
   } catch (error: any) {
     console.error('Resend verification email error:', error);

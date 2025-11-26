@@ -26,13 +26,6 @@ export const AUTH_CONFIG = {
   secret: process.env.NEXTAUTH_SECRET!,
 };
 
-// Email configuration (Resend)
-export const EMAIL_CONFIG = {
-  apiKey: process.env.RESEND_API_KEY!,
-  // Use Resend's test domain for development, or set EMAIL_FROM in .env for production
-  from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
-};
-
 // File storage configuration (Cloudinary)
 export const STORAGE_CONFIG = {
   cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -149,7 +142,6 @@ export const config = {
   database: DATABASE_CONFIG,
   redis: REDIS_CONFIG,
   auth: AUTH_CONFIG,
-  email: EMAIL_CONFIG,
   storage: STORAGE_CONFIG,
   pusher: PUSHER_CONFIG,
   analytics: ANALYTICS_CONFIG,

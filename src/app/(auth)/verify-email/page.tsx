@@ -1,25 +1,18 @@
 'use client';
 
 import { Suspense } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { GlowingButton } from '@/components/nexus';
+import { CheckCircle, XCircle, Clock, Mail } from 'lucide-react';
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const email = searchParams.get('email');
 
-  const [status, setStatus] = useState<
-    'verifying' | 'success' | 'error' | 'expired' | 'already-verified' | 'idle'
-  >('idle');
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error' | 'expired' | 'already-verified' | 'idle'>('idle');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -37,7 +30,6 @@ function VerifyEmailContent() {
     try {
       const formData = new FormData();
       formData.append('token', verificationToken);
-
       const response = await fetch('/api/auth/verify-email', {
         method: 'POST',
         body: formData,
@@ -46,9 +38,7 @@ function VerifyEmailContent() {
 
       if (result.success) {
         setStatus('success');
-        setMessage(
-          result.message || 'Your email has been verified successfully!'
-        );
+        setMessage(result.message || 'Your email has been verified successfully!');
       } else {
         if (result.errorType === 'EXPIRED') {
           setStatus('expired');
@@ -72,28 +62,19 @@ function VerifyEmailContent() {
       setMessage('Email address is required to resend verification.');
       return;
     }
-
     setResending(true);
     try {
       const formData = new FormData();
       formData.append('email', email);
-
       const response = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         body: formData,
       });
       const result = await response.json();
-
       if (result.success) {
-        setMessage(
-          result.message ||
-            'Verification email has been sent. Please check your inbox.'
-        );
+        setMessage(result.message || 'Verification email has been sent. Please check your inbox.');
       } else {
-        setMessage(
-          result.message ||
-            'Failed to resend verification email. Please try again.'
-        );
+        setMessage(result.message || 'Failed to resend verification email. Please try again.');
       }
     } catch (error) {
       setMessage('An unexpected error occurred. Please try again.');
@@ -103,153 +84,120 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Email Verification</CardTitle>
-          <CardDescription>
-            {status === 'verifying' && 'Verifying your email address...'}
-            {status === 'success' && 'Verification Successful'}
-            {status === 'error' && 'Verification Failed'}
-            {status === 'expired' && 'Verification Link Expired'}
-            {status === 'already-verified' && 'Already Verified'}
-            {status === 'idle' && 'Verify your email address'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {loading && (
-            <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-sm text-secondary">Verifying...</p>
-            </div>
-          )}
+    <div className="min-h-screen flex items-center justify-center bg-[#050508] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-blob"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+      </div>
 
-          {status === 'success' && (
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <svg
-                  className="w-8 h-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        <div className="glass-panel p-10 rounded-3xl border border-white/10">
+          <div className="text-center mb-8">
+            {status === 'success' && (
+              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-green-500/50">
+                <CheckCircle size={48} className="text-green-400" />
               </div>
-              <p className="text-body text-primary">{message}</p>
-              <Link
-                href="/login"
-                className="block w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 px-4 text-center transition-colors"
-              >
-                Go to Login
-              </Link>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div className="space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded p-3">
-                <p className="text-sm text-red-600">{message}</p>
+            )}
+            {status === 'error' && (
+              <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-red-500/50">
+                <XCircle size={48} className="text-red-400" />
               </div>
-              {email && (
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 px-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {resending ? 'Sending...' : 'Resend Verification Email'}
-                </button>
-              )}
-              <Link
-                href="/login"
-                className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 rounded py-2 px-4 text-center transition-colors"
-              >
-                Back to Login
-              </Link>
-            </div>
-          )}
-
-          {status === 'expired' && (
-            <div className="space-y-4">
-              <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                <p className="text-sm text-yellow-800">{message}</p>
+            )}
+            {status === 'expired' && (
+              <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-yellow-500/50">
+                <Clock size={48} className="text-yellow-400" />
               </div>
-              {email && (
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 px-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {resending ? 'Sending...' : 'Resend Verification Email'}
-                </button>
-              )}
-              <Link
-                href="/login"
-                className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 rounded py-2 px-4 text-center transition-colors"
-              >
-                Back to Login
-              </Link>
-            </div>
-          )}
-
-          {status === 'already-verified' && (
-            <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                <p className="text-sm text-blue-800">{message}</p>
+            )}
+            {(status === 'idle' || status === 'verifying') && (
+              <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-indigo-500/50">
+                <Mail size={48} className="text-indigo-400" />
               </div>
-              <Link
-                href="/login"
-                className="block w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 px-4 text-center transition-colors"
-              >
-                Go to Login
-              </Link>
-            </div>
-          )}
+            )}
 
-          {status === 'idle' && !token && (
-            <div className="space-y-4">
-              <p className="text-body text-secondary">
-                No verification token found. Please check your email for the
-                verification link.
-              </p>
-              {email && (
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 px-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {resending ? 'Sending...' : 'Resend Verification Email'}
-                </button>
-              )}
-              <Link
-                href="/login"
-                className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 rounded py-2 px-4 text-center transition-colors"
-              >
-                Back to Login
-              </Link>
-            </div>
-          )}
+            <h1 className="text-4xl font-black text-white mb-3">Email Verification</h1>
+            <p className="text-gray-400">
+              {status === 'verifying' && 'Verifying your email address...'}
+              {status === 'success' && 'Verification Successful'}
+              {status === 'error' && 'Verification Failed'}
+              {status === 'expired' && 'Link Expired'}
+              {status === 'already-verified' && 'Already Verified'}
+              {status === 'idle' && 'Verify your email address'}
+            </p>
+          </div>
 
-          {status === 'idle' && token && (
-            <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-sm text-secondary">Processing...</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <div className="space-y-6">
+            {loading && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent mx-auto mb-4"></div>
+                <p className="text-gray-400">Verifying...</p>
+              </div>
+            )}
+
+            {status === 'success' && (
+              <div className="text-center space-y-6">
+                <p className="text-gray-300 text-lg">{message}</p>
+                <GlowingButton href="/login" className="w-full">
+                  Go to Login
+                </GlowingButton>
+              </div>
+            )}
+
+            {(status === 'error' || status === 'expired') && (
+              <div className="space-y-6">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                  <p className="text-sm text-red-400">{message}</p>
+                </div>
+                {email && (
+                  <GlowingButton onClick={handleResend} className="w-full" disabled={resending}>
+                    {resending ? 'Sending...' : 'Resend Verification Email'}
+                  </GlowingButton>
+                )}
+                <Link href="/login" className="block text-center text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                  Back to Login
+                </Link>
+              </div>
+            )}
+
+            {status === 'already-verified' && (
+              <div className="space-y-6">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                  <p className="text-sm text-blue-400">{message}</p>
+                </div>
+                <GlowingButton href="/login" className="w-full">
+                  Go to Login
+                </GlowingButton>
+              </div>
+            )}
+
+            {status === 'idle' && !token && (
+              <div className="space-y-6">
+                <p className="text-gray-300 text-center">
+                  No verification token found. Please check your email for the verification link.
+                </p>
+                {email && (
+                  <GlowingButton onClick={handleResend} className="w-full" disabled={resending}>
+                    {resending ? 'Sending...' : 'Resend Verification Email'}
+                  </GlowingButton>
+                )}
+                <Link href="/login" className="block text-center text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                  Back to Login
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#050508]">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
       <VerifyEmailContent />
     </Suspense>
   );
