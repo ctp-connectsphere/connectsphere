@@ -31,4 +31,3 @@ export function useSidebar() {
 export function useSidebarSafe() {
   return useContext(SidebarContext);
 }
-

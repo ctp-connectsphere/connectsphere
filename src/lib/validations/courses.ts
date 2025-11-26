@@ -21,4 +21,3 @@ export const enrollCourseSchema = z.object({
 });
 
 export type EnrollCourseData = z.infer<typeof enrollCourseSchema>;
-

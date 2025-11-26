@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/connection';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { logger } from '@/lib/utils/logger';
 
 const createGroupSchema = z.object({
   name: z.string().min(1).max(100),
@@ -25,10 +26,13 @@ export async function createGroup(formData: FormData) {
     redirect('/login');
   }
 
+  // TypeScript: userId is guaranteed after auth check
+  const userId = session.user.id as string;
+
   try {
     const courseId = formData.get('courseId') as string;
     const tagsStr = formData.get('tags') as string;
-    
+
     const data = createGroupSchema.parse({
       name: formData.get('name'),
       description: formData.get('description') || undefined,
@@ -62,7 +66,7 @@ export async function createGroup(formData: FormData) {
     await prisma.groupMember.create({
       data: {
         groupId: group.id,
-        userId: session.user.id,
+        userId,
         role: 'Admin',
       },
     });
@@ -74,11 +78,11 @@ export async function createGroup(formData: FormData) {
       data: group,
     };
   } catch (error: any) {
-    console.error('Error creating group:', error);
+    logger.error('Error creating group', error);
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: error.errors[0].message,
+        error: error.issues[0]?.message || 'Validation failed',
       };
     }
     return {
@@ -97,6 +101,9 @@ export async function joinGroup(formData: FormData) {
   if (!session?.user?.id) {
     redirect('/login');
   }
+
+  // TypeScript: userId is guaranteed after auth check
+  const userId = session.user.id as string;
 
   try {
     const groupId = formData.get('groupId') as string;
@@ -118,9 +125,12 @@ export async function joinGroup(formData: FormData) {
     }
 
     // Check if user is already a member
-    const existingMember = group.members.find(m => m.userId === session.user.id);
+    const existingMember = group.members.find(m => m.userId === userId);
     if (existingMember) {
-      return { success: false, error: 'You are already a member of this group' };
+      return {
+        success: false,
+        error: 'You are already a member of this group',
+      };
     }
 
     // Check if group is full
@@ -132,7 +142,7 @@ export async function joinGroup(formData: FormData) {
     await prisma.groupMember.create({
       data: {
         groupId,
-        userId: session.user.id,
+        userId,
         role: 'Member',
       },
     });
@@ -143,7 +153,7 @@ export async function joinGroup(formData: FormData) {
       message: 'Successfully joined group',
     };
   } catch (error) {
-    console.error('Error joining group:', error);
+    logger.error('Error joining group', error);
     return {
       success: false,
       error: 'Failed to join group',
@@ -161,6 +171,9 @@ export async function leaveGroup(formData: FormData) {
     redirect('/login');
   }
 
+  // TypeScript: userId is guaranteed after auth check
+  const userId = session.user.id as string;
+
   try {
     const groupId = formData.get('groupId') as string;
 
@@ -172,7 +185,7 @@ export async function leaveGroup(formData: FormData) {
     await prisma.groupMember.deleteMany({
       where: {
         groupId,
-        userId: session.user.id,
+        userId,
       },
     });
 
@@ -182,7 +195,7 @@ export async function leaveGroup(formData: FormData) {
       message: 'Successfully left group',
     };
   } catch (error) {
-    console.error('Error leaving group:', error);
+    logger.error('Error leaving group', error);
     return {
       success: false,
       error: 'Failed to leave group',
@@ -200,7 +213,7 @@ export async function getAllGroups(limit = 20) {
       redirect('/login');
     }
 
-    const userId = session.user.id;
+    const userId = session.user.id as string;
 
     const groups = await prisma.group.findMany({
       include: {
@@ -236,40 +249,56 @@ export async function getAllGroups(limit = 20) {
     });
 
     // Format groups
-    const formattedGroups = groups.map((group) => {
+    const formattedGroups = groups.map(group => {
       const memberCount = group._count.members;
       const isMember = group.members.some(m => m.userId === userId);
       const isFull = memberCount >= group.maxMembers;
       const spotsLeft = group.maxMembers - memberCount;
 
       // Get category info
-      const getCategoryInfo = (category: string) => {
+      type BadgeColor =
+        | 'indigo'
+        | 'purple'
+        | 'pink'
+        | 'cyan'
+        | 'emerald'
+        | 'orange'
+        | 'blue'
+        | 'amber'
+        | 'gray';
+      type CategoryInfo = { badge: BadgeColor; label: string; emoji: string };
+
+      const getCategoryInfo = (category: string): CategoryInfo => {
         switch (category) {
           case 'skill':
-            return { badge: 'cyan' as const, label: 'Code', emoji: '💻' };
+            return { badge: 'cyan', label: 'Code', emoji: '💻' };
           case 'interest':
-            return { badge: 'pink' as const, label: 'Interest', emoji: '🎯' };
+            return { badge: 'pink', label: 'Interest', emoji: '🎯' };
           case 'subject':
-            return { badge: 'pink' as const, label: 'Science', emoji: '⚛️' };
+            return { badge: 'pink', label: 'Science', emoji: '⚛️' };
           case 'course':
-            return { badge: 'indigo' as const, label: 'Course', emoji: '📚' };
+            return { badge: 'indigo', label: 'Course', emoji: '📚' };
           default:
-            return { badge: 'indigo' as const, label: category, emoji: '📚' };
+            return { badge: 'indigo', label: category, emoji: '📚' };
         }
       };
 
       // Determine category from course or tags
-      let category = 'course';
-      let categoryInfo = getCategoryInfo(category);
-      
+      const category = 'course';
+      let categoryInfo: CategoryInfo = getCategoryInfo(category);
+
       if (group.course?.code) {
         const code = group.course.code.toUpperCase();
-        if (code.includes('CS') || code.includes('CST') || code.includes('COMP')) {
-          categoryInfo = { badge: 'cyan' as const, label: 'Code', emoji: '💻' };
+        if (
+          code.includes('CS') ||
+          code.includes('CST') ||
+          code.includes('COMP')
+        ) {
+          categoryInfo = { badge: 'cyan', label: 'Code', emoji: '💻' };
         } else if (code.includes('MATH')) {
-          categoryInfo = { badge: 'purple' as const, label: 'Math', emoji: '📐' };
+          categoryInfo = { badge: 'purple', label: 'Math', emoji: '📐' };
         } else if (code.includes('PHYS')) {
-          categoryInfo = { badge: 'orange' as const, label: 'Physics', emoji: '⚛️' };
+          categoryInfo = { badge: 'orange', label: 'Physics', emoji: '⚛️' };
         }
       }
 
@@ -309,7 +338,7 @@ export async function getAllGroups(limit = 20) {
       },
     };
   } catch (error) {
-    console.error('Error getting groups:', error);
+    logger.error('Error getting groups', error);
     return {
       success: false,
       error: 'Failed to load groups',
@@ -330,7 +359,7 @@ export async function getUserGroups() {
       redirect('/login');
     }
 
-    const userId = session.user.id;
+    const userId = session.user.id as string;
 
     const groups = await prisma.group.findMany({
       where: {
@@ -373,7 +402,7 @@ export async function getUserGroups() {
     return {
       success: true,
       data: {
-        groups: groups.map((group) => ({
+        groups: groups.map(group => ({
           id: group.id,
           name: group.name,
           description: group.description,
@@ -390,7 +419,7 @@ export async function getUserGroups() {
       },
     };
   } catch (error) {
-    console.error('Error getting user groups:', error);
+    logger.error('Error getting user groups', error);
     return {
       success: false,
       error: 'Failed to load your groups',
@@ -400,4 +429,3 @@ export async function getUserGroups() {
     };
   }
 }
-

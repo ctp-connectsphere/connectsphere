@@ -11,27 +11,32 @@ interface GlowingButtonProps {
   loading?: boolean;
 }
 
-export const GlowingButton = ({ 
-  children, 
-  onClick, 
-  className = '', 
+export const GlowingButton = ({
+  children,
+  onClick,
+  className = '',
   variant = 'primary',
   type = 'button',
   href,
   disabled = false,
-  loading = false
+  loading = false,
 }: GlowingButtonProps) => {
-  const baseStyle = "relative px-6 py-3 rounded-xl font-bold transition-all duration-300 overflow-hidden group";
-  
+  const baseStyle =
+    'relative px-6 py-3 rounded-xl font-bold transition-all duration-300 overflow-hidden group';
+
   const variants = {
-    primary: "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50",
-    secondary: "bg-white/5 text-white border border-white/10 hover:bg-white/10",
-    outline: "bg-transparent border border-indigo-400/50 text-indigo-300 hover:border-indigo-400 hover:text-white"
+    primary:
+      'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50',
+    secondary: 'bg-white/5 text-white border border-white/10 hover:bg-white/10',
+    outline:
+      'bg-transparent border border-indigo-400/50 text-indigo-300 hover:border-indigo-400 hover:text-white',
   };
 
   const buttonContent = (
     <>
-      <span className="relative z-10 flex items-center gap-2 justify-center">{children}</span>
+      <span className="relative z-10 flex items-center gap-2 justify-center">
+        {children}
+      </span>
       {variant === 'primary' && (
         <div className="absolute inset-0 -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-cyan-500 to-blue-500 transition-transform duration-500 ease-out opacity-100" />
       )}
@@ -49,9 +54,9 @@ export const GlowingButton = ({
   }
 
   return (
-    <button 
+    <button
       type={type}
-      onClick={onClick} 
+      onClick={onClick}
       className={buttonClasses}
       disabled={disabled || loading}
     >
@@ -59,4 +64,3 @@ export const GlowingButton = ({
     </button>
   );
 };
-

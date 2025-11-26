@@ -2,12 +2,17 @@
 
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
+import { logger } from '@/lib/utils/logger';
 import {
   createAvailabilitySchema,
   updateAvailabilitySchema,
   deleteAvailabilitySchema,
 } from '@/lib/validations/availability';
-import { findConflicts, getDayName, type AvailabilitySlot } from '@/lib/utils/availability';
+import {
+  findConflicts,
+  getDayName,
+  type AvailabilitySlot,
+} from '@/lib/utils/availability';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -40,17 +45,19 @@ export async function createAvailability(formData: FormData) {
       },
     });
 
-    const existingSlots: AvailabilitySlot[] = existingAvailability.map((avail) => ({
-      dayOfWeek: avail.dayOfWeek,
-      startTime: avail.startTime,
-      endTime: avail.endTime,
-    }));
+    const existingSlots: AvailabilitySlot[] = existingAvailability.map(
+      avail => ({
+        dayOfWeek: avail.dayOfWeek,
+        startTime: avail.startTime,
+        endTime: avail.endTime,
+      })
+    );
 
     // Check for conflicts
     const conflicts = findConflicts(data.slots, existingSlots);
     if (conflicts.length > 0) {
       const conflictMessages = conflicts.map(
-        (conflict) =>
+        conflict =>
           `Conflict on ${getDayName(conflict.slot.dayOfWeek)}: ${conflict.slot.startTime} - ${conflict.slot.endTime} overlaps with existing slot`
       );
       return {
@@ -60,10 +67,11 @@ export async function createAvailability(formData: FormData) {
       };
     }
 
-    // Create all slots
+    // Create all slots - userId is guaranteed to exist after auth check
+    const userId = session.user.id as string;
     const created = await prisma.availability.createMany({
-      data: data.slots.map((slot) => ({
-        userId: session.user.id,
+      data: data.slots.map(slot => ({
+        userId,
         dayOfWeek: slot.dayOfWeek,
         startTime: slot.startTime,
         endTime: slot.endTime,
@@ -82,10 +90,12 @@ export async function createAvailability(formData: FormData) {
       },
     };
   } catch (error) {
-    console.error('Error creating availability:', error);
+    logger.error('Error creating availability', error);
     if (error && typeof error === 'object' && 'issues' in error) {
       // Zod validation error
-      const zodError = error as { issues: Array<{ message: string; path: string[] }> };
+      const zodError = error as {
+        issues: Array<{ message: string; path: string[] }>;
+      };
       const firstError = zodError.issues[0];
       return {
         success: false,
@@ -168,7 +178,11 @@ export async function updateAvailability(formData: FormData) {
     }
 
     // If updating times or day, check for conflicts
-    if (updateData.startTime || updateData.endTime || updateData.dayOfWeek !== undefined) {
+    if (
+      updateData.startTime ||
+      updateData.endTime ||
+      updateData.dayOfWeek !== undefined
+    ) {
       const finalDayOfWeek = updateData.dayOfWeek ?? existing.dayOfWeek;
       const finalStartTime = updateData.startTime ?? existing.startTime;
       const finalEndTime = updateData.endTime ?? existing.endTime;
@@ -183,14 +197,20 @@ export async function updateAvailability(formData: FormData) {
         },
       });
 
-      const otherSlots: AvailabilitySlot[] = otherAvailability.map((avail) => ({
+      const otherSlots: AvailabilitySlot[] = otherAvailability.map(avail => ({
         dayOfWeek: avail.dayOfWeek,
         startTime: avail.startTime,
         endTime: avail.endTime,
       }));
 
       const conflicts = findConflicts(
-        [{ dayOfWeek: finalDayOfWeek, startTime: finalStartTime, endTime: finalEndTime }],
+        [
+          {
+            dayOfWeek: finalDayOfWeek,
+            startTime: finalStartTime,
+            endTime: finalEndTime,
+          },
+        ],
         otherSlots
       );
 
@@ -223,10 +243,12 @@ export async function updateAvailability(formData: FormData) {
       },
     };
   } catch (error) {
-    console.error('Error updating availability:', error);
+    logger.error('Error updating availability', error);
     if (error && typeof error === 'object' && 'issues' in error) {
       // Zod validation error
-      const zodError = error as { issues: Array<{ message: string; path: string[] }> };
+      const zodError = error as {
+        issues: Array<{ message: string; path: string[] }>;
+      };
       const firstError = zodError.issues[0];
       return {
         success: false,
@@ -307,10 +329,12 @@ export async function deleteAvailability(formData: FormData) {
       },
     };
   } catch (error) {
-    console.error('Error deleting availability:', error);
+    logger.error('Error deleting availability', error);
     if (error && typeof error === 'object' && 'issues' in error) {
       // Zod validation error
-      const zodError = error as { issues: Array<{ message: string; path: string[] }> };
+      const zodError = error as {
+        issues: Array<{ message: string; path: string[] }>;
+      };
       const firstError = zodError.issues[0];
       return {
         success: false,
@@ -357,7 +381,7 @@ export async function getUserAvailability() {
       data: availability,
     };
   } catch (error) {
-    console.error('Error fetching availability:', error);
+    logger.error('Error fetching availability', error);
     return {
       success: false,
       error: 'Failed to fetch availability',
@@ -397,12 +421,10 @@ export async function getUserAvailabilityById(userId: string) {
       data: availability,
     };
   } catch (error) {
-    console.error('Error fetching user availability:', error);
+    logger.error('Error fetching user availability', error);
     return {
       success: false,
       error: 'Failed to fetch user availability',
     };
   }
 }
-
-

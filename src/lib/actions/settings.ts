@@ -132,7 +132,7 @@ export async function updateNotifications(formData: FormData) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: error.errors[0].message,
+        error: error.issues[0]?.message || 'Validation failed',
       };
     }
     console.error('Error updating notifications:', error);
@@ -194,7 +194,7 @@ export async function updatePrivacy(formData: FormData) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: error.errors[0].message,
+        error: error.issues[0]?.message || 'Validation failed',
       };
     }
     console.error('Error updating privacy:', error);
@@ -255,7 +255,7 @@ export async function updateAppearance(formData: FormData) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: error.errors[0].message,
+        error: error.issues[0]?.message || 'Validation failed',
       };
     }
     console.error('Error updating appearance:', error);
@@ -294,7 +294,10 @@ export async function changePassword(formData: FormData) {
     }
 
     // Verify current password
-    const isValid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+    const isValid = await bcrypt.compare(
+      data.currentPassword,
+      user.passwordHash
+    );
     if (!isValid) {
       return {
         success: false,
@@ -320,7 +323,7 @@ export async function changePassword(formData: FormData) {
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        error: error.errors[0].message,
+        error: error.issues[0]?.message || 'Validation failed',
       };
     }
     console.error('Error changing password:', error);
@@ -366,4 +369,3 @@ export async function deleteAccount(formData: FormData) {
     };
   }
 }
-

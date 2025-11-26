@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Heart, Star, Brain, Loader2, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { GlowingButton } from '../ui/glowing-button';
 import { findMatches, sendConnectionRequest } from '@/lib/actions/matches';
 import { getUserTopics } from '@/lib/actions/topics';
+import {
+  Brain,
+  ChevronRight,
+  Filter,
+  Heart,
+  Loader2,
+  Star,
+  X,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { GlowingButton } from '../ui/glowing-button';
 
 export const MatchView = () => {
   const { data: session } = useSession();
@@ -18,8 +24,9 @@ export const MatchView = () => {
   const [userTopics, setUserTopics] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [sendingRequest, setSendingRequest] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<Record<string, string>>({});
-  const router = useRouter();
+  const [connectionStatus, setConnectionStatus] = useState<
+    Record<string, string>
+  >({});
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -50,17 +57,19 @@ export const MatchView = () => {
 
   const loadTopicMatches = async () => {
     if (!selectedTopicId) return;
-    
+
     try {
       setLoading(true);
       setError(null);
       const formData = new FormData();
       formData.append('topicId', selectedTopicId);
       formData.append('limit', '10');
-      
+
       const result = await findMatches(formData);
       if (result.success && result.matches) {
-        const limitedMatches = result.matches.slice(0, 10);
+        // Type assertion: matches from $queryRaw is always an array
+        const matchesArray = (result.matches as any[]) || [];
+        const limitedMatches = matchesArray.slice(0, 10);
         setMatches(limitedMatches);
         setCurrentMatch(0);
       } else {
@@ -75,21 +84,24 @@ export const MatchView = () => {
   };
 
   const handleNext = () => {
-    setCurrentMatch((prev) => (prev + 1) % matches.length);
+    setCurrentMatch(prev => (prev + 1) % matches.length);
   };
 
   const handlePrevious = () => {
-    setCurrentMatch((prev) => (prev - 1 + matches.length) % matches.length);
+    setCurrentMatch(prev => (prev - 1 + matches.length) % matches.length);
   };
 
   const handleConnect = async () => {
     if (!selectedTopicId || !profile?.id) return;
-    
+
     const targetId = profile.id;
     const connectionKey = `${targetId}-${selectedTopicId}`;
-    
+
     // Check if already connected or pending
-    if (connectionStatus[connectionKey] === 'connected' || connectionStatus[connectionKey] === 'pending') {
+    if (
+      connectionStatus[connectionKey] === 'connected' ||
+      connectionStatus[connectionKey] === 'pending'
+    ) {
       return;
     }
 
@@ -98,9 +110,9 @@ export const MatchView = () => {
       const formData = new FormData();
       formData.append('targetId', targetId);
       formData.append('topicId', selectedTopicId);
-      
+
       const result = await sendConnectionRequest(formData);
-      
+
       if (result.success) {
         setConnectionStatus({
           ...connectionStatus,
@@ -142,7 +154,9 @@ export const MatchView = () => {
           <div className="w-24 h-24 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-6"></div>
           <Brain className="absolute inset-0 m-auto w-12 h-12 text-indigo-400 animate-pulse" />
         </div>
-        <div className="text-gray-400 text-lg font-semibold">Finding your perfect matches...</div>
+        <div className="text-gray-400 text-lg font-semibold">
+          Finding your perfect matches...
+        </div>
       </div>
     );
   }
@@ -163,9 +177,12 @@ export const MatchView = () => {
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <div className="glass-panel rounded-3xl p-12 max-w-md text-center border border-white/10">
           <Brain className="w-20 h-20 text-gray-600 mx-auto mb-6" />
-          <div className="text-3xl font-black text-white mb-3">No matches found</div>
+          <div className="text-3xl font-black text-white mb-3">
+            No matches found
+          </div>
           <div className="text-gray-400 mb-8 text-lg">
-            Try selecting a different topic or add more topics to your profile to discover study partners
+            Try selecting a different topic or add more topics to your profile
+            to discover study partners
           </div>
           {userTopics.length === 0 && (
             <GlowingButton href="/topics">Add Topics</GlowingButton>
@@ -176,13 +193,21 @@ export const MatchView = () => {
   }
 
   const profile = matches[currentMatch];
-  const matchScore = Math.min(100, Math.round((profile.availability_score || 0) * 10 + 60));
-  const selectedTopic = userTopics.find(ut => ut.topicId === selectedTopicId)?.topic;
+  const matchScore = Math.min(
+    100,
+    Math.round((profile.availability_score || 0) * 10 + 60)
+  );
+  const selectedTopic = userTopics.find(
+    ut => ut.topicId === selectedTopicId
+  )?.topic;
   const connectionKey = profile?.id ? `${profile.id}-${selectedTopicId}` : '';
-  const currentConnectionStatus = connectionStatus[connectionKey] || profile?.connection_status || 'none';
+  const currentConnectionStatus =
+    connectionStatus[connectionKey] || profile?.connection_status || 'none';
 
   // Generate avatar URL or use profile image
-  const avatarUrl = profile.profile_image_url || `https://i.pravatar.cc/400?img=${Math.floor(Math.random() * 70)}`;
+  const avatarUrl =
+    profile.profile_image_url ||
+    `https://i.pravatar.cc/400?img=${Math.floor(Math.random() * 70)}`;
 
   return (
     <div className="w-full h-full flex flex-col bg-[#0F172A] overflow-y-auto">
@@ -197,21 +222,27 @@ export const MatchView = () => {
               <div>
                 <h1 className="text-xl font-bold text-white">Matching</h1>
                 {selectedTopic && (
-                  <p className="text-sm text-gray-400">Find study partners for {selectedTopic.name}</p>
+                  <p className="text-sm text-gray-400">
+                    Find study partners for {selectedTopic.name}
+                  </p>
                 )}
               </div>
             </div>
-            
+
             {userTopics.length > 0 && (
               <div className="flex items-center gap-3">
                 <Filter size={18} className="text-gray-400" />
                 <select
                   value={selectedTopicId || ''}
-                  onChange={(e) => setSelectedTopicId(e.target.value)}
+                  onChange={e => setSelectedTopicId(e.target.value)}
                   className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all hover:bg-white/10 min-w-[180px]"
                 >
-                  {userTopics.map((ut) => (
-                    <option key={ut.topicId} value={ut.topicId} className="bg-[#0F172A]">
+                  {userTopics.map(ut => (
+                    <option
+                      key={ut.topicId}
+                      value={ut.topicId}
+                      className="bg-[#0F172A]"
+                    >
                       {ut.topic.name}
                     </option>
                   ))}
@@ -242,7 +273,7 @@ export const MatchView = () => {
             {/* Avatar - Overlapping the banner */}
             <div className="flex justify-center -mt-16 relative z-10 mb-4">
               <div className="relative">
-                <img 
+                <img
                   src={avatarUrl}
                   alt={`${profile.first_name} ${profile.last_name}`}
                   className="w-32 h-32 rounded-full border-4 border-gray-900 object-cover shadow-2xl"
@@ -250,8 +281,12 @@ export const MatchView = () => {
                 {/* Match Score Badge on Avatar */}
                 <div className="absolute -bottom-2 -right-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full p-2 shadow-lg border-2 border-gray-900">
                   <div className="text-center">
-                    <span className="text-white font-black text-lg block leading-none">{matchScore}%</span>
-                    <span className="text-green-100 text-[10px] font-semibold">Match</span>
+                    <span className="text-white font-black text-lg block leading-none">
+                      {matchScore}%
+                    </span>
+                    <span className="text-green-100 text-[10px] font-semibold">
+                      Match
+                    </span>
                   </div>
                 </div>
               </div>
@@ -271,11 +306,11 @@ export const MatchView = () => {
 
               {/* Bio */}
               <p className="text-gray-300 text-base leading-relaxed mb-6 max-w-lg mx-auto">
-                {profile.bio ? (
-                  profile.bio.length > 120 ? `${profile.bio.substring(0, 120)}...` : profile.bio
-                ) : (
-                  'Looking for study partners to collaborate and learn together.'
-                )}
+                {profile.bio
+                  ? profile.bio.length > 120
+                    ? `${profile.bio.substring(0, 120)}...`
+                    : profile.bio
+                  : 'Looking for study partners to collaborate and learn together.'}
               </p>
 
               {/* Enhanced Tags with Better Contrast */}
@@ -305,7 +340,7 @@ export const MatchView = () => {
               {/* Action Buttons - Redesigned with Better Hierarchy */}
               <div className="flex items-center justify-center gap-4 pt-4 border-t border-white/10">
                 {/* Pass Button */}
-                <button 
+                <button
                   onClick={handlePrevious}
                   className="w-14 h-14 rounded-full bg-gray-800 hover:bg-red-500/20 border-2 border-gray-700 hover:border-red-500/50 flex items-center justify-center text-gray-400 hover:text-red-400 transition-all shadow-lg hover:scale-110"
                   title="Pass"
@@ -314,7 +349,7 @@ export const MatchView = () => {
                 </button>
 
                 {/* Save/Star Button */}
-                <button 
+                <button
                   className="w-14 h-14 rounded-full bg-gray-800 hover:bg-yellow-500/20 border-2 border-gray-700 hover:border-yellow-500/50 flex items-center justify-center text-gray-400 hover:text-yellow-400 transition-all shadow-lg hover:scale-110"
                   title="Save for later"
                 >
@@ -322,22 +357,26 @@ export const MatchView = () => {
                 </button>
 
                 {/* Like/Connect Button - Main Action */}
-                <button 
+                <button
                   onClick={handleConnect}
-                  disabled={sendingRequest || currentConnectionStatus === 'connected' || currentConnectionStatus === 'pending'}
+                  disabled={
+                    sendingRequest ||
+                    currentConnectionStatus === 'connected' ||
+                    currentConnectionStatus === 'pending'
+                  }
                   className={`w-16 h-16 rounded-full flex items-center justify-center text-white shadow-2xl transition-all ${
                     currentConnectionStatus === 'connected'
                       ? 'bg-green-600 shadow-green-500/50 cursor-not-allowed'
                       : currentConnectionStatus === 'pending'
-                      ? 'bg-yellow-600 shadow-yellow-500/50 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-pink-500/50 hover:shadow-pink-500/70 hover:scale-110'
+                        ? 'bg-yellow-600 shadow-yellow-500/50 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-pink-500/50 hover:shadow-pink-500/70 hover:scale-110'
                   } ${sendingRequest ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title={
                     currentConnectionStatus === 'connected'
                       ? 'Already connected'
                       : currentConnectionStatus === 'pending'
-                      ? 'Request pending'
-                      : 'Send connection request'
+                        ? 'Request pending'
+                        : 'Send connection request'
                   }
                 >
                   {sendingRequest ? (
@@ -352,7 +391,7 @@ export const MatchView = () => {
                 </button>
 
                 {/* Next Button */}
-                <button 
+                <button
                   onClick={handleNext}
                   className="w-14 h-14 rounded-full bg-gray-800 hover:bg-blue-500/20 border-2 border-gray-700 hover:border-blue-500/50 flex items-center justify-center text-gray-400 hover:text-blue-400 transition-all shadow-lg hover:scale-110"
                   title="Next"
@@ -368,13 +407,15 @@ export const MatchView = () => {
             {/* Progress Bar */}
             <div className="w-full max-w-md">
               <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-300"
-                  style={{ width: `${((currentMatch + 1) / Math.min(matches.length, 10)) * 100}%` }}
+                  style={{
+                    width: `${((currentMatch + 1) / Math.min(matches.length, 10)) * 100}%`,
+                  }}
                 ></div>
               </div>
             </div>
-            
+
             {/* Match Counter */}
             <div className="px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
               <span className="text-white font-semibold text-sm">

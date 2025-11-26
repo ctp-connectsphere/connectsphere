@@ -25,10 +25,18 @@ export function calculateProfileCompletion(
 ): ProfileCompletionResult {
   const fields = [
     { key: 'hasBio', name: 'Bio', value: data.hasBio },
-    { key: 'hasPreferredLocation', name: 'Study Location', value: data.hasPreferredLocation },
+    {
+      key: 'hasPreferredLocation',
+      name: 'Study Location',
+      value: data.hasPreferredLocation,
+    },
     { key: 'hasStudyStyle', name: 'Study Style', value: data.hasStudyStyle },
     { key: 'hasStudyPace', name: 'Study Pace', value: data.hasStudyPace },
-    { key: 'hasProfileImage', name: 'Profile Image', value: data.hasProfileImage },
+    {
+      key: 'hasProfileImage',
+      name: 'Profile Image',
+      value: data.hasProfileImage,
+    },
   ];
 
   const completed = fields.filter(f => f.value).length;
@@ -58,7 +66,9 @@ export function getCompletionStatus(
 /**
  * Get completion message
  */
-export function getCompletionMessage(completion: ProfileCompletionResult): string {
+export function getCompletionMessage(
+  completion: ProfileCompletionResult
+): string {
   if (completion.percentage === 100) {
     return 'Your profile is complete!';
   }
@@ -73,4 +83,3 @@ export function getCompletionMessage(completion: ProfileCompletionResult): strin
 
   return 'Complete your profile to get better matches.';
 }
-

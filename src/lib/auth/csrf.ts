@@ -68,7 +68,7 @@ export class CSRFProtection {
 /**
  * CSRF middleware for API routes
  */
-export function withCSRF(handler: Function) {
+export function withCSRF(handler: (req: any, res: any) => Promise<void>) {
   return async (req: any, res: any) => {
     // Skip CSRF for GET requests and NextAuth routes
     if (req.method === 'GET' || req.url?.startsWith('/api/auth/')) {

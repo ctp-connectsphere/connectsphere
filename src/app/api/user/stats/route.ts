@@ -12,37 +12,38 @@ export async function GET() {
     const userId = session.user.id;
 
     // Get user stats
-    const [coursesCount, topicsCount, connectionsCount, matchesCount] = await Promise.all([
-      // Enrolled courses
-      prisma.userCourse.count({
-        where: {
-          userId,
-          isActive: true,
-        },
-      }),
-      // User topics
-      prisma.userTopic.count({
-        where: {
-          userId,
-        },
-      }),
-      // Accepted connections
-      prisma.connection.count({
-        where: {
-          OR: [
-            { requesterId: userId, status: 'accepted' },
-            { targetId: userId, status: 'accepted' },
-          ],
-        },
-      }),
-      // Pending matches (users in same courses/topics)
-      prisma.userCourse.count({
-        where: {
-          userId,
-          isActive: true,
-        },
-      }),
-    ]);
+    const [coursesCount, topicsCount, connectionsCount, matchesCount] =
+      await Promise.all([
+        // Enrolled courses
+        prisma.userCourse.count({
+          where: {
+            userId,
+            isActive: true,
+          },
+        }),
+        // User topics
+        prisma.userTopic.count({
+          where: {
+            userId,
+          },
+        }),
+        // Accepted connections
+        prisma.connection.count({
+          where: {
+            OR: [
+              { requesterId: userId, status: 'accepted' },
+              { targetId: userId, status: 'accepted' },
+            ],
+          },
+        }),
+        // Pending matches (users in same courses/topics)
+        prisma.userCourse.count({
+          where: {
+            userId,
+            isActive: true,
+          },
+        }),
+      ]);
 
     return NextResponse.json({
       courses: coursesCount,
@@ -58,4 +59,3 @@ export async function GET() {
     );
   }
 }
-

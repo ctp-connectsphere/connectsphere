@@ -1,9 +1,9 @@
 /**
  * Production Demo Data Seeding Script
- * 
+ *
  * This script seeds production database with demo data.
  * It uses the DATABASE_URL from .env-pro file.
- * 
+ *
  * Usage:
  *   NODE_ENV=production tsx scripts/seed-prod-demo-data.ts
  *   or
@@ -22,16 +22,66 @@ const prisma = new PrismaClient();
 
 // 课程模板 - 需要包含 section, semester, universityId
 const courseTemplates = [
-  { code: 'CS 161', name: 'Data Structures and Algorithms', section: '001', semester: 'Spring 2025' },
-  { code: 'CS 189', name: 'Machine Learning', section: '001', semester: 'Spring 2025' },
-  { code: 'CS 186', name: 'Database Systems', section: '001', semester: 'Spring 2025' },
-  { code: 'CS 170', name: 'Efficient Algorithms and Intractable Problems', section: '001', semester: 'Spring 2025' },
-  { code: 'CS 188', name: 'Introduction to Artificial Intelligence', section: '001', semester: 'Spring 2025' },
-  { code: 'CS 162', name: 'Operating Systems and System Programming', section: '001', semester: 'Spring 2025' },
-  { code: 'MATH 53', name: 'Multivariable Calculus', section: '001', semester: 'Spring 2025' },
-  { code: 'MATH 54', name: 'Linear Algebra and Differential Equations', section: '001', semester: 'Spring 2025' },
-  { code: 'PHYS 7A', name: 'Physics for Scientists and Engineers', section: '001', semester: 'Spring 2025' },
-  { code: 'EECS 16A', name: 'Designing Information Devices and Systems I', section: '001', semester: 'Spring 2025' },
+  {
+    code: 'CS 161',
+    name: 'Data Structures and Algorithms',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'CS 189',
+    name: 'Machine Learning',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'CS 186',
+    name: 'Database Systems',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'CS 170',
+    name: 'Efficient Algorithms and Intractable Problems',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'CS 188',
+    name: 'Introduction to Artificial Intelligence',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'CS 162',
+    name: 'Operating Systems and System Programming',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'MATH 53',
+    name: 'Multivariable Calculus',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'MATH 54',
+    name: 'Linear Algebra and Differential Equations',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'PHYS 7A',
+    name: 'Physics for Scientists and Engineers',
+    section: '001',
+    semester: 'Spring 2025',
+  },
+  {
+    code: 'EECS 16A',
+    name: 'Designing Information Devices and Systems I',
+    section: '001',
+    semester: 'Spring 2025',
+  },
 ];
 
 // Topics/Skills 数据
@@ -319,7 +369,9 @@ async function seedProductionDemoData() {
         }
         const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
         const dayLabels = selectedDays.map(d => dayNames[d - 1]).join(', ');
-        console.log(`  ✓ ${user.firstName} available ${slot.start}-${slot.end} on ${dayLabels}`);
+        console.log(
+          `  ✓ ${user.firstName} available ${slot.start}-${slot.end} on ${dayLabels}`
+        );
       }
     }
 
@@ -329,7 +381,7 @@ async function seedProductionDemoData() {
     console.log(`   - Topics: ${allTopics.length}`);
     console.log(`   - Users: ${users.length}`);
     console.log(`\n🔑 Demo user credentials (all use password: Demo123!):`);
-    users.forEach((user) => {
+    users.forEach(user => {
       console.log(`   - ${user.email}`);
     });
   } catch (error) {
@@ -346,8 +398,7 @@ seedProductionDemoData()
     console.log('\n🎉 Seeding process completed!');
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('\n💥 Seeding process failed:', error);
     process.exit(1);
   });
-

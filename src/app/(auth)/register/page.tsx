@@ -23,11 +23,13 @@ export default function RegisterPage() {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!form.firstName.trim()) newErrors.firstName = ['First name is required'];
+    if (!form.firstName.trim())
+      newErrors.firstName = ['First name is required'];
     if (!form.lastName.trim()) newErrors.lastName = ['Last name is required'];
     if (!form.email.trim()) newErrors.email = ['Email is required'];
     if (!form.password.trim()) newErrors.password = ['Password is required'];
-    if (!form.university.trim()) newErrors.university = ['University is required'];
+    if (!form.university.trim())
+      newErrors.university = ['University is required'];
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       newErrors.email = ['Please enter a valid email address'];
     }
@@ -70,15 +72,27 @@ export default function RegisterPage() {
       const res = await registerUser(fd);
       if (res.success) {
         setMessage(res.message || 'Account created successfully!');
-        setForm({ email: '', password: '', firstName: '', lastName: '', university: '' });
+        setForm({
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          university: '',
+        });
         setTimeout(() => {
           window.location.href = '/login';
         }, 2000);
       } else {
-        setErrors((res as any).errors || { general: ['Registration failed. Please try again.'] });
+        setErrors(
+          (res as any).errors || {
+            general: ['Registration failed. Please try again.'],
+          }
+        );
       }
-    } catch (error) {
-      setErrors({ general: ['An unexpected error occurred. Please try again.'] });
+    } catch {
+      setErrors({
+        general: ['An unexpected error occurred. Please try again.'],
+      });
     } finally {
       setLoading(false);
     }
@@ -93,7 +107,9 @@ export default function RegisterPage() {
             <h1 className="text-4xl font-black text-white mb-3">
               Join ConnectSphere
             </h1>
-            <p className="text-gray-400">Create your account and start connecting</p>
+            <p className="text-gray-400">
+              Create your account and start connecting
+            </p>
           </div>
 
           {/* OAuth Sign Up Buttons */}
@@ -127,7 +143,10 @@ export default function RegisterPage() {
               onClick={() => signIn('github', { callbackUrl: '/onboarding' })}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white font-medium hover:bg-white/10 transition-all backdrop-blur-sm group"
             >
-              <Github size={20} className="text-gray-300 group-hover:text-white transition-colors" />
+              <Github
+                size={20}
+                className="text-gray-300 group-hover:text-white transition-colors"
+              />
               <span>Sign up with GitHub</span>
             </button>
           </div>
@@ -138,7 +157,9 @@ export default function RegisterPage() {
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#050508] text-gray-400">Or sign up with email</span>
+              <span className="px-4 bg-[#050508] text-gray-400">
+                Or sign up with email
+              </span>
             </div>
           </div>
 
@@ -154,7 +175,9 @@ export default function RegisterPage() {
                   required
                 />
                 {errors?.firstName && (
-                  <p className="text-sm text-red-400 mt-2">{errors.firstName[0]}</p>
+                  <p className="text-sm text-red-400 mt-2">
+                    {errors.firstName[0]}
+                  </p>
                 )}
               </div>
               <div>
@@ -167,7 +190,9 @@ export default function RegisterPage() {
                   required
                 />
                 {errors?.lastName && (
-                  <p className="text-sm text-red-400 mt-2">{errors.lastName[0]}</p>
+                  <p className="text-sm text-red-400 mt-2">
+                    {errors.lastName[0]}
+                  </p>
                 )}
               </div>
             </div>
@@ -198,7 +223,9 @@ export default function RegisterPage() {
                 required
               />
               {errors?.password && (
-                <p className="text-sm text-red-400 mt-2">{errors.password[0]}</p>
+                <p className="text-sm text-red-400 mt-2">
+                  {errors.password[0]}
+                </p>
               )}
             </div>
 
@@ -212,7 +239,9 @@ export default function RegisterPage() {
                 required
               />
               {errors?.university && (
-                <p className="text-sm text-red-400 mt-2">{errors.university[0]}</p>
+                <p className="text-sm text-red-400 mt-2">
+                  {errors.university[0]}
+                </p>
               )}
             </div>
 
@@ -228,8 +257,15 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => { }} className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : (
+            <GlowingButton
+              type="submit"
+              onClick={() => {}}
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? (
+                'Creating account...'
+              ) : (
                 <>
                   Create Account <ArrowRight size={18} className="ml-2" />
                 </>
@@ -240,7 +276,10 @@ export default function RegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-400">
               Already have an account?{' '}
-              <a href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+              <a
+                href="/login"
+                className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+              >
                 Sign in here
               </a>
             </p>
@@ -271,10 +310,21 @@ export default function RegisterPage() {
           </p>
           <div className="flex flex-col gap-4">
             {[
-              { icon: Users, text: 'Join Study Groups', desc: 'Find your perfect match' },
-              { icon: Sparkles, text: 'AI-Powered Matching', desc: 'Smart compatibility' },
+              {
+                icon: Users,
+                text: 'Join Study Groups',
+                desc: 'Find your perfect match',
+              },
+              {
+                icon: Sparkles,
+                text: 'AI-Powered Matching',
+                desc: 'Smart compatibility',
+              },
             ].map((feature, i) => (
-              <div key={i} className="glass-panel p-5 rounded-2xl flex items-center gap-4 border border-white/10">
+              <div
+                key={i}
+                className="glass-panel p-5 rounded-2xl flex items-center gap-4 border border-white/10"
+              >
                 <feature.icon size={28} className="text-pink-400" />
                 <div className="text-left">
                   <div className="text-white font-semibold">{feature.text}</div>

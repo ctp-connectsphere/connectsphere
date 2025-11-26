@@ -9,26 +9,66 @@ const courseTemplates = [
   { code: 'CS 161', name: 'Data Structures and Algorithms', department: 'CS' },
   { code: 'CS 189', name: 'Machine Learning', department: 'CS' },
   { code: 'CS 186', name: 'Database Systems', department: 'CS' },
-  { code: 'CS 170', name: 'Efficient Algorithms and Intractable Problems', department: 'CS' },
-  { code: 'CS 188', name: 'Introduction to Artificial Intelligence', department: 'CS' },
-  { code: 'CS 162', name: 'Operating Systems and System Programming', department: 'CS' },
-  { code: 'CS 61C', name: 'Great Ideas in Computer Architecture', department: 'CS' },
-  { code: 'CS 70', name: 'Discrete Mathematics and Probability Theory', department: 'CS' },
-  
+  {
+    code: 'CS 170',
+    name: 'Efficient Algorithms and Intractable Problems',
+    department: 'CS',
+  },
+  {
+    code: 'CS 188',
+    name: 'Introduction to Artificial Intelligence',
+    department: 'CS',
+  },
+  {
+    code: 'CS 162',
+    name: 'Operating Systems and System Programming',
+    department: 'CS',
+  },
+  {
+    code: 'CS 61C',
+    name: 'Great Ideas in Computer Architecture',
+    department: 'CS',
+  },
+  {
+    code: 'CS 70',
+    name: 'Discrete Mathematics and Probability Theory',
+    department: 'CS',
+  },
+
   // Math
   { code: 'MATH 53', name: 'Multivariable Calculus', department: 'MATH' },
-  { code: 'MATH 54', name: 'Linear Algebra and Differential Equations', department: 'MATH' },
+  {
+    code: 'MATH 54',
+    name: 'Linear Algebra and Differential Equations',
+    department: 'MATH',
+  },
   { code: 'MATH 55', name: 'Discrete Mathematics', department: 'MATH' },
   { code: 'MATH 104', name: 'Introduction to Analysis', department: 'MATH' },
-  
+
   // Physics
-  { code: 'PHYS 7A', name: 'Physics for Scientists and Engineers', department: 'PHYS' },
-  { code: 'PHYS 7B', name: 'Physics for Scientists and Engineers', department: 'PHYS' },
-  
+  {
+    code: 'PHYS 7A',
+    name: 'Physics for Scientists and Engineers',
+    department: 'PHYS',
+  },
+  {
+    code: 'PHYS 7B',
+    name: 'Physics for Scientists and Engineers',
+    department: 'PHYS',
+  },
+
   // Engineering
-  { code: 'EECS 16A', name: 'Designing Information Devices and Systems I', department: 'EECS' },
-  { code: 'EECS 16B', name: 'Designing Information Devices and Systems II', department: 'EECS' },
-  
+  {
+    code: 'EECS 16A',
+    name: 'Designing Information Devices and Systems I',
+    department: 'EECS',
+  },
+  {
+    code: 'EECS 16B',
+    name: 'Designing Information Devices and Systems II',
+    department: 'EECS',
+  },
+
   // Business
   { code: 'BUS 101', name: 'Introduction to Business', department: 'BUS' },
   { code: 'BUS 201', name: 'Financial Accounting', department: 'BUS' },
@@ -76,16 +116,76 @@ const topicCategories = [
 
 // 用户数据模板
 const userTemplates = [
-  { firstName: 'Alex', lastName: 'Chen', email: 'alex.chen@berkeley.edu', major: 'Computer Science', schoolYear: 'Junior' },
-  { firstName: 'Sarah', lastName: 'Johnson', email: 'sarah.j@berkeley.edu', major: 'Data Science', schoolYear: 'Senior' },
-  { firstName: 'Michael', lastName: 'Zhang', email: 'michael.z@berkeley.edu', major: 'Computer Science', schoolYear: 'Sophomore' },
-  { firstName: 'Emily', lastName: 'Wang', email: 'emily.w@berkeley.edu', major: 'Electrical Engineering', schoolYear: 'Junior' },
-  { firstName: 'David', lastName: 'Kim', email: 'david.k@berkeley.edu', major: 'Computer Science', schoolYear: 'Senior' },
-  { firstName: 'Jessica', lastName: 'Liu', email: 'jessica.l@berkeley.edu', major: 'Mathematics', schoolYear: 'Junior' },
-  { firstName: 'Ryan', lastName: 'Patel', email: 'ryan.p@berkeley.edu', major: 'Computer Science', schoolYear: 'Sophomore' },
-  { firstName: 'Sophia', lastName: 'Martinez', email: 'sophia.m@berkeley.edu', major: 'Data Science', schoolYear: 'Senior' },
-  { firstName: 'James', lastName: 'Anderson', email: 'james.a@berkeley.edu', major: 'Computer Science', schoolYear: 'Junior' },
-  { firstName: 'Olivia', lastName: 'Brown', email: 'olivia.b@berkeley.edu', major: 'Electrical Engineering', schoolYear: 'Sophomore' },
+  {
+    firstName: 'Alex',
+    lastName: 'Chen',
+    email: 'alex.chen@berkeley.edu',
+    major: 'Computer Science',
+    schoolYear: 'Junior',
+  },
+  {
+    firstName: 'Sarah',
+    lastName: 'Johnson',
+    email: 'sarah.j@berkeley.edu',
+    major: 'Data Science',
+    schoolYear: 'Senior',
+  },
+  {
+    firstName: 'Michael',
+    lastName: 'Zhang',
+    email: 'michael.z@berkeley.edu',
+    major: 'Computer Science',
+    schoolYear: 'Sophomore',
+  },
+  {
+    firstName: 'Emily',
+    lastName: 'Wang',
+    email: 'emily.w@berkeley.edu',
+    major: 'Electrical Engineering',
+    schoolYear: 'Junior',
+  },
+  {
+    firstName: 'David',
+    lastName: 'Kim',
+    email: 'david.k@berkeley.edu',
+    major: 'Computer Science',
+    schoolYear: 'Senior',
+  },
+  {
+    firstName: 'Jessica',
+    lastName: 'Liu',
+    email: 'jessica.l@berkeley.edu',
+    major: 'Mathematics',
+    schoolYear: 'Junior',
+  },
+  {
+    firstName: 'Ryan',
+    lastName: 'Patel',
+    email: 'ryan.p@berkeley.edu',
+    major: 'Computer Science',
+    schoolYear: 'Sophomore',
+  },
+  {
+    firstName: 'Sophia',
+    lastName: 'Martinez',
+    email: 'sophia.m@berkeley.edu',
+    major: 'Data Science',
+    schoolYear: 'Senior',
+  },
+  {
+    firstName: 'James',
+    lastName: 'Anderson',
+    email: 'james.a@berkeley.edu',
+    major: 'Computer Science',
+    schoolYear: 'Junior',
+  },
+  {
+    firstName: 'Olivia',
+    lastName: 'Brown',
+    email: 'olivia.b@berkeley.edu',
+    major: 'Electrical Engineering',
+    schoolYear: 'Sophomore',
+  },
 ];
 
 async function seedDemoData() {
@@ -139,7 +239,9 @@ async function seedDemoData() {
       }
     }
   }
-  console.log(`✅ Created ${courses.length} courses across ${semesters.length} semesters\n`);
+  console.log(
+    `✅ Created ${courses.length} courses across ${semesters.length} semesters\n`
+  );
 
   // 3. 创建 Topics
   console.log('🏷️  Step 3: Creating topics...');
@@ -209,7 +311,8 @@ async function seedDemoData() {
       create: {
         userId: user.id,
         bio: `${user.firstName} is a ${user.schoolYear} studying ${user.major}. Looking for study partners!`,
-        preferredLocation: studyLocations[Math.floor(Math.random() * studyLocations.length)],
+        preferredLocation:
+          studyLocations[Math.floor(Math.random() * studyLocations.length)],
         studyStyle: studyStyles[Math.floor(Math.random() * studyStyles.length)],
         studyPace: studyPaces[Math.floor(Math.random() * studyPaces.length)],
         onboardingCompleted: true,
@@ -275,12 +378,16 @@ async function seedDemoData() {
         create: {
           userId: user.id,
           topicId: topic.id,
-          proficiency: topic.category === 'skill' 
-            ? ['beginner', 'intermediate', 'advanced'][Math.floor(Math.random() * 3)]
-            : null,
-          interest: topic.category === 'interest'
-            ? ['high', 'medium', 'low'][Math.floor(Math.random() * 3)]
-            : null,
+          proficiency:
+            topic.category === 'skill'
+              ? ['beginner', 'intermediate', 'advanced'][
+                  Math.floor(Math.random() * 3)
+                ]
+              : null,
+          interest:
+            topic.category === 'interest'
+              ? ['high', 'medium', 'low'][Math.floor(Math.random() * 3)]
+              : null,
         },
       });
       userTopicCount++;
@@ -304,7 +411,7 @@ async function seedDemoData() {
     for (let i = 0; i < numSlots; i++) {
       const day = days[Math.floor(Math.random() * days.length)];
       const slot = timeSlots[Math.floor(Math.random() * timeSlots.length)];
-      
+
       await prisma.availability.create({
         data: {
           userId: user.id,
@@ -323,13 +430,16 @@ async function seedDemoData() {
   let matchCount = 0;
   for (let i = 0; i < users.length; i++) {
     for (let j = i + 1; j < users.length; j++) {
-      if (Math.random() > 0.7) { // 30% 概率创建匹配
+      if (Math.random() > 0.7) {
+        // 30% 概率创建匹配
         const matchScore = Math.floor(Math.random() * 40) + 60; // 60-100
         await prisma.match.create({
           data: {
             userId1: users[i].id,
             userId2: users[j].id,
-            status: ['Pending', 'Accepted', 'Rejected'][Math.floor(Math.random() * 3)],
+            status: ['Pending', 'Accepted', 'Rejected'][
+              Math.floor(Math.random() * 3)
+            ],
             matchScore,
           },
         });
@@ -383,7 +493,9 @@ async function seedDemoData() {
   console.log('🎉 Demo data seeding completed!\n');
   console.log('📊 Summary:');
   console.log(`   - University: 1`);
-  console.log(`   - Courses: ${courses.length} (${courseTemplates.length} unique courses × ${semesters.length} semesters × ${sections.length} sections)`);
+  console.log(
+    `   - Courses: ${courses.length} (${courseTemplates.length} unique courses × ${semesters.length} semesters × ${sections.length} sections)`
+  );
   console.log(`   - Topics: ${allTopics.length}`);
   console.log(`   - Users: ${users.length}`);
   console.log(`   - User Profiles: ${users.length}`);
@@ -393,11 +505,13 @@ async function seedDemoData() {
   console.log(`   - Matches: ${matchCount}`);
   console.log(`   - Connections: ${connectionCount}\n`);
   console.log('💡 All users have password: password123');
-  console.log('💡 Users can also input their own courses, but system will suggest from the course catalog.\n');
+  console.log(
+    '💡 Users can also input their own courses, but system will suggest from the course catalog.\n'
+  );
 }
 
 seedDemoData()
-  .catch((e) => {
+  .catch(e => {
     console.error('❌ Seeding failed:', e);
     process.exit(1);
   })

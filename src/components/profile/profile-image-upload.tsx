@@ -14,7 +14,7 @@ interface ProfileImageUploadProps {
 export function ProfileImageUpload({
   currentImageUrl,
   userName,
-  userId,
+  userId: _userId,
 }: ProfileImageUploadProps) {
   const [isPending, startTransition] = useTransition();
   const [preview, setPreview] = useState<string | null>(null);
@@ -29,7 +29,9 @@ export function ProfileImageUpload({
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      setError('Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.');
+      setError(
+        'Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.'
+      );
       return;
     }
 
@@ -142,7 +144,11 @@ export function ProfileImageUpload({
                 size="small"
                 onClick={() => fileInputRef.current?.click()}
               >
-                {preview ? 'Change Image' : currentImageUrl ? 'Change Image' : 'Upload Image'}
+                {preview
+                  ? 'Change Image'
+                  : currentImageUrl
+                    ? 'Change Image'
+                    : 'Upload Image'}
               </Button>
             </label>
             {preview && (
@@ -188,4 +194,3 @@ export function ProfileImageUpload({
     </div>
   );
 }
-

@@ -9,5 +9,8 @@ export { ChatView } from './views/chat-view';
 export { GlowingButton } from './ui/glowing-button';
 export { Badge } from './ui/badge';
 export { Sidebar } from './ui/sidebar';
-export { SidebarProvider, useSidebar, useSidebarSafe } from './ui/sidebar-context';
-
+export {
+  SidebarProvider,
+  useSidebar,
+  useSidebarSafe,
+} from './ui/sidebar-context';

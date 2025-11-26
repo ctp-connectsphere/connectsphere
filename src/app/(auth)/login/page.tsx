@@ -71,7 +71,7 @@ export default function LoginPage() {
       } else {
         setErrors({ general: 'An unexpected response. Please try again.' });
       }
-    } catch (error) {
+    } catch {
       setErrors({ general: 'An unexpected error occurred. Please try again.' });
     } finally {
       setLoading(false);
@@ -102,12 +102,17 @@ export default function LoginPage() {
             Join thousands of students finding their perfect study partners
           </p>
           <div className="flex flex-col gap-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="glass-panel p-4 rounded-2xl flex items-center gap-4 border border-white/10">
+            {[1, 2, 3].map(i => (
+              <div
+                key={i}
+                className="glass-panel p-4 rounded-2xl flex items-center gap-4 border border-white/10"
+              >
                 <BookOpen size={24} className="text-indigo-400" />
                 <div className="text-left">
                   <div className="text-white font-semibold">Smart Matching</div>
-                  <div className="text-gray-400 text-sm">AI-powered compatibility</div>
+                  <div className="text-gray-400 text-sm">
+                    AI-powered compatibility
+                  </div>
                 </div>
               </div>
             ))}
@@ -119,10 +124,10 @@ export default function LoginPage() {
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 relative z-10">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center lg:text-left">
-            <h1 className="text-4xl font-black text-white mb-3">
-              Sign In
-            </h1>
-            <p className="text-gray-400">Enter your ConnectSphere credentials</p>
+            <h1 className="text-4xl font-black text-white mb-3">Sign In</h1>
+            <p className="text-gray-400">
+              Enter your ConnectSphere credentials
+            </p>
           </div>
 
           {/* OAuth Login Buttons */}
@@ -156,7 +161,10 @@ export default function LoginPage() {
               onClick={() => signIn('github', { callbackUrl: '/dashboard' })}
               className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white font-medium hover:bg-white/10 transition-all backdrop-blur-sm group"
             >
-              <Github size={20} className="text-gray-300 group-hover:text-white transition-colors" />
+              <Github
+                size={20}
+                className="text-gray-300 group-hover:text-white transition-colors"
+              />
               <span>Continue with GitHub</span>
             </button>
           </div>
@@ -167,7 +175,9 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-[#050508] text-gray-400">Or continue with email</span>
+              <span className="px-4 bg-[#050508] text-gray-400">
+                Or continue with email
+              </span>
             </div>
           </div>
 
@@ -181,7 +191,9 @@ export default function LoginPage() {
                 placeholder="you@university.edu"
                 type="email"
                 value={email}
-                onChange={e => handleInputChange('email', e.target.value.toLowerCase())}
+                onChange={e =>
+                  handleInputChange('email', e.target.value.toLowerCase())
+                }
                 required
               />
               {errors.email && (
@@ -216,7 +228,10 @@ export default function LoginPage() {
                 />
                 <span className="text-sm text-gray-400">Remember me</span>
               </label>
-              <a href="/forgot-password" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">
+              <a
+                href="/forgot-password"
+                className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
                 Forgot password?
               </a>
             </div>
@@ -227,8 +242,15 @@ export default function LoginPage() {
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => {}} className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : (
+            <GlowingButton
+              type="submit"
+              onClick={() => {}}
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? (
+                'Signing in...'
+              ) : (
                 <>
                   Sign In <ArrowRight size={18} className="ml-2" />
                 </>
@@ -238,8 +260,11 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-400">
-              Don't have an account?{' '}
-              <a href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+              Don&apos;t have an account?{' '}
+              <a
+                href="/register"
+                className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+              >
                 Create one here
               </a>
             </p>

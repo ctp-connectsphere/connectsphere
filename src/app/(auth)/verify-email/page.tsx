@@ -12,7 +12,9 @@ function VerifyEmailContent() {
   const token = searchParams.get('token');
   const email = searchParams.get('email');
 
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error' | 'expired' | 'already-verified' | 'idle'>('idle');
+  const [status, setStatus] = useState<
+    'verifying' | 'success' | 'error' | 'expired' | 'already-verified' | 'idle'
+  >('idle');
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -38,7 +40,9 @@ function VerifyEmailContent() {
 
       if (result.success) {
         setStatus('success');
-        setMessage(result.message || 'Your email has been verified successfully!');
+        setMessage(
+          result.message || 'Your email has been verified successfully!'
+        );
       } else {
         if (result.errorType === 'EXPIRED') {
           setStatus('expired');
@@ -49,7 +53,7 @@ function VerifyEmailContent() {
         }
         setMessage(result.message || 'Verification failed. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setStatus('error');
       setMessage('An unexpected error occurred. Please try again.');
     } finally {
@@ -72,11 +76,17 @@ function VerifyEmailContent() {
       });
       const result = await response.json();
       if (result.success) {
-        setMessage(result.message || 'Verification email has been sent. Please check your inbox.');
+        setMessage(
+          result.message ||
+            'Verification email has been sent. Please check your inbox.'
+        );
       } else {
-        setMessage(result.message || 'Failed to resend verification email. Please try again.');
+        setMessage(
+          result.message ||
+            'Failed to resend verification email. Please try again.'
+        );
       }
-    } catch (error) {
+    } catch {
       setMessage('An unexpected error occurred. Please try again.');
     } finally {
       setResending(false);
@@ -114,7 +124,9 @@ function VerifyEmailContent() {
               </div>
             )}
 
-            <h1 className="text-4xl font-black text-white mb-3">Email Verification</h1>
+            <h1 className="text-4xl font-black text-white mb-3">
+              Email Verification
+            </h1>
             <p className="text-gray-400">
               {status === 'verifying' && 'Verifying your email address...'}
               {status === 'success' && 'Verification Successful'}
@@ -148,11 +160,18 @@ function VerifyEmailContent() {
                   <p className="text-sm text-red-400">{message}</p>
                 </div>
                 {email && (
-                  <GlowingButton onClick={handleResend} className="w-full" disabled={resending}>
+                  <GlowingButton
+                    onClick={handleResend}
+                    className="w-full"
+                    disabled={resending}
+                  >
                     {resending ? 'Sending...' : 'Resend Verification Email'}
                   </GlowingButton>
                 )}
-                <Link href="/login" className="block text-center text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                <Link
+                  href="/login"
+                  className="block text-center text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+                >
                   Back to Login
                 </Link>
               </div>
@@ -172,14 +191,22 @@ function VerifyEmailContent() {
             {status === 'idle' && !token && (
               <div className="space-y-6">
                 <p className="text-gray-300 text-center">
-                  No verification token found. Please check your email for the verification link.
+                  No verification token found. Please check your email for the
+                  verification link.
                 </p>
                 {email && (
-                  <GlowingButton onClick={handleResend} className="w-full" disabled={resending}>
+                  <GlowingButton
+                    onClick={handleResend}
+                    className="w-full"
+                    disabled={resending}
+                  >
                     {resending ? 'Sending...' : 'Resend Verification Email'}
                   </GlowingButton>
                 )}
-                <Link href="/login" className="block text-center text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                <Link
+                  href="/login"
+                  className="block text-center text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+                >
                   Back to Login
                 </Link>
               </div>
@@ -193,11 +220,13 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#050508]">
-        <div className="text-white">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#050508]">
+          <div className="text-white">Loading...</div>
+        </div>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );

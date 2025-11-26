@@ -1,5 +1,6 @@
 'use server';
 import { prisma } from '@/lib/db/connection';
+import { logger } from '@/lib/utils/logger';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { headers } from 'next/headers';
@@ -41,7 +42,7 @@ export async function registerUser(formData: FormData) {
     if (existing) return { success: false, message: 'User already exists' };
 
     const hash = await bcrypt.hash(data.password, 12);
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: data.email,
         passwordHash: hash,
@@ -70,10 +71,11 @@ export async function registerUser(formData: FormData) {
     const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
 
     // In development, log the link instead of sending email
-    if (process.env.NODE_ENV === 'development') {
-      console.log(
-        `🔗 Email verification link for ${data.email}: ${verificationLink}`
-      );
+    if ((process.env.NODE_ENV as string) === 'development') {
+      logger.info('Email verification link generated', {
+        email: data.email,
+        verificationLink,
+      });
       return {
         success: true,
         message:
@@ -84,13 +86,18 @@ export async function registerUser(formData: FormData) {
 
     // Note: Email verification will be handled by Neon Auth
     // For now, we'll log the verification link in development
-    console.log(`Verification link for ${data.email}: ${verificationLink}`);
+    logger.debug('Verification link generated', {
+      email: data.email,
+    });
 
     return {
       success: true,
       message:
         'Registration successful! Please check your email to verify your account before logging in.',
-      verificationLink: process.env.NODE_ENV === 'development' ? verificationLink : undefined,
+      verificationLink:
+        (process.env.NODE_ENV as string) === 'development'
+          ? verificationLink
+          : undefined,
     };
   } catch (e: any) {
     if (e instanceof z.ZodError)
@@ -107,9 +114,8 @@ export async function loginUser(formData: FormData) {
       rememberMe: formData.get('rememberMe') === 'on',
     });
 
-    // Get client IP and user agent for security tracking
+    // Get client IP for security tracking
     const headersList = await headers();
-    const userAgent = headersList.get('user-agent') || 'Unknown';
     const forwardedFor = headersList.get('x-forwarded-for');
     const clientIP = forwardedFor
       ? forwardedFor.split(',')[0].trim()
@@ -139,7 +145,10 @@ export async function loginUser(formData: FormData) {
 
     if (!isValidPassword) {
       // TODO: Record failed attempt in loginAttempts table
-      console.log(`Failed login attempt for ${data.email} from ${clientIP}`);
+      logger.warn('Failed login attempt', {
+        email: data.email,
+        clientIP,
+      });
 
       return {
         success: false,
@@ -158,7 +167,11 @@ export async function loginUser(formData: FormData) {
     }
 
     // TODO: Record successful login attempt in loginAttempts table
-    console.log(`Successful login for ${data.email} from ${clientIP}`);
+    logger.info('Successful login', {
+      email: data.email,
+      clientIP,
+      userId: user.id,
+    });
 
     // Update last login
     await prisma.user.update({
@@ -240,15 +253,16 @@ export async function requestPasswordReset(formData: FormData) {
 
     // In development OR when explicit override is enabled, show the reset link in UI instead of sending email
     if (
-      process.env.NODE_ENV === 'development' ||
+      (process.env.NODE_ENV as string) === 'development' ||
       process.env.ALLOW_INSECURE_RESET === 'true'
     ) {
-      console.log(`🔗 Password reset link for ${email}: ${resetLink}`);
-      console.log(`📧 User: ${userName}`);
-      console.log(`⏰ Expires at: ${expiresAt.toISOString()}`);
-      console.log(
-        `📝 Note: In dev or when ALLOW_INSECURE_RESET=true, reset link is shown in UI instead of sending email`
-      );
+      logger.info('Password reset link generated', {
+        email,
+        userName,
+        expiresAt: expiresAt.toISOString(),
+        resetLink,
+        note: 'In dev or when ALLOW_INSECURE_RESET=true, reset link is shown in UI instead of sending email',
+      });
 
       return {
         success: true,
@@ -259,17 +273,22 @@ export async function requestPasswordReset(formData: FormData) {
 
     // Note: Password reset email will be handled by Neon Auth
     // For now, we'll log the reset link in development
-    console.log(`Password reset link for ${email}: ${resetLink}`);
+    logger.debug('Password reset link generated', {
+      email,
+    });
 
     return {
       success: true,
       message:
-        process.env.NODE_ENV === 'development'
+        (process.env.NODE_ENV as string) === 'development'
           ? `Password reset link generated! Check the console: ${resetLink}`
           : 'Password reset email has been sent. Please check your inbox and spam folder.',
-      resetLink: process.env.NODE_ENV === 'development' ? resetLink : undefined,
+      resetLink:
+        (process.env.NODE_ENV as string) === 'development'
+          ? resetLink
+          : undefined,
     };
-  } catch (e: any) {
+  } catch {
     return {
       success: false,
       message: 'Failed to process password reset request',
@@ -353,7 +372,7 @@ export async function resetPassword(formData: FormData) {
       message:
         'Password reset successfully. Please log in with your new password.',
     };
-  } catch (e: any) {
+  } catch {
     return {
       success: false,
       message: 'Failed to reset password',
@@ -369,7 +388,7 @@ export async function logoutUser() {
       success: true,
       message: 'Logged out successfully',
     };
-  } catch (e: any) {
+  } catch {
     return {
       success: false,
       message: 'Failed to logout',
@@ -463,7 +482,7 @@ export async function verifyEmail(formData: FormData) {
         'Your email has been verified successfully! You can now log in to your account.',
     };
   } catch (error: any) {
-    console.error('Email verification error:', error);
+    logger.error('Email verification error', error);
     return {
       success: false,
       message: 'Failed to verify email. Please try again.',
@@ -529,18 +548,24 @@ export async function resendVerificationEmail(formData: FormData) {
 
     // Note: Email verification will be handled by Neon Auth
     // For now, we'll log the verification link in development
-    console.log(`Resent verification link for ${email}: ${verificationLink}`);
+    logger.info('Resent verification link', {
+      email,
+      verificationLink,
+    });
 
     return {
       success: true,
       message:
-        process.env.NODE_ENV === 'development'
+        (process.env.NODE_ENV as string) === 'development'
           ? `Verification link generated! Check the console: ${verificationLink}`
           : 'Verification email has been sent. Please check your inbox and spam folder.',
-      verificationLink: process.env.NODE_ENV === 'development' ? verificationLink : undefined,
+      verificationLink:
+        (process.env.NODE_ENV as string) === 'development'
+          ? verificationLink
+          : undefined,
     };
   } catch (error: any) {
-    console.error('Resend verification email error:', error);
+    logger.error('Resend verification email error', error);
     return {
       success: false,
       message: 'Failed to resend verification email. Please try again.',

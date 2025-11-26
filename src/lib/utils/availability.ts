@@ -35,8 +35,10 @@ export function minutesToTime(minutes: number): string {
  */
 export function doSlotsOverlap(slot1: TimeSlot, slot2: TimeSlot): boolean {
   return (
-    (slot1.startMinutes < slot2.endMinutes && slot1.endMinutes > slot2.startMinutes) ||
-    (slot2.startMinutes < slot1.endMinutes && slot2.endMinutes > slot1.startMinutes)
+    (slot1.startMinutes < slot2.endMinutes &&
+      slot1.endMinutes > slot2.startMinutes) ||
+    (slot2.startMinutes < slot1.endMinutes &&
+      slot2.endMinutes > slot1.startMinutes)
   );
 }
 
@@ -52,7 +54,7 @@ export function hasConflict(
     endMinutes: timeToMinutes(newSlot.endTime),
   };
 
-  return existingSlots.some((existing) => {
+  return existingSlots.some(existing => {
     if (existing.dayOfWeek !== newSlot.dayOfWeek) {
       return false; // Different days, no conflict
     }
@@ -73,10 +75,13 @@ export function findConflicts(
   newSlots: AvailabilitySlot[],
   existingSlots: AvailabilitySlot[]
 ): Array<{ slot: AvailabilitySlot; conflicts: AvailabilitySlot[] }> {
-  const conflicts: Array<{ slot: AvailabilitySlot; conflicts: AvailabilitySlot[] }> = [];
+  const conflicts: Array<{
+    slot: AvailabilitySlot;
+    conflicts: AvailabilitySlot[];
+  }> = [];
 
   for (const newSlot of newSlots) {
-    const conflictingSlots = existingSlots.filter((existing) => {
+    const conflictingSlots = existingSlots.filter(existing => {
       if (existing.dayOfWeek !== newSlot.dayOfWeek) {
         return false;
       }
@@ -105,7 +110,10 @@ export function findConflicts(
 /**
  * Calculate overlap duration between two time slots in minutes
  */
-export function calculateOverlapMinutes(slot1: TimeSlot, slot2: TimeSlot): number {
+export function calculateOverlapMinutes(
+  slot1: TimeSlot,
+  slot2: TimeSlot
+): number {
   if (!doSlotsOverlap(slot1, slot2)) {
     return 0;
   }
@@ -124,8 +132,8 @@ export function calculateDayOverlap(
   user2Slots: AvailabilitySlot[],
   dayOfWeek: number
 ): number {
-  const user1DaySlots = user1Slots.filter((s) => s.dayOfWeek === dayOfWeek);
-  const user2DaySlots = user2Slots.filter((s) => s.dayOfWeek === dayOfWeek);
+  const user1DaySlots = user1Slots.filter(s => s.dayOfWeek === dayOfWeek);
+  const user2DaySlots = user2Slots.filter(s => s.dayOfWeek === dayOfWeek);
 
   if (user1DaySlots.length === 0 || user2DaySlots.length === 0) {
     return 0;
@@ -173,7 +181,15 @@ export function calculateTotalOverlap(
  * Get day name from day of week number
  */
 export function getDayName(dayOfWeek: number): string {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const days = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
   return days[dayOfWeek] || 'Unknown';
 }
 
@@ -184,4 +200,3 @@ export function formatTimeSlot(slot: AvailabilitySlot): string {
   const dayName = getDayName(slot.dayOfWeek);
   return `${dayName}: ${slot.startTime} - ${slot.endTime}`;
 }
-

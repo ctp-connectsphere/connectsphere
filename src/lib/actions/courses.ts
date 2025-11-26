@@ -2,7 +2,10 @@
 
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
-import { courseSearchSchema, enrollCourseSchema } from '@/lib/validations/courses';
+import {
+  courseSearchSchema,
+  enrollCourseSchema,
+} from '@/lib/validations/courses';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -29,7 +32,7 @@ export async function searchCourses(formData: FormData) {
     // Get user's university from their email domain
     const userEmail = session.user.email || '';
     const emailDomain = userEmail.split('@')[1] || '';
-    
+
     const userUniversity = await prisma.university.findFirst({
       where: {
         domain: emailDomain,
@@ -97,10 +100,7 @@ export async function searchCourses(formData: FormData) {
             },
           },
         },
-        orderBy: [
-          { code: 'asc' },
-          { section: 'asc' },
-        ],
+        orderBy: [{ code: 'asc' }, { section: 'asc' }],
         take: data.limit,
         skip: data.offset,
       }),
@@ -369,7 +369,7 @@ export async function getUserCourses() {
       success: true,
       data: enrollments.map(e => e.course),
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: 'Failed to fetch enrolled courses',
@@ -436,11 +436,10 @@ export async function getCourseDetails(courseId: string) {
         isEnrolled: enrollment?.isActive || false,
       },
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: 'Failed to fetch course details',
     };
   }
 }
-

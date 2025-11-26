@@ -16,68 +16,69 @@ export async function getDashboardStats() {
 
     const userId = session.user.id;
 
-    const [coursesCount, topicsCount, connectionsCount, matchesCount] = await Promise.all([
-      prisma.userCourse.count({
-        where: {
-          userId,
-          isActive: true,
-        },
-      }),
-      prisma.userTopic.count({
-        where: {
-          userId,
-        },
-      }),
-      prisma.connection.count({
-        where: {
-          OR: [
-            { requesterId: userId, status: 'accepted' },
-            { targetId: userId, status: 'accepted' },
-          ],
-        },
-      }),
-      // Count potential matches (users with shared topics/courses)
-      prisma.user.count({
-        where: {
-          AND: [
-            { id: { not: userId } },
-            { isActive: true },
-            { isVerified: true },
-            {
-              OR: [
-                {
-                  userTopics: {
-                    some: {
-                      topic: {
-                        userTopics: {
-                          some: {
-                            userId,
+    const [coursesCount, topicsCount, connectionsCount, matchesCount] =
+      await Promise.all([
+        prisma.userCourse.count({
+          where: {
+            userId,
+            isActive: true,
+          },
+        }),
+        prisma.userTopic.count({
+          where: {
+            userId,
+          },
+        }),
+        prisma.connection.count({
+          where: {
+            OR: [
+              { requesterId: userId, status: 'accepted' },
+              { targetId: userId, status: 'accepted' },
+            ],
+          },
+        }),
+        // Count potential matches (users with shared topics/courses)
+        prisma.user.count({
+          where: {
+            AND: [
+              { id: { not: userId } },
+              { isActive: true },
+              { isVerified: true },
+              {
+                OR: [
+                  {
+                    userTopics: {
+                      some: {
+                        topic: {
+                          userTopics: {
+                            some: {
+                              userId,
+                            },
                           },
                         },
                       },
                     },
                   },
-                },
-                {
-                  userCourses: {
-                    some: {
-                      course: {
-                        userCourses: {
-                          some: {
-                            userId,
-                            isActive: true,
+                  {
+                    userCourses: {
+                      some: {
+                        course: {
+                          userCourses: {
+                            some: {
+                              userId,
+                              isActive: true,
+                            },
                           },
                         },
                       },
                     },
                   },
-                },
-              ],
-            },
-          ],
-        },
-      }),
-    ]);
+                ],
+              },
+            ],
+          },
+        }),
+      ]);
 
     return {
       success: true,
@@ -126,7 +127,7 @@ export async function getRecommendedPeers(limit = 5) {
 
     // Find users with matching topics
     const topicIds = userTopics.map(ut => ut.topicId);
-    
+
     const matchingUsers = await prisma.user.findMany({
       where: {
         AND: [
@@ -156,11 +157,11 @@ export async function getRecommendedPeers(limit = 5) {
 
     // Calculate match scores
     const peers = matchingUsers.map(user => {
-      const commonTopics = user.userTopics.filter(ut => 
+      const commonTopics = user.userTopics.filter(ut =>
         topicIds.includes(ut.topicId)
       );
-      const matchScore = Math.min(98, 60 + (commonTopics.length * 10));
-      
+      const matchScore = Math.min(98, 60 + commonTopics.length * 10);
+
       return {
         id: user.id,
         firstName: user.firstName,
@@ -254,10 +255,13 @@ export async function getActiveGroups(limit = 4) {
     });
 
     // Format groups
-    const groups = connections.map((conn) => {
-      const otherUser = conn.requesterId === userId ? conn.target : conn.requester;
-      const groupName = conn.course?.name || conn.topic?.name || 'Study Session';
-      const category = conn.topic?.category || (conn.course ? 'course' : 'topic');
+    const groups = connections.map(conn => {
+      const otherUser =
+        conn.requesterId === userId ? conn.target : conn.requester;
+      const groupName =
+        conn.course?.name || conn.topic?.name || 'Study Session';
+      const category =
+        conn.topic?.category || (conn.course ? 'course' : 'topic');
       const lastMessage = conn.messages[0];
       const lastActive = lastMessage?.createdAt || conn.updatedAt;
       const now = new Date();
@@ -265,7 +269,7 @@ export async function getActiveGroups(limit = 4) {
       const diffMins = Math.floor(diffMs / 60000);
       const diffHours = Math.floor(diffMins / 60);
       const diffDays = Math.floor(diffHours / 24);
-      
+
       let lastActiveText = 'Just now';
       if (diffMins < 1) {
         lastActiveText = 'Just now';
@@ -292,7 +296,10 @@ export async function getActiveGroups(limit = 4) {
           case 'course':
             return { badge: 'indigo' as const, label: 'Course' };
           default:
-            return { badge: 'indigo' as const, label: cat.charAt(0).toUpperCase() + cat.slice(1) };
+            return {
+              badge: 'indigo' as const,
+              label: cat.charAt(0).toUpperCase() + cat.slice(1),
+            };
         }
       };
 
@@ -405,7 +412,7 @@ export async function getUpcomingSessions(limit = 3) {
     });
 
     // Format sessions
-    const formattedSessions = sessions.map((session) => {
+    const formattedSessions = sessions.map(session => {
       const timeUntil = session.startTime.getTime() - now.getTime();
       const hoursUntil = Math.floor(timeUntil / (1000 * 60 * 60));
       const daysUntil = Math.floor(hoursUntil / 24);
@@ -433,7 +440,7 @@ export async function getUpcomingSessions(limit = 3) {
           image: session.organizer.profileImageUrl,
         },
         participantCount: session.participants.length + 1, // +1 for organizer
-        participants: session.participants.map((p) => ({
+        participants: session.participants.map(p => ({
           id: p.user.id,
           name: `${p.user.firstName} ${p.user.lastName}`,
           image: p.user.profileImageUrl,
@@ -458,4 +465,3 @@ export async function getUpcomingSessions(limit = 3) {
     };
   }
 }
-

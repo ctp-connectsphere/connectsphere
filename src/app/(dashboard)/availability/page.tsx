@@ -4,10 +4,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Clock, Calendar, Save } from 'lucide-react';
-import { GlowingButton, Badge } from '@/components/nexus';
+import { GlowingButton } from '@/components/nexus';
 
 export default function AvailabilityPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
 
@@ -30,10 +30,29 @@ export default function AvailabilityPage() {
     return null;
   }
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const days = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
   const timeSlots = [
-    '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'
+    '8:00 AM',
+    '9:00 AM',
+    '10:00 AM',
+    '11:00 AM',
+    '12:00 PM',
+    '1:00 PM',
+    '2:00 PM',
+    '3:00 PM',
+    '4:00 PM',
+    '5:00 PM',
+    '6:00 PM',
+    '7:00 PM',
+    '8:00 PM',
   ];
 
   const toggleSlot = (day: string, time: string) => {
@@ -68,7 +87,9 @@ export default function AvailabilityPage() {
                 <Calendar size={32} className="text-indigo-400" />
                 Study Availability
               </h1>
-              <p className="text-gray-400">Set your available study times to match with partners</p>
+              <p className="text-gray-400">
+                Set your available study times to match with partners
+              </p>
             </div>
             <GlowingButton>
               <Save size={18} className="mr-2" />
@@ -82,9 +103,14 @@ export default function AvailabilityPage() {
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="text-left text-sm font-semibold text-gray-500 pb-4 pr-4">Time</th>
+                    <th className="text-left text-sm font-semibold text-gray-500 pb-4 pr-4">
+                      Time
+                    </th>
                     {days.map(day => (
-                      <th key={day} className="text-center text-sm font-semibold text-gray-500 pb-4 px-2">
+                      <th
+                        key={day}
+                        className="text-center text-sm font-semibold text-gray-500 pb-4 px-2"
+                      >
                         {day.slice(0, 3)}
                       </th>
                     ))}

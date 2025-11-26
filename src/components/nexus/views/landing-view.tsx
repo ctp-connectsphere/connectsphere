@@ -17,7 +17,14 @@ export const LandingView = () => {
   const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
 
   useEffect(() => {
-    const courses = ['CS 301', 'MATH 240', 'PHYS 101', 'CHEM 201', 'BIO 150', 'ENG 200'];
+    const courses = [
+      'CS 301',
+      'MATH 240',
+      'PHYS 101',
+      'CHEM 201',
+      'BIO 150',
+      'ENG 200',
+    ];
     const newBubbles = courses.map((course, i) => ({
       id: i,
       x: Math.random() * 100,
@@ -41,7 +48,7 @@ export const LandingView = () => {
 
       {/* Floating Course Bubbles */}
       <div className="absolute inset-0 pointer-events-none">
-        {bubbles.map((bubble) => (
+        {bubbles.map(bubble => (
           <div
             key={bubble.id}
             className="absolute glass-panel rounded-full flex items-center justify-center text-white font-bold text-sm animate-float"
@@ -63,7 +70,9 @@ export const LandingView = () => {
         {/* Status Badge */}
         <div className="mb-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg">
           <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></span>
-          <span className="text-sm text-gray-200 font-medium">ConnectSphere v2.0 • Live</span>
+          <span className="text-sm text-gray-200 font-medium">
+            ConnectSphere v2.0 • Live
+          </span>
         </div>
 
         {/* Main Hero Text */}
@@ -78,7 +87,8 @@ export const LandingView = () => {
 
         {/* Subtitle */}
         <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto font-light">
-          Stop studying alone. Our neural matching algorithm connects you with peers who share your major, vibe, and caffeine addiction.
+          Stop studying alone. Our neural matching algorithm connects you with
+          peers who share your major, vibe, and caffeine addiction.
         </p>
 
         {/* CTA Buttons */}
@@ -86,7 +96,11 @@ export const LandingView = () => {
           <GlowingButton href="/login" className="text-lg px-8 py-4">
             Sign In <ArrowRight size={20} className="ml-2" />
           </GlowingButton>
-          <GlowingButton href="/register" variant="secondary" className="text-lg px-8 py-4">
+          <GlowingButton
+            href="/register"
+            variant="secondary"
+            className="text-lg px-8 py-4"
+          >
             Get Started <Sparkles size={20} className="ml-2" />
           </GlowingButton>
         </div>
@@ -102,8 +116,13 @@ export const LandingView = () => {
               key={i}
               className="glass-panel px-6 py-3 rounded-full flex items-center gap-2 border border-white/10 hover:border-indigo-400/50 transition-all group"
             >
-              <feature.icon size={18} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-              <span className="text-sm text-gray-300 font-medium">{feature.text}</span>
+              <feature.icon
+                size={18}
+                className="text-indigo-400 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-sm text-gray-300 font-medium">
+                {feature.text}
+              </span>
             </div>
           ))}
         </div>
@@ -123,7 +142,9 @@ export const LandingView = () => {
         <div className="w-full bg-gray-800/50 h-2 rounded-full mb-2 overflow-hidden">
           <div className="bg-gradient-to-r from-green-400 to-emerald-500 w-[94%] h-full rounded-full shadow-lg shadow-green-400/30"></div>
         </div>
-        <div className="text-right text-sm text-green-400 font-mono font-bold">94% Match</div>
+        <div className="text-right text-sm text-green-400 font-mono font-bold">
+          94% Match
+        </div>
       </div>
 
       <div className="absolute right-10 top-32 hidden lg:block animate-float-delayed glass-panel p-6 rounded-3xl w-64 border border-white/10 shadow-2xl">

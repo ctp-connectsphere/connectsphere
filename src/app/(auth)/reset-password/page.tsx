@@ -54,7 +54,7 @@ function ResetPasswordContent() {
       } else {
         setError(result.message);
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -65,11 +65,16 @@ function ResetPasswordContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#050508] py-12 px-4">
         <div className="max-w-md w-full glass-panel p-10 rounded-3xl border border-white/10">
-          <h1 className="text-4xl font-black text-white mb-6 text-center">Invalid Reset Link</h1>
+          <h1 className="text-4xl font-black text-white mb-6 text-center">
+            Invalid Reset Link
+          </h1>
           <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
             <p className="text-sm text-red-400">{error}</p>
           </div>
-          <a href="/forgot-password" className="block text-center text-indigo-400 hover:text-indigo-300 font-medium">
+          <a
+            href="/forgot-password"
+            className="block text-center text-indigo-400 hover:text-indigo-300 font-medium"
+          >
             Request a new password reset
           </a>
         </div>
@@ -90,7 +95,9 @@ function ResetPasswordContent() {
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-6">
               <Lock size={32} className="text-white" />
             </div>
-            <h1 className="text-4xl font-black text-white mb-3">Set New Password</h1>
+            <h1 className="text-4xl font-black text-white mb-3">
+              Set New Password
+            </h1>
             <p className="text-gray-400">Enter your new password below</p>
           </div>
 
@@ -126,17 +133,27 @@ function ResetPasswordContent() {
             {message && (
               <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
                 <p className="text-sm text-green-400">{message}</p>
-                <p className="text-xs text-green-300 mt-2">Redirecting to login page in 3 seconds...</p>
+                <p className="text-xs text-green-300 mt-2">
+                  Redirecting to login page in 3 seconds...
+                </p>
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => {}} className="w-full" disabled={loading || !!message}>
+            <GlowingButton
+              type="submit"
+              onClick={() => {}}
+              className="w-full"
+              disabled={loading || !!message}
+            >
               {loading ? 'Resetting...' : 'Reset Password'}
             </GlowingButton>
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center justify-center gap-2">
+            <a
+              href="/login"
+              className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center justify-center gap-2"
+            >
               <ArrowLeft size={16} />
               Back to Sign In
             </a>
@@ -149,11 +166,13 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#050508]">
-        <div className="text-white">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#050508]">
+          <div className="text-white">Loading...</div>
+        </div>
+      }
+    >
       <ResetPasswordContent />
     </Suspense>
   );

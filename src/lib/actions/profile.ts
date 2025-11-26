@@ -3,7 +3,10 @@
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
 import { profileSchema } from '@/lib/validations/profile';
-import { uploadToCloudinary, extractPublicIdFromUrl } from '@/lib/storage/cloudinary';
+import {
+  uploadToCloudinary,
+  extractPublicIdFromUrl,
+} from '@/lib/storage/cloudinary';
 import { calculateProfileCompletion } from '@/lib/utils/profile';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -130,7 +133,7 @@ export async function getUserProfile() {
         completion,
       },
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: 'Failed to fetch profile',
@@ -161,7 +164,8 @@ export async function uploadProfileImage(formData: FormData) {
     if (!allowedTypes.includes(file.type)) {
       return {
         success: false,
-        error: 'Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.',
+        error:
+          'Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.',
       };
     }
 
@@ -246,4 +250,3 @@ export async function uploadProfileImage(formData: FormData) {
     };
   }
 }
-

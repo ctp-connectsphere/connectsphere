@@ -58,7 +58,7 @@ const styleTag = `
 `;
 
 export default function OnboardingPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [checking, setChecking] = useState(true);
 
@@ -117,4 +117,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-

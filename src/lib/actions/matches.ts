@@ -5,13 +5,15 @@ import { prisma } from '@/lib/db/connection';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
-const findMatchesSchema = z.object({
-  courseId: z.string().uuid().optional(),
-  topicId: z.string().uuid().optional(),
-  limit: z.number().min(1).max(10).default(10), // Limit to 10 matches per person
-}).refine(data => data.courseId || data.topicId, {
-  message: 'Either courseId or topicId must be provided',
-});
+const findMatchesSchema = z
+  .object({
+    courseId: z.string().uuid().optional(),
+    topicId: z.string().uuid().optional(),
+    limit: z.number().min(1).max(10).default(10), // Limit to 10 matches per person
+  })
+  .refine(data => data.courseId || data.topicId, {
+    message: 'Either courseId or topicId must be provided',
+  });
 
 /**
  * Find matches for a course or topic
@@ -43,7 +45,10 @@ export async function findMatches(formData: FormData) {
       });
 
       if (!userEnrollment) {
-        return { success: false, message: 'You are not enrolled in this course' };
+        return {
+          success: false,
+          message: 'You are not enrolled in this course',
+        };
       }
     }
 
@@ -59,13 +64,16 @@ export async function findMatches(formData: FormData) {
       });
 
       if (!userTopic) {
-        return { success: false, message: 'You do not have this topic selected' };
+        return {
+          success: false,
+          message: 'You do not have this topic selected',
+        };
       }
     }
 
     // Build the matching query based on course or topic
     let matches;
-    
+
     if (data.courseId) {
       // Course-based matching
       matches = await prisma.$queryRaw`
@@ -198,7 +206,10 @@ export async function findMatches(formData: FormData) {
         LIMIT ${data.limit}
       `;
     } else {
-      return { success: false, message: 'Either courseId or topicId must be provided' };
+      return {
+        success: false,
+        message: 'Either courseId or topicId must be provided',
+      };
     }
 
     return { success: true, matches };
@@ -228,7 +239,10 @@ export async function sendConnectionRequest(formData: FormData) {
     }
 
     if (targetId === session.user.id) {
-      return { success: false, message: 'Cannot send connection request to yourself' };
+      return {
+        success: false,
+        message: 'Cannot send connection request to yourself',
+      };
     }
 
     // Check if connection already exists
@@ -256,7 +270,10 @@ export async function sendConnectionRequest(formData: FormData) {
         return { success: false, message: 'Already connected with this user' };
       }
       if (existingConnection.status === 'pending') {
-        return { success: false, message: 'Connection request already pending' };
+        return {
+          success: false,
+          message: 'Connection request already pending',
+        };
       }
     }
 
@@ -312,7 +329,10 @@ export async function acceptConnectionRequest(formData: FormData) {
     }
 
     if (connection.targetId !== session.user.id) {
-      return { success: false, message: 'Unauthorized to accept this connection' };
+      return {
+        success: false,
+        message: 'Unauthorized to accept this connection',
+      };
     }
 
     if (connection.status !== 'pending') {
@@ -365,7 +385,10 @@ export async function declineConnectionRequest(formData: FormData) {
     }
 
     if (connection.targetId !== session.user.id) {
-      return { success: false, message: 'Unauthorized to decline this connection' };
+      return {
+        success: false,
+        message: 'Unauthorized to decline this connection',
+      };
     }
 
     // Delete the connection request
@@ -456,9 +479,11 @@ export async function getUserConnections() {
     });
 
     // Format connections
-    const formattedConnections = connections.map((conn) => {
-      const otherUser = conn.requesterId === userId ? conn.target : conn.requester;
-      const matchContext = conn.course?.name || conn.topic?.name || 'Study Partner';
+    const formattedConnections = connections.map(conn => {
+      const otherUser =
+        conn.requesterId === userId ? conn.target : conn.requester;
+      const matchContext =
+        conn.course?.name || conn.topic?.name || 'Study Partner';
       const lastMessage = conn.messages[0];
 
       return {
@@ -539,7 +564,7 @@ export async function getPendingConnectionRequests() {
     return {
       success: true,
       data: {
-        requests: requests.map((req) => ({
+        requests: requests.map(req => ({
           id: req.id,
           requester: {
             id: req.requester.id,
@@ -562,4 +587,3 @@ export async function getPendingConnectionRequests() {
     };
   }
 }
-

@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { Badge } from '@/components/nexus';
-import { addUserTopic, removeUserTopic, searchTopics } from '@/lib/actions/topics';
+import {
+  addUserTopic,
+  removeUserTopic,
+  searchTopics,
+} from '@/lib/actions/topics';
 
 interface Topic {
   id: string;
@@ -28,11 +32,11 @@ interface TopicSelectorProps {
   showCategories?: boolean;
 }
 
-export function TopicSelector({ 
-  selectedTopics = [], 
+export function TopicSelector({
+  selectedTopics = [],
   onSelectionChange,
-  multiSelect = true,
-  showCategories = true 
+  multiSelect: _multiSelect = true,
+  showCategories = true,
 }: TopicSelectorProps) {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [filteredTopics, setFilteredTopics] = useState<Topic[]>([]);
@@ -78,9 +82,10 @@ export function TopicSelector({
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(t => 
-        t.name.toLowerCase().includes(query) ||
-        t.description?.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        t =>
+          t.name.toLowerCase().includes(query) ||
+          t.description?.toLowerCase().includes(query)
       );
     }
 
@@ -142,19 +147,22 @@ export function TopicSelector({
       {/* Search and Filter */}
       <div className="mb-6 space-y-4">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Search topics..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
           />
         </div>
 
         {showCategories && (
           <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
+            {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -174,12 +182,20 @@ export function TopicSelector({
       {/* Selected Topics */}
       {userTopics.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-400 mb-3">Selected ({userTopics.length})</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">
+            Selected ({userTopics.length})
+          </h3>
           <div className="flex flex-wrap gap-2">
-            {userTopics.map((ut) => (
+            {userTopics.map(ut => (
               <Badge
                 key={ut.id}
-                color={ut.topic.category === 'skill' ? 'cyan' : ut.topic.category === 'interest' ? 'pink' : 'indigo'}
+                color={
+                  ut.topic.category === 'skill'
+                    ? 'cyan'
+                    : ut.topic.category === 'interest'
+                      ? 'pink'
+                      : 'indigo'
+                }
                 className="cursor-pointer hover:opacity-80"
                 onClick={() => handleTopicToggle(ut.topic)}
               >
@@ -193,7 +209,7 @@ export function TopicSelector({
 
       {/* Topics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {filteredTopics.map((topic) => {
+        {filteredTopics.map(topic => {
           const selected = isSelected(topic.id);
           const getColorClasses = (category: string, isSelected: boolean) => {
             if (!isSelected) {
@@ -219,8 +235,12 @@ export function TopicSelector({
             >
               <div className="text-sm font-bold mb-1">{topic.name}</div>
               {topic.description && (
-                <div className={`text-xs opacity-80 ${selected ? 'text-white' : 'text-gray-500'}`}>
-                  {topic.description.length > 50 ? topic.description.substring(0, 50) + '...' : topic.description}
+                <div
+                  className={`text-xs opacity-80 ${selected ? 'text-white' : 'text-gray-500'}`}
+                >
+                  {topic.description.length > 50
+                    ? topic.description.substring(0, 50) + '...'
+                    : topic.description}
                 </div>
               )}
             </button>
@@ -236,4 +256,3 @@ export function TopicSelector({
     </div>
   );
 }
-

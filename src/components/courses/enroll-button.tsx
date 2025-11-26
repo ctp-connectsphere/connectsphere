@@ -44,4 +44,3 @@ export function EnrollButton({ courseId, onEnroll }: EnrollButtonProps) {
     </GlowingButton>
   );
 }
-

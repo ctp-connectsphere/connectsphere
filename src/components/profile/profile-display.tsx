@@ -41,9 +41,7 @@ const paceLabels: Record<string, string> = {
 
 export function ProfileDisplay({ profile }: ProfileDisplayProps) {
   const user = profile.user;
-  const fullName = user
-    ? `${user.firstName} ${user.lastName}`
-    : 'User';
+  const fullName = user ? `${user.firstName} ${user.lastName}` : 'User';
 
   return (
     <Card className="p-6 bg-white text-gray-900 shadow-sm">
@@ -133,4 +131,3 @@ export function ProfileDisplay({ profile }: ProfileDisplayProps) {
     </Card>
   );
 }
-

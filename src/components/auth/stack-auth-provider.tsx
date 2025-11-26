@@ -1,9 +1,9 @@
 /**
  * Stack Auth Provider Component
- * 
+ *
  * This component provides Stack Auth context to the application.
  * Wrap your app with this provider to enable Stack Auth functionality.
- * 
+ *
  * NOTE: This component will need to be updated once the correct Stack Auth package is installed.
  */
 
@@ -24,8 +24,7 @@ export function StackAuthProvider({ children }: StackAuthProviderProps) {
   //     {children}
   //   </StackProvider>
   // );
-  
+
   // Placeholder - just return children for now
   return <>{children}</>;
 }
-

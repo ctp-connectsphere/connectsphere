@@ -2,6 +2,7 @@
 import { prisma } from '@/lib/db/connection';
 import { SessionService } from '@/lib/redis/session';
 import { headers } from 'next/headers';
+import { logger } from '@/lib/utils/logger';
 
 export class SessionManager {
   /**
@@ -20,7 +21,7 @@ export class SessionManager {
 
       return session;
     } catch (error) {
-      console.error('Error getting current session:', error);
+      logger.error('Error getting current session', error);
       return null;
     }
   }
@@ -43,7 +44,6 @@ export class SessionManager {
 
       // Check for suspicious activity
       const headersList = await headers();
-      const userAgent = headersList.get('user-agent') || '';
       const forwardedFor = headersList.get('x-forwarded-for');
       const clientIP = forwardedFor
         ? forwardedFor.split(',')[0].trim()
@@ -51,14 +51,14 @@ export class SessionManager {
 
       // TODO: Check if user agent changed (potential session hijacking)
       // This would require storing userAgent in the session table
-      console.log(`Session validation for ${sessionToken} from ${clientIP}`);
+      logger.debug('Session validation', { sessionToken, clientIP });
 
       // TODO: Check if IP changed (potential session hijacking)
       // This would require storing ipAddress in the session table
 
       return { valid: true, session };
     } catch (error) {
-      console.error('Error validating session:', error);
+      logger.error('Error validating session', error);
       return { valid: false, reason: 'VALIDATION_ERROR' };
     }
   }
@@ -88,7 +88,7 @@ export class SessionManager {
 
       return { success: true, newExpiry };
     } catch (error) {
-      console.error('Error refreshing session:', error);
+      logger.error('Error refreshing session', error);
       return { success: false, reason: 'REFRESH_ERROR' };
     }
   }
@@ -115,7 +115,7 @@ export class SessionManager {
 
       return { success: true };
     } catch (error) {
-      console.error('Error invalidating session:', error);
+      logger.error('Error invalidating session', error);
       return { success: false, reason: 'INVALIDATION_ERROR' };
     }
   }
@@ -135,7 +135,7 @@ export class SessionManager {
 
       return { success: true };
     } catch (error) {
-      console.error('Error invalidating user sessions:', error);
+      logger.error('Error invalidating user sessions', error);
       return { success: false, reason: 'INVALIDATION_ERROR' };
     }
   }
@@ -169,7 +169,7 @@ export class SessionManager {
         cleanedCount: expiredSessions.length,
       };
     } catch (error) {
-      console.error('Error cleaning up expired sessions:', error);
+      logger.error('Error cleaning up expired sessions', error);
       return { success: false, reason: 'CLEANUP_ERROR' };
     }
   }
@@ -193,7 +193,7 @@ export class SessionManager {
         expired: expiredSessions,
       };
     } catch (error) {
-      console.error('Error getting session stats:', error);
+      logger.error('Error getting session stats', error);
       return null;
     }
   }
@@ -211,7 +211,7 @@ export class SessionManager {
 
       return timeUntilExpiry <= twentyFourHours;
     } catch (error) {
-      console.error('Error checking session expiry:', error);
+      logger.error('Error checking session expiry', error);
       return false;
     }
   }

@@ -5,22 +5,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { useSidebarSafe } from './sidebar-context';
-import { 
-  Search, 
-  Bell, 
-  Settings, 
-  LogOut, 
-  User, 
+import {
+  Search,
+  Bell,
+  Settings,
+  LogOut,
+  User,
   LayoutDashboard,
   Users,
   BookOpen,
-  Calendar,
   Heart,
   MessageCircle,
-  Brain,
   ChevronLeft,
   ChevronRight,
-  MoreVertical
+  MoreVertical,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -45,7 +43,13 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
     { name: 'Groups', href: '/groups', icon: Users },
     { name: 'Courses', href: '/courses', icon: BookOpen },
     { name: 'Chat', href: '/chat', icon: MessageCircle },
-    { name: 'Notifications', href: '#', icon: Bell, badge: notifications, onClick: true }, // Moved here, onClick prevents navigation
+    {
+      name: 'Notifications',
+      href: '#',
+      icon: Bell,
+      badge: notifications,
+      onClick: true,
+    }, // Moved here, onClick prevents navigation
   ];
 
   const handleSignOut = async () => {
@@ -57,9 +61,13 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
   const userInitials = userName.charAt(0).toUpperCase();
 
   return (
-    <aside 
+    <aside
       className={`fixed left-0 top-0 h-full glass-panel border-r border-white/10 transition-all duration-300 z-50 ${isCollapsed ? 'w-20' : 'w-72'} ${className}`}
-      style={{ '--sidebar-width': isCollapsed ? '5rem' : '18rem' } as React.CSSProperties}
+      style={
+        {
+          '--sidebar-width': isCollapsed ? '5rem' : '18rem',
+        } as React.CSSProperties
+      }
     >
       <div className="flex flex-col h-full">
         {/* Logo & Brand */}
@@ -71,12 +79,18 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
                   <span className="text-white font-black text-lg">C</span>
                 </div>
                 <span className="text-xl font-black text-white">
-                  Connect<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">Sphere</span>
+                  Connect
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">
+                    Sphere
+                  </span>
                 </span>
               </Link>
             )}
             {isCollapsed && (
-              <Link href="/dashboard" className="flex items-center justify-center w-full">
+              <Link
+                href="/dashboard"
+                className="flex items-center justify-center w-full"
+              >
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all">
                   <span className="text-white font-black text-lg">C</span>
                 </div>
@@ -86,7 +100,11 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
             >
-              {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              {isCollapsed ? (
+                <ChevronRight size={20} />
+              ) : (
+                <ChevronLeft size={20} />
+              )}
             </button>
           </div>
         </div>
@@ -95,7 +113,10 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
         {!isCollapsed && (
           <div className="p-4 border-b border-white/10">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                size={18}
+              />
               <input
                 type="text"
                 placeholder="Search..."
@@ -107,10 +128,11 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          {navItems.map((item) => {
+          {navItems.map(item => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-            
+            const isActive =
+              pathname === item.href || pathname.startsWith(item.href + '/');
+
             // Handle notifications as a button instead of link
             if (item.onClick) {
               return (
@@ -144,7 +166,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
                 </button>
               );
             }
-            
+
             return (
               <Link
                 key={item.name}
@@ -190,10 +212,17 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
               {!isCollapsed && (
                 <>
                   <div className="flex-1 text-left min-w-0">
-                    <div className="text-sm font-semibold text-white truncate">{userName}</div>
-                    <div className="text-xs text-gray-500 truncate">{userEmail}</div>
+                    <div className="text-sm font-semibold text-white truncate">
+                      {userName}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">
+                      {userEmail}
+                    </div>
                   </div>
-                  <MoreVertical size={16} className="text-gray-500 group-hover:text-white transition flex-shrink-0" />
+                  <MoreVertical
+                    size={16}
+                    className="text-gray-500 group-hover:text-white transition flex-shrink-0"
+                  />
                 </>
               )}
             </button>
@@ -246,4 +275,3 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
     </aside>
   );
 };
-

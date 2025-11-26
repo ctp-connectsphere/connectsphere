@@ -1,9 +1,9 @@
 import { config } from '@/lib/config/env';
 import { Redis } from '@upstash/redis';
+import { logger } from '@/lib/utils/logger';
 
-// Development-specific configuration
-const isDevelopment = config.isDevelopment;
-const isProduction = config.isProduction;
+const isDevelopment =
+  (process.env.NODE_ENV as string) === 'development' || !process.env.NODE_ENV;
 
 // Enhanced Redis connection configuration
 const redisConfig = {
@@ -48,7 +48,7 @@ export async function checkRedisHealth(): Promise<{
     const responseTime = Date.now() - startTime;
 
     if (result === 'PONG') {
-      console.log(`✅ Redis connection healthy (${responseTime}ms)`);
+      logger.success('Redis connection healthy', { responseTime });
       return {
         status: 'healthy',
         responseTime,
@@ -60,7 +60,7 @@ export async function checkRedisHealth(): Promise<{
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
-    console.error('❌ Redis health check failed:', errorMessage);
+    logger.failure('Redis health check failed', error, { errorMessage });
 
     return {
       status: 'unhealthy',
@@ -83,7 +83,7 @@ export async function getRedisInfo() {
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
-    console.error('❌ Failed to get Redis info:', error);
+    logger.error('Failed to get Redis info', error);
     throw new RedisError(
       'Failed to get Redis information',
       'INFO_ERROR',
@@ -102,20 +102,22 @@ if (isDevelopment) {
       const health = await checkRedisHealth();
       if (health.status === 'healthy') {
         retryCount = 0;
-        console.log('✅ Redis connection established');
+        logger.success('Redis connection established');
       } else {
         throw new Error(health.error || 'Health check failed');
       }
     } catch (error) {
       retryCount++;
       if (retryCount < maxRetries) {
-        console.log(
-          `🔄 Retrying Redis connection (${retryCount}/${maxRetries})...`
-        );
+        logger.info('Retrying Redis connection', {
+          retryCount,
+          maxRetries,
+        });
         setTimeout(connectWithRetry, 1000 * retryCount);
       } else {
-        console.error(
-          '❌ Max Redis retry attempts reached. Please check your Redis connection.'
+        logger.failure(
+          'Max Redis retry attempts reached. Please check your Redis connection.',
+          error
         );
         throw new RedisError(
           'Max retry attempts reached',
@@ -128,7 +130,7 @@ if (isDevelopment) {
 
   // Initial connection check
   connectWithRetry().catch(error => {
-    console.error('❌ Redis connection failed:', error);
+    logger.error('Redis connection failed', error);
   });
 }
 
@@ -141,11 +143,11 @@ export async function safeRedisOperation<T>(
   try {
     return await operation();
   } catch (error) {
-    console.error(`❌ Redis operation failed (${operationName}):`, error);
+    logger.error(`Redis operation failed: ${operationName}`, error);
 
     // In development, log the error but don't fail the application
     if (isDevelopment) {
-      console.warn(`⚠️  Using fallback value for ${operationName}`);
+      logger.warn('Using fallback value', { operationName });
       return fallbackValue;
     }
 
@@ -168,10 +170,10 @@ export const devRedisUtils = {
 
     try {
       await redis.flushdb();
-      console.log('🗑️  Redis cache cleared for development');
+      logger.info('Redis cache cleared for development');
       return true;
     } catch (error) {
-      console.error('❌ Failed to clear Redis cache:', error);
+      logger.error('Failed to clear Redis cache', error);
       throw new RedisError('Failed to clear cache', 'CLEAR_ERROR', error);
     }
   },
@@ -186,7 +188,7 @@ export const devRedisUtils = {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('❌ Failed to get cache stats:', error);
+      logger.error('Failed to get cache stats', error);
       throw new RedisError('Failed to get cache stats', 'STATS_ERROR', error);
     }
   },
@@ -204,10 +206,13 @@ export const devRedisUtils = {
       const start = Date.now();
       try {
         const result = await originalGet(key);
-        console.log(`🔍 GET ${key} (${Date.now() - start}ms)`);
+        logger.debug('Redis GET operation', {
+          key,
+          duration: Date.now() - start,
+        });
         return result as any;
       } catch (error) {
-        console.error(`❌ GET ${key} failed:`, error);
+        logger.error('Redis GET operation failed', error, { key });
         throw error;
       }
     };
@@ -216,10 +221,13 @@ export const devRedisUtils = {
       const start = Date.now();
       try {
         const result = await originalSet(key, value, options);
-        console.log(`💾 SET ${key} (${Date.now() - start}ms)`);
+        logger.debug('Redis SET operation', {
+          key,
+          duration: Date.now() - start,
+        });
         return result;
       } catch (error) {
-        console.error(`❌ SET ${key} failed:`, error);
+        logger.error('Redis SET operation failed', error, { key });
         throw error;
       }
     };
@@ -228,10 +236,15 @@ export const devRedisUtils = {
       const start = Date.now();
       try {
         const result = await originalDel(...keys);
-        console.log(`🗑️  DEL ${keys.join(', ')} (${Date.now() - start}ms)`);
+        logger.debug('Redis DEL operation', {
+          keys: keys.join(', '),
+          duration: Date.now() - start,
+        });
         return result;
       } catch (error) {
-        console.error(`❌ DEL ${keys.join(', ')} failed:`, error);
+        logger.error('Redis DEL operation failed', error, {
+          keys: keys.join(', '),
+        });
         throw error;
       }
     };

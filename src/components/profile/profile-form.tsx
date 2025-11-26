@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input, Select, Textarea } from '@/components/ui/input';
+import { Select, Textarea } from '@/components/ui/input';
 import { createOrUpdateProfile } from '@/lib/actions/profile';
 import { useState, useTransition } from 'react';
 
@@ -129,4 +129,3 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     </form>
   );
 }
-

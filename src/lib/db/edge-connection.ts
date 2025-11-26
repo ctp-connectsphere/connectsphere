@@ -1,7 +1,7 @@
 /**
  * Edge Runtime compatible database connection
  * This file is optimized for Edge Runtime and doesn't include Node.js-specific APIs
- * 
+ *
  * For Neon database, we use the connection pooler URL to prevent connection closed errors.
  * The pooler manages connections automatically and handles reconnection.
  */
@@ -24,9 +24,7 @@ const prisma =
         url: config.database.url,
       },
     },
-    log: config.isDevelopment 
-      ? ['error', 'warn', 'info'] 
-      : ['error'],
+    log: config.isDevelopment ? ['error', 'warn', 'info'] : ['error'],
     // Neon connection pooler handles connection management automatically
     // No additional connection pool configuration needed when using pooler URL
   });
@@ -46,12 +44,12 @@ export async function withConnectionRetry<T>(
     try {
       return await operation();
     } catch (error: any) {
-      const isConnectionError = 
+      const isConnectionError =
         error?.message?.includes('Closed') ||
         error?.message?.includes('connection') ||
         error?.code === 'P1001' || // Can't reach database server
-        error?.code === 'P1008';   // Operations timed out
-      
+        error?.code === 'P1008'; // Operations timed out
+
       if (isConnectionError && attempt < maxRetries) {
         console.warn(
           `⚠️ Database connection error (attempt ${attempt}/${maxRetries}), retrying...`
@@ -59,11 +57,11 @@ export async function withConnectionRetry<T>(
         await new Promise(resolve => setTimeout(resolve, delay * attempt));
         continue;
       }
-      
+
       throw error;
     }
   }
-  
+
   throw new Error('Operation failed after retries');
 }
 

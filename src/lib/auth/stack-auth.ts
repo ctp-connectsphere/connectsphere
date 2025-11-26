@@ -1,12 +1,14 @@
 /**
  * Stack Auth (Neon Auth) Configuration
- * 
+ *
  * This file configures Stack Auth for Neon Auth integration.
  * Stack Auth automatically syncs user data to neon_auth.users_sync table.
- * 
+ *
  * NOTE: The package name may need to be updated once the correct npm package is identified.
  * Check Neon Auth documentation or example repos for the correct package name.
  */
+
+import { logger } from '@/lib/utils/logger';
 
 // TODO: Update import once correct package is installed
 // Possible package names:
@@ -46,41 +48,42 @@ export const stackServerApp = null as any;
  * Get the current user from Stack Auth
  */
 export async function getStackUser() {
-    try {
-        const user = await stackServerApp.getUser();
-        return user;
-    } catch (error) {
-        console.error('Error getting Stack user:', error);
-        return null;
-    }
+  try {
+    const user = await stackServerApp.getUser();
+    return user;
+  } catch (error) {
+    logger.error('Error getting Stack user', error);
+    return null;
+  }
 }
 
 /**
  * Get user by ID from neon_auth.users_sync table
  * This queries the automatically synced user data
  */
-export async function getSyncedUser(userId: string) {
-    const { prisma } = await import('@/lib/db/connection');
+export async function getSyncedUser(_userId: string) {
+  const { prisma } = await import('@/lib/db/connection');
 
-    try {
-        // Query the neon_auth.users_sync table
-        const result = await prisma.$queryRaw<Array<{
-            id: string;
-            name: string | null;
-            email: string;
-            created_at: Date;
-            updated_at: Date | null;
-            deleted_at: Date | null;
-            raw_json: any;
-        }>>`
+  try {
+    // Query the neon_auth.users_sync table
+    const result = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        name: string | null;
+        email: string;
+        created_at: Date;
+        updated_at: Date | null;
+        deleted_at: Date | null;
+        raw_json: any;
+      }>
+    >`
       SELECT * FROM neon_auth.users_sync 
       WHERE id = $1::text AND deleted_at IS NULL
     `;
 
-        return result[0] || null;
-    } catch (error) {
-        console.error('Error getting synced user:', error);
-        return null;
-    }
+    return result[0] || null;
+  } catch (error) {
+    logger.error('Error getting synced user', error);
+    return null;
+  }
 }
-

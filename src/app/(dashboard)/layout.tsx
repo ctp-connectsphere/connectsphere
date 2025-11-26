@@ -1,7 +1,10 @@
 'use client';
 
 import { Sidebar } from '@/components/nexus';
-import { SidebarProvider, useSidebar } from '@/components/nexus/ui/sidebar-context';
+import {
+  SidebarProvider,
+  useSidebar,
+} from '@/components/nexus/ui/sidebar-context';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -22,7 +25,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       <Sidebar />
 
       {/* Main Content */}
-      <main className={`relative z-10 h-full overflow-y-auto transition-all duration-300 pl-6 pr-6 ${isCollapsed ? 'ml-20' : 'ml-72'}`}>
+      <main
+        className={`relative z-10 h-full overflow-y-auto transition-all duration-300 pl-6 pr-6 ${isCollapsed ? 'ml-20' : 'ml-72'}`}
+      >
         {children}
       </main>
     </div>
@@ -62,4 +67,3 @@ export default function DashboardLayout({
     </SidebarProvider>
   );
 }
-

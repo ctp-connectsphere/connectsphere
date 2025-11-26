@@ -3,8 +3,8 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { MessageCircle, User, Send, MoreVertical, ArrowRight } from 'lucide-react';
-import { GlowingButton, Badge } from '@/components/nexus';
+import { MessageCircle, User, MoreVertical } from 'lucide-react';
+import { GlowingButton } from '@/components/nexus';
 import { getUserConnections } from '@/lib/actions/matches';
 import Link from 'next/link';
 
@@ -83,13 +83,17 @@ export default function ConnectionsPage() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">My Connections</h1>
-            <p className="text-gray-400">Your study partners and active conversations</p>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              My Connections
+            </h1>
+            <p className="text-gray-400">
+              Your study partners and active conversations
+            </p>
           </div>
 
           {/* Connections List */}
           <div className="space-y-4">
-            {connections.map((connection) => (
+            {connections.map(connection => (
               <div
                 key={connection.id}
                 className="glass-panel rounded-2xl p-6 hover:shadow-2xl hover:shadow-indigo-900/20 transition-all duration-300 group"
@@ -117,10 +121,13 @@ export default function ConnectionsPage() {
                         {connection.name}
                       </h3>
                     </div>
-                    <p className="text-sm text-gray-400 mb-1">{connection.matchContext}</p>
+                    <p className="text-sm text-gray-400 mb-1">
+                      {connection.matchContext}
+                    </p>
                     {connection.lastMessage && (
                       <p className="text-xs text-gray-500 truncate">
-                        {connection.lastMessage} • {formatTime(connection.lastMessageTime)}
+                        {connection.lastMessage} •{' '}
+                        {formatTime(connection.lastMessageTime)}
                       </p>
                     )}
                   </div>
@@ -128,7 +135,10 @@ export default function ConnectionsPage() {
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <Link href={`/chat/${connection.userId}`}>
-                      <GlowingButton variant="outline" className="w-10 h-10 p-0">
+                      <GlowingButton
+                        variant="outline"
+                        className="w-10 h-10 p-0"
+                      >
                         <MessageCircle size={18} />
                       </GlowingButton>
                     </Link>
@@ -145,11 +155,13 @@ export default function ConnectionsPage() {
           {connections.length === 0 && (
             <div className="glass-panel rounded-3xl p-12 text-center">
               <User size={64} className="mx-auto mb-4 text-gray-600" />
-              <h3 className="text-xl font-bold text-white mb-2">No connections yet</h3>
-              <p className="text-gray-400 mb-6">Start matching with study partners to build your network</p>
-              <GlowingButton href="/matches">
-                Find Study Partners
-              </GlowingButton>
+              <h3 className="text-xl font-bold text-white mb-2">
+                No connections yet
+              </h3>
+              <p className="text-gray-400 mb-6">
+                Start matching with study partners to build your network
+              </p>
+              <GlowingButton href="/matches">Find Study Partners</GlowingButton>
             </div>
           )}
         </div>

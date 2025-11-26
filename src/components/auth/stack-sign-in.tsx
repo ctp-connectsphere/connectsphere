@@ -1,9 +1,9 @@
 /**
  * Stack Auth Sign In Component
- * 
+ *
  * This component provides a ready-to-use sign-in form using Stack Auth.
  * You can use this to replace the existing login form.
- * 
+ *
  * NOTE: This component will need to be updated once the correct Stack Auth package is installed.
  */
 
@@ -39,9 +39,11 @@ export function StackSignIn() {
     // } finally {
     //   setLoading(false);
     // }
-    
+
     // Placeholder - show error for now
-    setError('Stack Auth package not installed. Please install the correct package first.');
+    setError(
+      'Stack Auth package not installed. Please install the correct package first.'
+    );
     setLoading(false);
   };
 
@@ -54,7 +56,7 @@ export function StackSignIn() {
         <input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
           required
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all backdrop-blur-sm"
           placeholder="your.email@university.edu"
@@ -67,19 +69,16 @@ export function StackSignIn() {
         <input
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
           required
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all backdrop-blur-sm"
           placeholder="••••••••"
         />
       </div>
-      {error && (
-        <p className="text-sm text-red-400 text-center">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-400 text-center">{error}</p>}
       <GlowingButton type="submit" loading={loading} className="w-full">
         {loading ? 'Signing in...' : 'Sign In'}
       </GlowingButton>
     </form>
   );
 }
-

@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
       } else {
         setError(result.message);
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -50,9 +50,11 @@ export default function ForgotPasswordPage() {
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-6">
               <Mail size={32} className="text-white" />
             </div>
-            <h1 className="text-4xl font-black text-white mb-3">Reset Password</h1>
+            <h1 className="text-4xl font-black text-white mb-3">
+              Reset Password
+            </h1>
             <p className="text-gray-400">
-              Enter your university email and we'll send you a reset link
+              Enter your university email and we&apos;ll send you a reset link
             </p>
           </div>
 
@@ -79,27 +81,43 @@ export default function ForgotPasswordPage() {
                 <p className="text-sm text-green-400">{message}</p>
                 {message.includes('/reset-password?token=') && (
                   <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
-                    <p className="text-sm text-indigo-300 font-medium mb-2">Reset Link:</p>
+                    <p className="text-sm text-indigo-300 font-medium mb-2">
+                      Reset Link:
+                    </p>
                     <a
-                      href={(message.match(/https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/) || [])[0] || '#'}
+                      href={
+                        (message.match(
+                          /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
+                        ) || [])[0] || '#'
+                      }
                       className="text-sm text-indigo-400 underline break-all"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {(message.match(/https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/) || [])[0] || 'Link unavailable'}
+                      {(message.match(
+                        /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
+                      ) || [])[0] || 'Link unavailable'}
                     </a>
                   </div>
                 )}
               </div>
             )}
 
-            <GlowingButton type="submit" onClick={() => {}} className="w-full" disabled={loading}>
+            <GlowingButton
+              type="submit"
+              onClick={() => {}}
+              className="w-full"
+              disabled={loading}
+            >
               {loading ? 'Sending...' : 'Send Reset Link'}
             </GlowingButton>
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center justify-center gap-2">
+            <a
+              href="/login"
+              className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center justify-center gap-2"
+            >
               <ArrowLeft size={16} />
               Back to Sign In
             </a>

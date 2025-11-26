@@ -3,13 +3,13 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Brain, Search, Plus, X } from 'lucide-react';
-import { GlowingButton, Badge } from '@/components/nexus';
+import { Brain } from 'lucide-react';
 import { TopicSelector } from '@/components/topics/topic-selector';
 import { getUserTopics } from '@/lib/actions/topics';
+import { Badge } from '@/components/nexus/ui/badge';
 
 export default function TopicsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [userTopics, setUserTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +61,9 @@ export default function TopicsPage() {
             </div>
             <div>
               <h1 className="text-4xl font-black text-white mb-2">My Topics</h1>
-              <p className="text-gray-400">Manage your skills, interests, and subjects</p>
+              <p className="text-gray-400">
+                Manage your skills, interests, and subjects
+              </p>
             </div>
           </div>
         </div>
@@ -69,9 +71,11 @@ export default function TopicsPage() {
         {/* Current Topics */}
         {userTopics.length > 0 && (
           <div className="glass-panel rounded-3xl p-8 mb-8 border border-white/10">
-            <h2 className="text-2xl font-black text-white mb-6">Your Selected Topics ({userTopics.length})</h2>
+            <h2 className="text-2xl font-black text-white mb-6">
+              Your Selected Topics ({userTopics.length})
+            </h2>
             <div className="flex flex-wrap gap-3">
-              {userTopics.map((ut) => {
+              {userTopics.map(ut => {
                 const getColorClasses = (category: string) => {
                   switch (category) {
                     case 'skill':
@@ -84,7 +88,9 @@ export default function TopicsPage() {
                       return 'bg-gray-500/10 border-gray-500/20';
                   }
                 };
-                const getBadgeColor = (category: string): 'cyan' | 'pink' | 'indigo' | 'gray' => {
+                const getBadgeColor = (
+                  category: string
+                ): 'cyan' | 'pink' | 'indigo' | 'gray' => {
                   switch (category) {
                     case 'skill':
                       return 'cyan';
@@ -97,13 +103,15 @@ export default function TopicsPage() {
                   }
                 };
                 const color = getBadgeColor(ut.topic.category);
-                
+
                 return (
                   <div
                     key={ut.id}
                     className={`px-4 py-2 rounded-xl ${getColorClasses(ut.topic.category)} flex items-center gap-2`}
                   >
-                    <span className="text-white font-semibold">{ut.topic.name}</span>
+                    <span className="text-white font-semibold">
+                      {ut.topic.name}
+                    </span>
                     {ut.proficiency && (
                       <Badge color={color} className="text-xs">
                         {ut.proficiency}
@@ -123,10 +131,12 @@ export default function TopicsPage() {
 
         {/* Topic Selector */}
         <div className="glass-panel rounded-3xl p-8 border border-white/10">
-          <h2 className="text-2xl font-black text-white mb-6">Browse & Add Topics</h2>
+          <h2 className="text-2xl font-black text-white mb-6">
+            Browse & Add Topics
+          </h2>
           <TopicSelector
             selectedTopics={userTopics}
-            onSelectionChange={(selected) => {
+            onSelectionChange={selected => {
               setUserTopics(selected);
             }}
             showCategories={true}
@@ -136,4 +146,3 @@ export default function TopicsPage() {
     </div>
   );
 }
-

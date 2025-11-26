@@ -43,7 +43,12 @@ export async function uploadToCloudinary(
       public_id: options.public_id,
       transformation: options.transformation || [],
       resource_type: options.resource_type || 'image',
-      allowed_formats: options.allowed_formats || ['jpg', 'png', 'jpeg', 'webp'],
+      allowed_formats: options.allowed_formats || [
+        'jpg',
+        'png',
+        'jpeg',
+        'webp',
+      ],
       max_file_size: options.max_file_size || 10 * 1024 * 1024, // 10MB default
     };
 
@@ -79,9 +84,7 @@ export async function uploadToCloudinary(
 /**
  * Delete image from Cloudinary
  */
-export async function deleteFromCloudinary(
-  publicId: string
-): Promise<boolean> {
+export async function deleteFromCloudinary(publicId: string): Promise<boolean> {
   try {
     const result = await cloudinary.uploader.destroy(publicId);
     return result.result === 'ok';
@@ -119,19 +122,15 @@ export function getOptimizedImageUrl(
  */
 export function extractPublicIdFromUrl(url: string): string | null {
   try {
-    const urlParts = url.split('/');
-    const filename = urlParts[urlParts.length - 1];
-    const publicId = filename.split('.')[0];
     const folderIndex = url.indexOf('/upload/');
     if (folderIndex === -1) return null;
-    
+
     const afterUpload = url.substring(folderIndex + 8);
     const versionAndPath = afterUpload.split('/').slice(1).join('/');
     const pathWithoutExt = versionAndPath.split('.')[0];
-    
+
     return pathWithoutExt || null;
   } catch {
     return null;
   }
 }
-

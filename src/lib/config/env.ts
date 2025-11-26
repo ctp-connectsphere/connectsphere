@@ -112,7 +112,7 @@ export function validateEnvironment() {
     new URL(DATABASE_CONFIG.url);
     new URL(REDIS_CONFIG.url);
     new URL(AUTH_CONFIG.url);
-  } catch (error) {
+  } catch {
     throw new Error('Invalid URL format in environment variables');
   }
 

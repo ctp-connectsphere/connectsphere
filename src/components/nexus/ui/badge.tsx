@@ -1,8 +1,20 @@
+import { clsx } from 'clsx';
 import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  color?: 'indigo' | 'purple' | 'pink' | 'cyan' | 'emerald' | 'orange' | 'blue' | 'amber' | 'gray';
+  color?:
+    | 'indigo'
+    | 'purple'
+    | 'pink'
+    | 'cyan'
+    | 'emerald'
+    | 'orange'
+    | 'blue'
+    | 'amber'
+    | 'gray';
+  className?: string;
+  onClick?: () => void;
 }
 
 const colorClasses: Record<string, string> = {
@@ -17,9 +29,24 @@ const colorClasses: Record<string, string> = {
   gray: 'bg-gray-500/10 text-gray-300 border-gray-500/20',
 };
 
-export const Badge = ({ children, color = 'indigo' }: BadgeProps) => (
-  <span className={`px-3 py-1 rounded-full text-xs font-medium tracking-wide backdrop-blur-md border ${colorClasses[color]}`}>
-    {children}
-  </span>
-);
-
+export const Badge = ({
+  children,
+  color = 'indigo',
+  className,
+  onClick,
+}: BadgeProps) => {
+  const Component = onClick ? 'button' : 'span';
+  return (
+    <Component
+      onClick={onClick}
+      className={clsx(
+        'px-3 py-1 rounded-full text-xs font-medium tracking-wide backdrop-blur-md border',
+        colorClasses[color],
+        onClick && 'cursor-pointer',
+        className
+      )}
+    >
+      {children}
+    </Component>
+  );
+};

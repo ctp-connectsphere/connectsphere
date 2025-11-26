@@ -17,14 +17,14 @@
     --card-foreground: 226 232 240;
     --popover: 15 15 22;
     --popover-foreground: 226 232 240;
-    
+
     /* ConnectSphere Primary Gradient Colors */
     --primary: 238 84% 58%; /* indigo-600 */
     --primary-foreground: 255 255 255;
     --primary-gradient-start: 238 84% 58%; /* indigo-600 */
     --primary-gradient-mid: 271 81% 56%; /* purple-600 */
     --primary-gradient-end: 330 81% 60%; /* pink-600 */
-    
+
     --secondary: 255 255 255 / 0.05;
     --secondary-foreground: 226 232 240;
     --muted: 255 255 255 / 0.03;
@@ -37,7 +37,7 @@
     --input: 255 255 255 / 0.05;
     --ring: 238 84% 58%;
     --radius: 0.75rem;
-    
+
     /* ConnectSphere Specific Colors */
     --connectsphere-bg: 5 5 8;
     --connectsphere-surface: 15 15 22;

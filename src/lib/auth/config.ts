@@ -4,6 +4,7 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
+import { logger } from '@/lib/utils/logger';
 
 // Get OAuth credentials from environment variables
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -13,10 +14,14 @@ const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
 
 // Validate OAuth credentials
 if (!googleClientId || !googleClientSecret) {
-  console.warn('⚠️ Google OAuth credentials not found. Google login will not work.');
+  logger.warn(
+    'Google OAuth credentials not found. Google login will not work.'
+  );
 }
 if (!githubClientId || !githubClientSecret) {
-  console.warn('⚠️ GitHub OAuth credentials not found. GitHub login will not work.');
+  logger.warn(
+    'GitHub OAuth credentials not found. GitHub login will not work.'
+  );
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -94,7 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             role: 'student',
           };
         } catch (error) {
-          console.error('Authentication error:', error);
+          logger.error('Authentication error', error);
           return null;
         }
       },
@@ -105,7 +110,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, profile: _profile }) {
       // Handle OAuth sign-in - create or link user account
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
@@ -117,7 +122,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           try {
             dbUser = await prisma.user.findUnique({ where: { email } });
           } catch (error: any) {
-            const isConnectionError = 
+            const isConnectionError =
               error?.message?.includes('Closed') ||
               error?.message?.includes('connection') ||
               error?.code === 'P1001' ||
@@ -151,7 +156,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 },
               });
             } catch (error: any) {
-              const isConnectionError = 
+              const isConnectionError =
                 error?.message?.includes('Closed') ||
                 error?.message?.includes('connection') ||
                 error?.code === 'P1001' ||
@@ -185,7 +190,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 },
               });
             } catch (error: any) {
-              const isConnectionError = 
+              const isConnectionError =
                 error?.message?.includes('Closed') ||
                 error?.message?.includes('connection') ||
                 error?.code === 'P1001' ||
@@ -214,7 +219,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 },
               });
             } catch (error: any) {
-              const isConnectionError = 
+              const isConnectionError =
                 error?.message?.includes('Closed') ||
                 error?.message?.includes('connection') ||
                 error?.code === 'P1001' ||
@@ -264,7 +269,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             });
           } catch (error: any) {
-            const isConnectionError = 
+            const isConnectionError =
               error?.message?.includes('Closed') ||
               error?.message?.includes('connection') ||
               error?.code === 'P1001' ||
@@ -305,9 +310,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // Update user object for JWT
           user.id = dbUser.id;
           user.name = `${dbUser.firstName} ${dbUser.lastName}`;
-          user.role = 'student';
+          (user as any).role = 'student';
         } catch (error) {
-          console.error('OAuth sign-in error:', error);
+          logger.error('OAuth sign-in error', error);
           return false;
         }
       }
@@ -315,29 +320,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async jwt({ token, user, account }: any) {
-      console.log('🔄 JWT callback:', {
-        user: user?.email,
-        token: token?.email,
-        account: account?.provider,
+      logger.debug('JWT callback', {
+        userEmail: user?.email,
+        tokenEmail: token?.email,
+        accountProvider: account?.provider,
         hasToken: !!token,
       });
 
       if (user) {
-        console.log('✅ Setting token from user:', user.email);
+        logger.debug('Setting token from user', { email: user.email });
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
         token.image = user.image;
-        token.role = user.role || 'student';
+        token.role = (user as any).role || 'student';
       }
 
-      console.log('🔄 JWT token result:', { id: token.id, email: token.email });
+      logger.debug('JWT token result', { id: token.id, email: token.email });
       return token;
     },
     async session({ session, token }: any) {
-      console.log('📋 Session callback:', {
-        token: token?.email,
-        session: session?.user?.email,
+      logger.debug('Session callback', {
+        tokenEmail: token?.email,
+        sessionEmail: session?.user?.email,
       });
 
       if (token) {
@@ -349,7 +354,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           image: token.image as string,
           role: token.role as string,
         };
-        console.log('✅ Session updated:', session.user);
+        logger.debug('Session updated', {
+          userId: session.user.id,
+          email: session.user.email,
+        });
       }
 
       return session;

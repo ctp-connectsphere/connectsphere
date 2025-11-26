@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getUserTopics } from '@/lib/actions/topics';
-import { Badge } from '@/components/nexus';
+import { Badge } from '@/components/nexus/ui/badge';
 
 export function UserTopicsDisplay() {
   const [userTopics, setUserTopics] = useState<any[]>([]);
@@ -33,14 +33,19 @@ export function UserTopicsDisplay() {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500 mb-4">No topics selected yet</p>
-        <a href="/topics" className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold">
+        <a
+          href="/topics"
+          className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold"
+        >
           Add topics →
         </a>
       </div>
     );
   }
 
-  const getBadgeColor = (category: string): 'cyan' | 'pink' | 'indigo' | 'gray' => {
+  const getBadgeColor = (
+    category: string
+  ): 'cyan' | 'pink' | 'indigo' | 'gray' => {
     switch (category) {
       case 'skill':
         return 'cyan';
@@ -55,7 +60,7 @@ export function UserTopicsDisplay() {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {userTopics.slice(0, 12).map((ut) => {
+      {userTopics.slice(0, 12).map(ut => {
         const color = getBadgeColor(ut.topic.category);
         return (
           <Badge key={ut.id} color={color}>
@@ -64,11 +69,8 @@ export function UserTopicsDisplay() {
         );
       })}
       {userTopics.length > 12 && (
-        <Badge color="gray">
-          +{userTopics.length - 12} more
-        </Badge>
+        <Badge color="gray">+{userTopics.length - 12} more</Badge>
       )}
     </div>
   );
 }
-
