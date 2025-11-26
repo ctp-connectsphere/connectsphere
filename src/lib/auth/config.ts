@@ -133,50 +133,174 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async signIn({ user, account, profile: _profile }) {
+    async signIn({ user, account, profile }) {
       // Handle OAuth sign-in - create or link user account
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
           const email = user.email;
-          if (!email) return false;
+          if (!email) {
+            logger.warn('OAuth sign-in failed: no email provided', {
+              provider: account.provider,
+            });
+            return false;
+          }
 
-          // Check if user exists (with retry for connection errors)
+          // Extract user information from OAuth profile
+          let firstName = 'User';
+          let lastName = '';
+          let profileImageUrl = user.image || null;
+
+          if (account.provider === 'google' && profile) {
+            // Google profile structure
+            const googleProfile = profile as any;
+            firstName = googleProfile.given_name || googleProfile.name?.split(' ')[0] || firstName;
+            lastName = googleProfile.family_name || googleProfile.name?.split(' ').slice(1).join(' ') || '';
+            profileImageUrl = googleProfile.picture || profileImageUrl;
+            logger.debug('Google OAuth profile', {
+              email,
+              given_name: googleProfile.given_name,
+              family_name: googleProfile.family_name,
+              picture: googleProfile.picture,
+            });
+          } else if (account.provider === 'github' && profile) {
+            // GitHub profile structure
+            const githubProfile = profile as any;
+            const nameParts = (githubProfile.name || user.name || '').split(' ') || [];
+            firstName = nameParts[0] || githubProfile.login || firstName;
+            lastName = nameParts.slice(1).join(' ') || '';
+            profileImageUrl = githubProfile.avatar_url || profileImageUrl;
+            logger.debug('GitHub OAuth profile', {
+              email,
+              name: githubProfile.name,
+              login: githubProfile.login,
+              avatar_url: githubProfile.avatar_url,
+            });
+          } else {
+            // Fallback to user.name if profile is not available
+            const nameParts = user.name?.split(' ') || ['User', ''];
+            firstName = nameParts[0] || firstName;
+            lastName = nameParts.slice(1).join(' ') || '';
+          }
+
+          // Check if user exists - use select to avoid querying non-existent columns
           let dbUser: any;
           try {
-            dbUser = await prisma.user.findUnique({ where: { email } });
+            dbUser = await prisma.user.findUnique({
+              where: { email },
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                university: true,
+                profileImageUrl: true,
+                isVerified: true,
+                emailVerifiedAt: true,
+                isActive: true,
+                createdAt: true,
+                updatedAt: true,
+                // Explicitly exclude major and settings to avoid errors if columns don't exist
+              },
+            });
           } catch (error: any) {
-            const isConnectionError =
-              error?.message?.includes('Closed') ||
-              error?.message?.includes('connection') ||
-              error?.code === 'P1001' ||
-              error?.code === 'P1008';
-            if (isConnectionError) {
-              await new Promise(resolve => setTimeout(resolve, 500));
-              dbUser = await prisma.user.findUnique({ where: { email } });
+            // Handle column not found errors gracefully
+            if (error?.message?.includes('does not exist')) {
+              logger.warn('Database column missing, retrying with minimal select', {
+                error: error.message,
+              });
+              // Retry with minimal fields only
+              try {
+                dbUser = await prisma.user.findUnique({
+                  where: { email },
+                  select: {
+                    id: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    university: true,
+                    profileImageUrl: true,
+                    isVerified: true,
+                    emailVerifiedAt: true,
+                    isActive: true,
+                  },
+                });
+              } catch (retryError: any) {
+                const isConnectionError =
+                  retryError?.message?.includes('Closed') ||
+                  retryError?.message?.includes('connection') ||
+                  retryError?.code === 'P1001' ||
+                  retryError?.code === 'P1008';
+                if (isConnectionError) {
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  dbUser = await prisma.user.findUnique({
+                    where: { email },
+                    select: {
+                      id: true,
+                      email: true,
+                      firstName: true,
+                      lastName: true,
+                      university: true,
+                      profileImageUrl: true,
+                      isVerified: true,
+                      emailVerifiedAt: true,
+                      isActive: true,
+                    },
+                  });
+                } else {
+                  throw retryError;
+                }
+              }
             } else {
-              throw error;
+              const isConnectionError =
+                error?.message?.includes('Closed') ||
+                error?.message?.includes('connection') ||
+                error?.code === 'P1001' ||
+                error?.code === 'P1008';
+              if (isConnectionError) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                dbUser = await prisma.user.findUnique({
+                  where: { email },
+                  select: {
+                    id: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    university: true,
+                    profileImageUrl: true,
+                    isVerified: true,
+                    emailVerifiedAt: true,
+                    isActive: true,
+                  },
+                });
+              } else {
+                throw error;
+              }
             }
           }
 
           if (!dbUser) {
             // Create new user from OAuth
-            const nameParts = user.name?.split(' ') || ['User', ''];
-            const firstName = nameParts[0] || 'User';
-            const lastName = nameParts.slice(1).join(' ') || '';
-
+            const emailDomain = email.split('@')[1] || 'Unknown University';
+            
             try {
               dbUser = await prisma.user.create({
                 data: {
                   email,
                   firstName,
                   lastName,
-                  university: email.split('@')[1] || 'Unknown University',
-                  passwordHash: '',
-                  profileImageUrl: user.image || null,
-                  isVerified: true,
+                  university: emailDomain,
+                  passwordHash: '', // OAuth users don't need password
+                  profileImageUrl,
+                  isVerified: true, // OAuth emails are pre-verified
                   emailVerifiedAt: new Date(),
                   isActive: true,
+                  // major and settings are optional, will be null by default
                 },
+              });
+              logger.info('Created new user from OAuth', {
+                email,
+                provider: account.provider,
+                userId: dbUser.id,
               });
             } catch (error: any) {
               const isConnectionError =
@@ -191,15 +315,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     email,
                     firstName,
                     lastName,
-                    university: email.split('@')[1] || 'Unknown University',
+                    university: emailDomain,
                     passwordHash: '',
-                    profileImageUrl: user.image || null,
+                    profileImageUrl,
                     isVerified: true,
                     emailVerifiedAt: new Date(),
                     isActive: true,
                   },
                 });
               } else {
+                logger.error('Failed to create user from OAuth', error);
                 throw error;
               }
             }
@@ -236,10 +361,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               await prisma.user.update({
                 where: { id: dbUser.id },
                 data: {
-                  profileImageUrl: user.image || dbUser.profileImageUrl,
-                  isVerified: true,
+                  profileImageUrl: profileImageUrl || dbUser.profileImageUrl,
+                  isVerified: true, // Ensure OAuth users are verified
                   emailVerifiedAt: dbUser.emailVerifiedAt || new Date(),
+                  lastLoginAt: new Date(), // Update last login time
                 },
+              });
+              logger.debug('Updated existing user from OAuth', {
+                email,
+                provider: account.provider,
+                userId: dbUser.id,
               });
             } catch (error: any) {
               const isConnectionError =
@@ -252,12 +383,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 await prisma.user.update({
                   where: { id: dbUser.id },
                   data: {
-                    profileImageUrl: user.image || dbUser.profileImageUrl,
+                    profileImageUrl: profileImageUrl || dbUser.profileImageUrl,
                     isVerified: true,
                     emailVerifiedAt: dbUser.emailVerifiedAt || new Date(),
+                    lastLoginAt: new Date(),
                   },
                 });
               } else {
+                logger.error('Failed to update user from OAuth', error);
                 throw error;
               }
             }
