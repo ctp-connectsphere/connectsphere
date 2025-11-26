@@ -1,26 +1,14 @@
 import { config } from '@/lib/config/env';
 import { PrismaClient } from '@prisma/client';
 import 'dotenv/config';
+import { logger } from '@/lib/utils/logger';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Development-specific configuration
+// Check if we're in development mode
 const isDevelopment = config.isDevelopment;
-const isProduction = config.isProduction;
-
-// Connection pool configuration optimized for different environments
-const connectionPoolConfig = {
-  connectionLimit: isDevelopment ? 5 : config.database.poolSize,
-  acquireTimeoutMillis: isDevelopment
-    ? 30000
-    : config.database.connectionTimeout,
-  timeout: isDevelopment ? 30000 : config.database.connectionTimeout,
-  reconnect: true,
-  idleTimeoutMillis: isDevelopment ? 10000 : config.database.idleTimeout,
-  maxUses: isDevelopment ? 1000 : 7500,
-};
 
 // Enhanced Prisma client configuration with better error handling
 export const prisma =
@@ -69,10 +57,10 @@ export class DatabaseError extends Error {
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    console.log('✅ Database connection successful');
+    logger.success('Database connection successful');
     return true;
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    logger.failure('Database connection failed', error);
     throw new DatabaseError(
       'Failed to connect to database',
       'CONNECTION_ERROR',
@@ -84,11 +72,11 @@ export async function checkDatabaseConnection(): Promise<boolean> {
 // Graceful shutdown with error handling
 async function gracefulShutdown() {
   try {
-    console.log('🔄 Disconnecting from database...');
+    logger.info('Disconnecting from database...');
     await prisma.$disconnect();
-    console.log('✅ Database disconnected successfully');
+    logger.success('Database disconnected successfully');
   } catch (error) {
-    console.error('❌ Error during database shutdown:', error);
+    logger.error('Error during database shutdown', error);
   }
 }
 
@@ -122,13 +110,15 @@ if (isDevelopment) {
     } catch (error) {
       retryCount++;
       if (retryCount < maxRetries) {
-        console.log(
-          `🔄 Retrying database connection (${retryCount}/${maxRetries})...`
-        );
+        logger.info('Retrying database connection', {
+          retryCount,
+          maxRetries,
+        });
         setTimeout(connectWithRetry, 2000 * retryCount);
       } else {
-        console.error(
-          '❌ Max retry attempts reached. Please check your database connection.'
+        logger.failure(
+          'Max retry attempts reached. Please check your database connection.',
+          error
         );
         throw error;
       }
@@ -136,7 +126,9 @@ if (isDevelopment) {
   };
 
   // Initial connection check
-  connectWithRetry().catch(console.error);
+  connectWithRetry().catch(error => {
+    logger.error('Database connection retry failed', error);
+  });
 }
 
 export default prisma;

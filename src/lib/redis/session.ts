@@ -1,4 +1,5 @@
 import { redis } from './connection';
+import { logger } from '@/lib/utils/logger';
 
 /**
  * Redis session management service
@@ -31,7 +32,7 @@ export class SessionService {
       await redis.setex(key, ttl, JSON.stringify(sessionData));
       return true;
     } catch (error) {
-      console.error('Failed to create session:', error);
+      logger.error('Failed to create session', error);
       return false;
     }
   }
@@ -47,7 +48,7 @@ export class SessionService {
 
       return null;
     } catch (error) {
-      console.error('Failed to get session:', error);
+      logger.error('Failed to get session', error);
       return null;
     }
   }
@@ -62,7 +63,7 @@ export class SessionService {
       await redis.setex(key, ttl, JSON.stringify(sessionData));
       return true;
     } catch (error) {
-      console.error('Failed to update session:', error);
+      logger.error('Failed to update session', error);
       return false;
     }
   }
@@ -73,7 +74,7 @@ export class SessionService {
       await redis.del(key);
       return true;
     } catch (error) {
-      console.error('Failed to delete session:', error);
+      logger.error('Failed to delete session', error);
       return false;
     }
   }
@@ -96,7 +97,7 @@ export class SessionService {
       await redis.setex(key, ttl, JSON.stringify(tokenData));
       return true;
     } catch (error) {
-      console.error('Failed to create refresh token:', error);
+      logger.error('Failed to create refresh token', error);
       return false;
     }
   }
@@ -112,7 +113,7 @@ export class SessionService {
 
       return null;
     } catch (error) {
-      console.error('Failed to get refresh token:', error);
+      logger.error('Failed to get refresh token', error);
       return null;
     }
   }
@@ -123,7 +124,7 @@ export class SessionService {
       await redis.del(key);
       return true;
     } catch (error) {
-      console.error('Failed to delete refresh token:', error);
+      logger.error('Failed to delete refresh token', error);
       return false;
     }
   }
@@ -143,7 +144,7 @@ export class SessionService {
         .filter(session => session !== null)
         .map(session => JSON.parse(session as string));
     } catch (error) {
-      console.error('Failed to get user sessions:', error);
+      logger.error('Failed to get user sessions', error);
       return [];
     }
   }
@@ -159,7 +160,7 @@ export class SessionService {
 
       return true;
     } catch (error) {
-      console.error('Failed to delete user sessions:', error);
+      logger.error('Failed to delete user sessions', error);
       return false;
     }
   }
@@ -184,7 +185,7 @@ export class SessionService {
       await redis.setex(key, ttl, JSON.stringify(sessionData));
       return true;
     } catch (error) {
-      console.error('Failed to create device session:', error);
+      logger.error('Failed to create device session', error);
       return false;
     }
   }
@@ -210,7 +211,7 @@ export class SessionService {
 
       return false;
     } catch (error) {
-      console.error('Failed to update device session:', error);
+      logger.error('Failed to update device session', error);
       return false;
     }
   }
@@ -226,7 +227,7 @@ export class SessionService {
 
       return null;
     } catch (error) {
-      console.error('Failed to get device session:', error);
+      logger.error('Failed to get device session', error);
       return null;
     }
   }
@@ -237,7 +238,7 @@ export class SessionService {
       await redis.del(key);
       return true;
     } catch (error) {
-      console.error('Failed to delete device session:', error);
+      logger.error('Failed to delete device session', error);
       return false;
     }
   }
@@ -269,7 +270,7 @@ export class SessionService {
 
       return totalCleaned;
     } catch (error) {
-      console.error('Failed to cleanup expired sessions:', error);
+      logger.error('Failed to cleanup expired sessions', error);
       return 0;
     }
   }
@@ -280,7 +281,7 @@ export class SessionService {
       const result = await redis.ping();
       return result === 'PONG';
     } catch (error) {
-      console.error('Session service health check failed:', error);
+      logger.error('Session service health check failed', error);
       return false;
     }
   }

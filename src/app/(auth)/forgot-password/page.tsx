@@ -1,6 +1,8 @@
 'use client';
 import { requestPasswordReset } from '@/lib/actions/auth';
 import { useState } from 'react';
+import { GlowingButton } from '@/components/nexus';
+import { ArrowLeft, Mail } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -17,7 +19,6 @@ export default function ForgotPasswordPage() {
     try {
       const formData = new FormData();
       formData.append('email', email);
-
       const result = await requestPasswordReset(formData);
 
       if (result.success) {
@@ -28,7 +29,7 @@ export default function ForgotPasswordPage() {
       } else {
         setError(result.message);
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -36,29 +37,31 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-6">
-            Reset your password
-          </h1>
+    <div className="min-h-screen flex items-center justify-center bg-[#050508] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-blob"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+      </div>
 
-          <p className="text-sm text-gray-600 text-center mb-6">
-            Enter your university email address and we'll send you a link to
-            reset your password.
-            {(process.env.NODE_ENV === 'development' ||
-              process.env.NEXT_PUBLIC_ALLOW_INSECURE_RESET === 'true') && (
-              <span className="block mt-2 text-xs text-blue-600">
-                📝 Dev/Preview mode: Reset link will be shown directly on this
-                page instead of sending email
-              </span>
-            )}
-          </p>
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        <div className="glass-panel p-10 rounded-3xl border border-white/10">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-6">
+              <Mail size={32} className="text-white" />
+            </div>
+            <h1 className="text-4xl font-black text-white mb-3">
+              Reset Password
+            </h1>
+            <p className="text-gray-400">
+              Enter your university email and we&apos;ll send you a reset link
+            </p>
+          </div>
 
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <input
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all backdrop-blur-sm"
                 placeholder="University email (.edu)"
                 type="email"
                 value={email}
@@ -68,19 +71,18 @@ export default function ForgotPasswordPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded p-3">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
 
             {message && (
-              <div className="bg-green-50 border border-green-200 rounded p-3">
-                <p className="text-sm text-green-600">{message}</p>
-                {/* Show reset link panel whenever backend returns resetLink */}
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                <p className="text-sm text-green-400">{message}</p>
                 {message.includes('/reset-password?token=') && (
-                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                    <p className="text-sm text-blue-800 font-medium mb-2">
-                      🔗 Reset Link:
+                  <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+                    <p className="text-sm text-indigo-300 font-medium mb-2">
+                      Reset Link:
                     </p>
                     <a
                       href={
@@ -88,7 +90,7 @@ export default function ForgotPasswordPage() {
                           /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
                         ) || [])[0] || '#'
                       }
-                      className="text-sm text-blue-600 underline break-all"
+                      className="text-sm text-indigo-400 underline break-all"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -96,32 +98,29 @@ export default function ForgotPasswordPage() {
                         /https?:\/\/[^\s]+\/reset-password\?token=[^\s]+/
                       ) || [])[0] || 'Link unavailable'}
                     </a>
-                    <p className="text-xs text-blue-600 mt-2">
-                      Click the link above to reset your password
-                    </p>
                   </div>
                 )}
               </div>
             )}
 
-            <button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            <GlowingButton
+              type="submit"
+              onClick={() => {}}
+              className="w-full"
               disabled={loading}
             >
-              {loading ? 'Sending...' : 'Send reset link'}
-            </button>
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </GlowingButton>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Remember your password?{' '}
-              <a
-                href="/login"
-                className="text-blue-600 hover:text-blue-500 font-medium"
-              >
-                Sign in here
-              </a>
-            </p>
+            <a
+              href="/login"
+              className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <ArrowLeft size={16} />
+              Back to Sign In
+            </a>
           </div>
         </div>
       </div>

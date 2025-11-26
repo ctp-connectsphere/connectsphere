@@ -1,6 +1,7 @@
 import { SessionService } from '@/lib/redis/session';
 import { NextRequest } from 'next/server';
 import { auth } from './config';
+import { logger } from '@/lib/utils/logger';
 
 export interface SessionValidationResult {
   isValid: boolean;
@@ -79,7 +80,7 @@ export class SessionValidation {
       });
       return true;
     } catch (error) {
-      console.error('Failed to refresh session:', error);
+      logger.error('Failed to refresh session', error);
       return false;
     }
   }
@@ -142,7 +143,7 @@ export class SessionValidation {
       await SessionService.deleteSession(sessionToken);
       return true;
     } catch (error) {
-      console.error('Failed to invalidate session:', error);
+      logger.error('Failed to invalidate session', error);
       return false;
     }
   }
@@ -154,7 +155,7 @@ export class SessionValidation {
     try {
       return await SessionService.cleanupExpiredSessions();
     } catch (error) {
-      console.error('Failed to cleanup expired sessions:', error);
+      logger.error('Failed to cleanup expired sessions', error);
       return 0;
     }
   }
@@ -179,7 +180,9 @@ export class SessionValidation {
 /**
  * Higher-order function to wrap API routes with session validation
  */
-export function withSessionValidation(handler: Function) {
+export function withSessionValidation(
+  handler: (request: NextRequest, ...args: any[]) => Promise<any>
+) {
   return async (request: NextRequest, ...args: any[]) => {
     const validation = await SessionValidation.validateRequestSession(request);
 

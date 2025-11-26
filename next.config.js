@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    // Avoid build failures in CI until ESLint config is finalized
-    ignoreDuringBuilds: true,
+    // Enable linting during builds
+    ignoreDuringBuilds: false,
   },
   turbopack: {
     rules: {

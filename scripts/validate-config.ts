@@ -75,21 +75,6 @@ async function validateConfig() {
     // Check optional services
     console.log('4. Checking optional services...');
 
-    // Email service
-    if (config.email.apiKey) {
-      results.push({
-        name: 'Email Service',
-        status: 'success',
-        message: 'Resend API key configured',
-      });
-    } else {
-      results.push({
-        name: 'Email Service',
-        status: 'warning',
-        message: 'Email service not configured (optional)',
-      });
-    }
-
     // File storage
     if (
       config.storage.cloudName &&
