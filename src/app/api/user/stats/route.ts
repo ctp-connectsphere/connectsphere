@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET() {
   try {
@@ -52,7 +53,7 @@ export async function GET() {
       matches: matchesCount,
     });
   } catch (error) {
-    console.error('Error fetching user stats:', error);
+    logger.error('Error fetching user stats', error);
     return NextResponse.json(
       { error: 'Failed to fetch stats' },
       { status: 500 }

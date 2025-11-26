@@ -44,6 +44,8 @@
     "debug:all": "npm run debug:db && npm run debug:redis",
     "redis:browse": "tsx scripts/browse-redis.ts",
     "cleanup:sessions": "tsx scripts/cleanup-sessions.ts",
+    "postinstall": "prisma generate",
+    "postinstall": "prisma generate",
     "prepare": "node -e \"if (process.env.CI || process.env.VERCEL || process.env.GITHUB_ACTIONS) process.exit(0)\"",
     "pre-commit": "npm run lint:staged && npm run type-check",
     "pre-push": "npm run lint && npm run type-check && npm run build"
