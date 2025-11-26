@@ -3,20 +3,17 @@
 import React from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { lookupCourses } from '../../app/api/course_db';
 
 interface CourseProps extends React.HTMLAttributes<HTMLDivElement> {
-  title: string;
+  title?: string;
   description?: string;
+  uuid: string;
 }
 
 export function Course({
-  title,
-  description
+  title, description
 }: CourseProps){
-  const newCourse = () => {
-    // Logic to create a new course
-    console.log('New course creation logic goes here');
-  }
 
   return(
     <div className="border border-gray-200 rounded-lg p-6 mb-4">
@@ -40,6 +37,10 @@ export function NewCourse() {
     const title = (form.elements.namedItem('title') as HTMLInputElement).value;
     createCourse({ title });
   }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Don't lookup unless more than 3 characters to avoid unnecessary load
+    console.log(e.target.value.length > 3 ? lookupCourses(e.target.value) : []);
+  }
 
   return (
     <>
@@ -55,7 +56,7 @@ export function NewCourse() {
               <label className="block text-gray-700 mb-2" htmlFor="courseTitle">
                 Course Title
               </label>
-              <input type="text" name="title" id="courseTitle" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter course title"/>
+              <input type="text" name="title" id="courseTitle" onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter course title"/>
             </div>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
               Submit

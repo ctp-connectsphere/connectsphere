@@ -1,5 +1,4 @@
 import { Course, NewCourse } from '@/components/ui/course';
-import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/auth/config';
 import { redirect } from 'next/navigation';
 
@@ -18,13 +17,13 @@ export default async function CoursesPage() {
           <div className="bg-white shadow rounded-lg p-6">
             <NewCourse />
             <h2 className="text-xl font-bold mb-6">Current</h2>
-            <Course title="Math" description="Mathy math stuff"/>
-            <Course title="English" description="Words and more words"/>
-            <Course title="History" description="Lots of dates"/>
-            <Course title="Science" description="Definitions and more"/>
+            <Course uuid="007aa7d5-83af-451f-ba8a-42f38e380eb0" title="Math" description="Mathy math stuff"/>
+            <Course uuid="007aa7d5-83af-451f-ba8a-42f38e380eb0" title="English" description="Words and more words"/>
+            <Course uuid="007aa7d5-83af-451f-ba8a-42f38e380eb0" title="History" description="Lots of dates"/>
+            <Course uuid="007aa7d5-83af-451f-ba8a-42f38e380eb0" title="Science" description="Definitions and more"/>
             <h2 className="text-xl font-bold mb-6 mt-8">Archived</h2>
-            <Course title="Art" description="Colors and shapes"/>
-            <Course title="Music" description="Sounds and rhythms"/>
+            <Course uuid="007aa7d5-83af-451f-ba8a-42f38e380eb0" title="Art" description="Colors and shapes"/>
+            <Course uuid="007aa7d5-83af-451f-ba8a-42f38e380eb0" title="Music" description="Sounds and rhythms"/>
           </div>
         </div>
       </div>
