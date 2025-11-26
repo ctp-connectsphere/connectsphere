@@ -20,7 +20,7 @@ config({ path: resolve(process.cwd(), '.env-pro') });
 
 const prisma = new PrismaClient();
 
-// 课程模板 - 需要包含 section, semester, universityId
+// Course templates - should include section, semester, universityId
 const courseTemplates = [
   { code: 'CS 161', name: 'Data Structures and Algorithms', section: '001', semester: 'Spring 2025' },
   { code: 'CS 189', name: 'Machine Learning', section: '001', semester: 'Spring 2025' },
@@ -34,7 +34,7 @@ const courseTemplates = [
   { code: 'EECS 16A', name: 'Designing Information Devices and Systems I', section: '001', semester: 'Spring 2025' },
 ];
 
-// Topics/Skills 数据
+// Topics/Skills data
 const topicCategories = [
   {
     category: 'skill',
@@ -63,7 +63,7 @@ const topicCategories = [
   },
 ];
 
-// Demo 用户数据
+// Demo user data
 const demoUsers = [
   {
     email: 'alice.johnson@university.edu',
@@ -121,7 +121,7 @@ async function seedProductionDemoData() {
   console.log('🌱 Starting production demo data seeding...\n');
 
   try {
-    // 0. 创建或获取大学
+    // 0. Create or get university
     console.log('🏫 Creating university...');
     const university = await prisma.university.upsert({
       where: { domain: 'university.edu' },
@@ -134,7 +134,7 @@ async function seedProductionDemoData() {
     });
     console.log(`  ✓ ${university.name}\n`);
 
-    // 1. 创建或获取课程
+    // 1. Create or get courses
     console.log('📚 Creating courses...');
     const courses = [];
     for (const template of courseTemplates) {
@@ -161,7 +161,7 @@ async function seedProductionDemoData() {
       console.log(`  ✓ ${course.code} ${course.section}: ${course.name}`);
     }
 
-    // 2. 创建或获取 Topics
+    // 2. Create or get topics
     console.log('\n🏷️  Creating topics...');
     const allTopics = [];
     for (const category of topicCategories) {
@@ -186,7 +186,7 @@ async function seedProductionDemoData() {
       }
     }
 
-    // 3. 创建 Demo 用户
+    // 3. Create demo users
     console.log('\n👥 Creating demo users...');
     const users = [];
     const passwordHash = await bcrypt.hash('Demo123!', 12);
@@ -206,7 +206,7 @@ async function seedProductionDemoData() {
         },
       });
 
-      // 创建用户资料
+      // Create user profile
       await prisma.userProfile.upsert({
         where: { userId: user.id },
         update: {
@@ -228,11 +228,11 @@ async function seedProductionDemoData() {
       console.log(`  ✓ ${user.firstName} ${user.lastName} (${user.email})`);
     }
 
-    // 4. 为用户分配课程
+    // 4. Assign courses to users
     console.log('\n📖 Enrolling users in courses...');
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
-      // 每个用户随机分配 2-4 门课程
+      // Each user is randomly assigned 2-4 courses
       const numCourses = 2 + Math.floor(Math.random() * 3);
       const userCourses = courses
         .sort(() => Math.random() - 0.5)
@@ -256,11 +256,11 @@ async function seedProductionDemoData() {
       }
     }
 
-    // 5. 为用户分配 Topics
+    // 5. Assign topics to users
     console.log('\n🎯 Assigning topics to users...');
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
-      // 每个用户随机分配 3-6 个 topics
+      // Each user is randomly assigned 3-6 topics
       const numTopics = 3 + Math.floor(Math.random() * 4);
       const userTopics = allTopics
         .sort(() => Math.random() - 0.5)
@@ -284,7 +284,7 @@ async function seedProductionDemoData() {
       }
     }
 
-    // 6. 创建一些 Availability 记录
+    // 6. Create some availability records
     console.log('\n📅 Creating availability records...');
     const timeSlots = [
       { start: '09:00', end: '12:00' },
@@ -294,14 +294,14 @@ async function seedProductionDemoData() {
     const days = [1, 2, 3, 4, 5]; // Mon-Fri
 
     for (const user of users) {
-      // 每个用户随机分配 2-3 个时间段
+      // Each user is randomly assigned 2-3 time slots
       const numSlots = 2 + Math.floor(Math.random() * 2);
       const selectedSlots = timeSlots
         .sort(() => Math.random() - 0.5)
         .slice(0, numSlots);
 
       for (const slot of selectedSlots) {
-        // 每个时间段随机选择 2-4 天
+        // Each time slot is randomly assigned 2-4 days
         const numDays = 2 + Math.floor(Math.random() * 3);
         const selectedDays = days
           .sort(() => Math.random() - 0.5)

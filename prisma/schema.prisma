@@ -237,6 +237,8 @@ model Match {
   @@map("matches")
 }
 
+// At least one of `connectionId` or `conversationId` must be set for a valid message.
+// This constraint must be enforced at the application level.
 model Message {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   connectionId   String?  @map("connection_id") @db.Uuid // Legacy: for Connection-based messages

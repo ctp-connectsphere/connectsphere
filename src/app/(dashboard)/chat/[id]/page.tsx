@@ -2,13 +2,12 @@
 
 import { ChatView } from '@/components/nexus';
 import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function ChatPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const params = useParams();
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -30,7 +29,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-[#0a0a0a] text-slate-200 font-sans overflow-hidden">
+    <div className="w-full h-screen bg-[#050508] text-slate-200 font-sans overflow-hidden">
       <ChatView />
     </div>
   );
