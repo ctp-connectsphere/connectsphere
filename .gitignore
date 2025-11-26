@@ -201,3 +201,9 @@ secrets/
 # Local-only env files
 none_pre.env
 prisma/.env
+.env-pro
+.nextignore
+logs_result.json
+*.backup.*
+schema.backup.*
+schema.new.*
