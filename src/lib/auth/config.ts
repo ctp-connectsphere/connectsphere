@@ -12,16 +12,40 @@ const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const githubClientId = process.env.GITHUB_CLIENT_ID;
 const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
 
-// Validate OAuth credentials
-if (!googleClientId || !googleClientSecret) {
-  logger.warn(
-    'Google OAuth credentials not found. Google login will not work.'
-  );
-}
-if (!githubClientId || !githubClientSecret) {
-  logger.warn(
-    'GitHub OAuth credentials not found. GitHub login will not work.'
-  );
+// Track if warnings have been logged to avoid spam
+let warningsLogged = false;
+
+// Validate OAuth credentials and log status
+const isDevelopment = process.env.NODE_ENV === 'development';
+const hasGoogle = !!(googleClientId && googleClientSecret);
+const hasGitHub = !!(githubClientId && githubClientSecret);
+
+// Log OAuth provider status (once per instance)
+if (!warningsLogged) {
+  if (!hasGoogle) {
+    logger.warn(
+      'Google OAuth credentials not found. Google login will not work.',
+      {
+        hasClientId: !!googleClientId,
+        hasClientSecret: !!googleClientSecret,
+      }
+    );
+  } else {
+    logger.info('Google OAuth provider configured successfully');
+  }
+
+  if (!hasGitHub) {
+    logger.warn(
+      'GitHub OAuth credentials not found. GitHub login will not work.',
+      {
+        hasClientId: !!githubClientId,
+        hasClientSecret: !!githubClientSecret,
+      }
+    );
+  } else {
+    logger.info('GitHub OAuth provider configured successfully');
+  }
+  warningsLogged = true;
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -40,21 +64,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers: [
     // Only add Google provider if credentials are available
-    ...(googleClientId && googleClientSecret
+    ...(hasGoogle
       ? [
           Google({
-            clientId: googleClientId,
-            clientSecret: googleClientSecret,
+            clientId: googleClientId!,
+            clientSecret: googleClientSecret!,
             allowDangerousEmailAccountLinking: true,
           }),
         ]
       : []),
     // Only add GitHub provider if credentials are available
-    ...(githubClientId && githubClientSecret
+    ...(hasGitHub
       ? [
           GitHub({
-            clientId: githubClientId,
-            clientSecret: githubClientSecret,
+            clientId: githubClientId!,
+            clientSecret: githubClientSecret!,
             allowDangerousEmailAccountLinking: true,
           }),
         ]
