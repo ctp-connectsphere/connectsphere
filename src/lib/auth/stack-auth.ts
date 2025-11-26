@@ -71,9 +71,9 @@ export async function getSyncedUser(_userId: string) {
         id: string;
         name: string | null;
         email: string;
-        created_at: Date;
-        updated_at: Date | null;
-        deleted_at: Date | null;
+        createdAt: Date;
+        updatedAt: Date | null;
+        deletedAt: Date | null;
         raw_json: any;
       }>
     >`

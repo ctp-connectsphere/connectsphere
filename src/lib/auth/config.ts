@@ -1,10 +1,10 @@
 import { prisma } from '@/lib/db/edge-connection';
+import { logger } from '@/lib/utils/logger';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
-import { logger } from '@/lib/utils/logger';
+import Google from 'next-auth/providers/google';
 
 // Get OAuth credentials from environment variables
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -273,22 +273,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 },
               },
               update: {
-                refresh_token: account.refresh_token,
-                access_token: account.access_token,
-                expires_at: account.expires_at || null,
-                token_type: account.token_type,
-                scope: account.scope,
+                refreshToken: (account.refreshToken as string | null) || null,
+                accessToken: (account.accessToken as string | null) || null,
+                expiresAt: (account.expiresAt as number | null) || null,
+                tokenType: (account.tokenType as string | null) || null,
+                scope: (account.scope as string | null) || null,
               },
               create: {
                 userId: dbUser.id,
                 type: account.type,
                 provider: account.provider,
                 providerAccountId: account.providerAccountId,
-                refresh_token: account.refresh_token,
-                access_token: account.access_token,
-                expires_at: account.expires_at || null,
-                token_type: account.token_type,
-                scope: account.scope,
+                refreshToken: (account.refreshToken as string | null) || null,
+                accessToken: (account.accessToken as string | null) || null,
+                expiresAt: (account.expiresAt as number | null) || null,
+                tokenType: (account.tokenType as string | null) || null,
+                scope: (account.scope as string | null) || null,
               },
             });
           } catch (error: any) {
@@ -307,22 +307,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   },
                 },
                 update: {
-                  refresh_token: account.refresh_token,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at || null,
-                  token_type: account.token_type,
-                  scope: account.scope,
+                  refreshToken: (account.refreshToken as string | null) || null,
+                  accessToken: (account.accessToken as string | null) || null,
+                  expiresAt: (account.expiresAt as number | null) || null,
+                  tokenType: (account.tokenType as string | null) || null,
+                  scope: (account.scope as string | null) || null,
                 },
                 create: {
                   userId: dbUser.id,
                   type: account.type,
                   provider: account.provider,
                   providerAccountId: account.providerAccountId,
-                  refresh_token: account.refresh_token,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at || null,
-                  token_type: account.token_type,
-                  scope: account.scope,
+                  refreshToken: (account.refreshToken as string | null) || null,
+                  accessToken: (account.accessToken as string | null) || null,
+                  expiresAt: (account.expiresAt as number | null) || null,
+                  tokenType: (account.tokenType as string | null) || null,
+                  scope: (account.scope as string | null) || null,
                 },
               });
             } else {

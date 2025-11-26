@@ -144,7 +144,7 @@ export async function getRecommendedPeers(limit = 5) {
         ],
       },
       include: {
-        profile: true,
+        userProfile: true,
         userTopics: {
           include: {
             topic: true,
@@ -167,8 +167,8 @@ export async function getRecommendedPeers(limit = 5) {
         firstName: user.firstName,
         lastName: user.lastName,
         profileImageUrl: user.profileImageUrl,
-        bio: user.profile?.bio,
-        studyStyle: user.profile?.studyStyle,
+        bio: user.userProfile?.bio,
+        studyStyle: user.userProfile?.studyStyle,
         matchScore,
         commonTopics: commonTopics.map(ut => ut.topic.name),
       };

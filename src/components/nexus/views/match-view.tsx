@@ -141,7 +141,7 @@ export const MatchView = () => {
       const statusMap: Record<string, string> = {};
       matches.forEach((match: any) => {
         const key = `${match.id}-${selectedTopicId}`;
-        statusMap[key] = match.connection_status || 'none';
+        statusMap[key] = match.connectionStatus || 'none';
       });
       setConnectionStatus(statusMap);
     }
@@ -195,18 +195,18 @@ export const MatchView = () => {
   const profile = matches[currentMatch];
   const matchScore = Math.min(
     100,
-    Math.round((profile.availability_score || 0) * 10 + 60)
+    Math.round((profile.availabilityScore || 0) * 10 + 60)
   );
   const selectedTopic = userTopics.find(
     ut => ut.topicId === selectedTopicId
   )?.topic;
   const connectionKey = profile?.id ? `${profile.id}-${selectedTopicId}` : '';
   const currentConnectionStatus =
-    connectionStatus[connectionKey] || profile?.connection_status || 'none';
+    connectionStatus[connectionKey] || profile?.connectionStatus || 'none';
 
   // Generate avatar URL or use profile image
   const avatarUrl =
-    profile.profile_image_url ||
+    profile.profileImageUrl ||
     `https://i.pravatar.cc/400?img=${Math.floor(Math.random() * 70)}`;
 
   return (
@@ -275,7 +275,7 @@ export const MatchView = () => {
               <div className="relative">
                 <img
                   src={avatarUrl}
-                  alt={`${profile.first_name} ${profile.last_name}`}
+                  alt={`${profile.firstName} ${profile.lastName}`}
                   className="w-32 h-32 rounded-full border-4 border-gray-900 object-cover shadow-2xl"
                 />
                 {/* Match Score Badge on Avatar */}
@@ -296,11 +296,11 @@ export const MatchView = () => {
             <div className="px-8 pb-8 text-center">
               {/* Name and Basic Info */}
               <h2 className="text-3xl font-black text-white mb-1">
-                {profile.first_name} {profile.last_name?.charAt(0)}.
+                {profile.firstName} {profile.lastName?.charAt(0)}.
               </h2>
               {selectedTopic && (
                 <p className="text-gray-400 text-sm mb-6">
-                  {selectedTopic.name} • {profile.study_style || 'Student'}
+                  {selectedTopic.name} • {profile.studyStyle || 'Student'}
                 </p>
               )}
 
@@ -315,24 +315,24 @@ export const MatchView = () => {
 
               {/* Enhanced Tags with Better Contrast */}
               <div className="flex flex-wrap justify-center gap-3 mb-8">
-                {profile.study_style && (
+                {profile.studyStyle && (
                   <span className="px-4 py-2 rounded-full text-sm font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    {profile.study_style}
+                    {profile.studyStyle}
                   </span>
                 )}
-                {profile.preferred_location && (
+                {profile.preferredLocation && (
                   <span className="px-4 py-2 rounded-full text-sm font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    {profile.preferred_location}
+                    {profile.preferredLocation}
                   </span>
                 )}
-                {profile.study_pace && (
+                {profile.studyPace && (
                   <span className="px-4 py-2 rounded-full text-sm font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                    {profile.study_pace}
+                    {profile.studyPace}
                   </span>
                 )}
-                {profile.availability_score > 0 && (
+                {profile.availabilityScore > 0 && (
                   <span className="px-4 py-2 rounded-full text-sm font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    {profile.availability_score} overlapping slots
+                    {profile.availabilityScore} overlapping slots
                   </span>
                 )}
               </div>

@@ -178,23 +178,17 @@ export async function resetDatabase() {
 }
 
 // Database seeding helper
+// Note: Seed file has been moved to scripts/ directory
+// Use npm run db:seed:dev or npm run db:seed:comprehensive instead
 export async function seedDatabase() {
   if (process.env.NODE_ENV === 'production') {
     throw new DatabaseError('Database seeding is not allowed in production');
   }
 
-  try {
-    console.log('🌱 Seeding database...');
-
-    // Note: seed.ts runs main() automatically on import
-    // Just import it to trigger execution
-    await import('../../../prisma/seed');
-
-    console.log('✅ Database seeding completed');
-  } catch (error) {
-    console.error('❌ Database seeding failed:', error);
-    throw new DatabaseError('Failed to seed database', 'SEED_ERROR', error);
-  }
+  throw new DatabaseError(
+    'seedDatabase() function is deprecated. Use npm run db:seed:dev instead.',
+    'DEPRECATED'
+  );
 }
 
 // Connection pool monitoring

@@ -107,22 +107,22 @@ export async function findMatches(formData: FormData) {
         )
         SELECT 
           u.id,
-          u.first_name,
-          u.last_name,
-          u.profile_image_url,
-          up.preferred_location,
-          up.study_style,
-          up.study_pace,
+          u.first_name as "firstName",
+          u.last_name as "lastName",
+          u.profile_image_url as "profileImageUrl",
+          up.preferred_location as "preferredLocation",
+          up.study_style as "studyStyle",
+          up.study_pace as "studyPace",
           up.bio,
-          COALESCE(ao.overlap_count, 0) as availability_score,
-          COALESCE(ao.common_slots, '{}') as common_availability,
+          COALESCE(ao.overlap_count, 0) as "availabilityScore",
+          COALESCE(ao.common_slots, '{}') as "commonAvailability",
           CASE 
             WHEN c.id IS NOT NULL THEN 'connected'
             WHEN c2.id IS NOT NULL THEN 'pending'
             ELSE 'none'
-          END as connection_status,
-          'course' as match_type,
-          ${data.courseId}::uuid as match_context_id
+          END as "connectionStatus",
+          'course' as "matchType",
+          ${data.courseId}::uuid as "matchContextId"
         FROM user_course_mates ucm
         JOIN users u ON ucm.user_id = u.id
         LEFT JOIN user_profiles up ON u.id = up.user_id
@@ -172,22 +172,22 @@ export async function findMatches(formData: FormData) {
         )
         SELECT 
           u.id,
-          u.first_name,
-          u.last_name,
-          u.profile_image_url,
-          up.preferred_location,
-          up.study_style,
-          up.study_pace,
+          u.first_name as "firstName",
+          u.last_name as "lastName",
+          u.profile_image_url as "profileImageUrl",
+          up.preferred_location as "preferredLocation",
+          up.study_style as "studyStyle",
+          up.study_pace as "studyPace",
           up.bio,
-          COALESCE(ao.overlap_count, 0) as availability_score,
-          COALESCE(ao.common_slots, '{}') as common_availability,
+          COALESCE(ao.overlap_count, 0) as "availabilityScore",
+          COALESCE(ao.common_slots, '{}') as "commonAvailability",
           CASE 
             WHEN c.id IS NOT NULL THEN 'connected'
             WHEN c2.id IS NOT NULL THEN 'pending'
             ELSE 'none'
-          END as connection_status,
-          'topic' as match_type,
-          ${data.topicId}::uuid as match_context_id
+          END as "connectionStatus",
+          'topic' as "matchType",
+          ${data.topicId}::uuid as "matchContextId"
         FROM user_topic_mates utm
         JOIN users u ON utm.user_id = u.id
         LEFT JOIN user_profiles up ON u.id = up.user_id
