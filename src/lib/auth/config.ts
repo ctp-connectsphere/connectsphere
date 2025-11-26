@@ -16,7 +16,6 @@ const githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
 let warningsLogged = false;
 
 // Validate OAuth credentials and log status
-const isDevelopment = process.env.NODE_ENV === 'development';
 const hasGoogle = !!(googleClientId && googleClientSecret);
 const hasGitHub = !!(githubClientId && githubClientSecret);
 
