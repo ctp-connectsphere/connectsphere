@@ -1,12 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
 }
 
-// Enhanced generator for better development experience
 generator prismaClient {
   provider      = "prisma-client-js"
   output        = "../node_modules/.prisma/client"
@@ -18,441 +14,352 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email           String    @unique
-  passwordHash    String    @map("password_hash")
-  firstName       String    @map("first_name")
-  lastName        String    @map("last_name")
-  university      String
-  profileImageUrl String?   @map("profile_image_url")
-  schoolYear      String?   @map("school_year") // e.g., "Senior", "Junior"
-  major           String? // e.g., "Computer Systems Technology"
-  settings        Json? // JSONB for Dark Mode, Notification preferences, etc.
-  isVerified      Boolean   @default(false) @map("is_verified")
-  isActive        Boolean   @default(true) @map("is_active")
-  emailVerifiedAt DateTime? @map("email_verified_at")
-  lastLoginAt     DateTime? @map("last_login_at")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-
-  // Relations
-  profile                  UserProfile?
-  userCourses              UserCourse[]
-  userTopics               UserTopic[]
-  availability             Availability[]
-  sentConnections          Connection[]              @relation("ConnectionRequester")
-  receivedConnections      Connection[]              @relation("ConnectionTarget")
-  sentMessages             Message[]
-  matchCache               MatchCache[]
-  topicMatchCache          TopicMatchCache[]
-  sessions                 UserSession[]
-  accounts                 Account[]
-  session                  Session[]
-  // New relations
-  matchesAsUser1           Match[]                   @relation("MatchUser1")
-  matchesAsUser2           Match[]                   @relation("MatchUser2")
-  groupMembers             GroupMember[]
-  conversationParticipants ConversationParticipant[]
-  organizedStudySessions   StudySession[]            @relation("StudySessionOrganizer")
-  studySessionParticipants StudySessionParticipant[]
-
-  @@map("users")
-}
-
-model PasswordReset {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email     String    @unique
-  token     String    @unique
-  expiresAt DateTime  @map("expires_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  usedAt    DateTime? @map("used_at")
-
-  @@map("password_resets")
-}
-
-model UserProfile {
+model accounts {
   id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId              String   @unique @map("user_id") @db.Uuid
-  preferredLocation   String?  @map("preferred_location")
-  studyStyle          String?  @map("study_style")
-  studyPace           String?  @map("study_pace")
-  bio                 String?
-  onboardingCompleted Boolean  @default(false) @map("onboarding_completed")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+  user_id             String   @db.Uuid
+  type                String
+  provider            String
+  provider_account_id String
+  refresh_token       String?
+  access_token        String?
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String?
+  session_state       String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime
+  users               users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_profiles")
+  @@unique([provider, provider_account_id])
 }
 
-model University {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String   @unique
-  domain    String   @unique
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  // Relations
-  courses Course[]
-
-  @@map("universities")
-}
-
-model Course {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String // Course title (e.g., "Capstone Project")
-  code         String // Course code (e.g., "CST 4800")
-  section      String
-  semester     String // Also used as "term" (e.g., "Fall 2025")
-  instructor   String?
-  schedule     String? // e.g., "Mon/Wed 10AM"
-  room         String? // Room location
-  universityId String   @map("university_id") @db.Uuid
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  university    University     @relation(fields: [universityId], references: [id])
-  userCourses   UserCourse[]
-  connections   Connection[]
-  matchCache    MatchCache[]
-  groups        Group[]
-  studySessions StudySession[]
-
-  @@unique([code, section, semester, universityId])
-  @@map("courses")
-}
-
-model Topic {
+model availability {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String
-  category    String // "skill", "interest", "subject", "course"
-  description String?
-  icon        String? // Optional icon identifier
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  user_id     String   @db.Uuid
+  day_of_week Int
+  start_time  String
+  end_time    String
+  created_at  DateTime @default(now())
+  updated_at  DateTime
+  users       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
 
-  // Relations
-  userTopics      UserTopic[]
-  connections     Connection[]
-  topicMatchCache TopicMatchCache[]
+model connections {
+  id                                    String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requester_id                          String     @db.Uuid
+  target_id                             String     @db.Uuid
+  course_id                             String?    @db.Uuid
+  status                                String     @default("pending")
+  initial_message                       String?
+  requested_at                          DateTime   @default(now())
+  responded_at                          DateTime?
+  created_at                            DateTime   @default(now())
+  updated_at                            DateTime
+  topic_id                              String?    @db.Uuid
+  courses                               courses?   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  users_connections_requester_idTousers users      @relation("connections_requester_idTousers", fields: [requester_id], references: [id], onDelete: Cascade)
+  users_connections_target_idTousers    users      @relation("connections_target_idTousers", fields: [target_id], references: [id], onDelete: Cascade)
+  topics                                topics?    @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  messages                              messages[]
+}
+
+model conversation_participants {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversation_id String        @db.Uuid
+  user_id         String        @db.Uuid
+  joined_at       DateTime      @default(now())
+  last_read_at    DateTime?
+  conversations   conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  users           users         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([conversation_id, user_id])
+}
+
+model conversations {
+  id                        String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type                      String                      @default("Direct")
+  group_id                  String?                     @db.Uuid
+  created_at                DateTime                    @default(now())
+  updated_at                DateTime
+  conversation_participants conversation_participants[]
+  groups                    groups?                     @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  messages                  messages[]
+}
+
+model courses {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  code           String
+  section        String
+  semester       String
+  instructor     String?
+  schedule       String?
+  university_id  String           @db.Uuid
+  is_active      Boolean          @default(true)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime
+  room           String?
+  connections    connections[]
+  universities   universities     @relation(fields: [university_id], references: [id])
+  groups         groups[]
+  match_cache    match_cache[]
+  study_sessions study_sessions[]
+  user_courses   user_courses[]
+
+  @@unique([code, section, semester, university_id])
+}
+
+model group_members {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  group_id  String   @db.Uuid
+  user_id   String   @db.Uuid
+  role      String   @default("Member")
+  joined_at DateTime @default(now())
+  groups    groups   @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  users     users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([group_id, user_id])
+}
+
+model groups {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String
+  description   String?
+  course_id     String?         @db.Uuid
+  max_members   Int             @default(6)
+  vibe          String?
+  tags          Json?
+  created_at    DateTime        @default(now())
+  updated_at    DateTime
+  conversations conversations[]
+  group_members group_members[]
+  courses       courses?        @relation(fields: [course_id], references: [id], onDelete: Cascade)
+}
+
+model match_cache {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String   @db.Uuid
+  course_id     String   @db.Uuid
+  match_results Json
+  calculated_at DateTime @default(now())
+  expires_at    DateTime
+  courses       courses  @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, course_id])
+}
+
+model matches {
+  id                             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id_1                      String   @db.Uuid
+  user_id_2                      String   @db.Uuid
+  status                         String   @default("Pending")
+  match_score                    Int?
+  created_at                     DateTime @default(now())
+  updated_at                     DateTime
+  users_matches_user_id_1Tousers users    @relation("matches_user_id_1Tousers", fields: [user_id_1], references: [id], onDelete: Cascade)
+  users_matches_user_id_2Tousers users    @relation("matches_user_id_2Tousers", fields: [user_id_2], references: [id], onDelete: Cascade)
+
+  @@unique([user_id_1, user_id_2])
+}
+
+model messages {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  connection_id   String?        @db.Uuid
+  sender_id       String         @db.Uuid
+  content         String
+  message_type    String         @default("text")
+  is_read         Boolean        @default(false)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime
+  conversation_id String?        @db.Uuid
+  metadata        Json?
+  connections     connections?   @relation(fields: [connection_id], references: [id], onDelete: Cascade)
+  conversations   conversations? @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  users           users          @relation(fields: [sender_id], references: [id], onDelete: Cascade)
+}
+
+model password_resets {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email      String    @unique
+  token      String    @unique
+  expires_at DateTime
+  created_at DateTime  @default(now())
+  used_at    DateTime?
+}
+
+model sessions {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  session_token String   @unique
+  user_id       String   @db.Uuid
+  expires       DateTime
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model study_session_participants {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  session_id     String         @db.Uuid
+  user_id        String         @db.Uuid
+  status         String         @default("Pending")
+  joined_at      DateTime?
+  study_sessions study_sessions @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  users          users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([session_id, user_id])
+}
+
+model study_sessions {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizer_id               String                       @db.Uuid
+  course_id                  String?                      @db.Uuid
+  title                      String?
+  start_time                 DateTime
+  end_time                   DateTime?
+  location                   String?
+  status                     String                       @default("Proposed")
+  created_at                 DateTime                     @default(now())
+  updated_at                 DateTime
+  study_session_participants study_session_participants[]
+  courses                    courses?                     @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  users                      users                        @relation(fields: [organizer_id], references: [id], onDelete: Cascade)
+}
+
+model topic_match_cache {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String   @db.Uuid
+  topic_id      String   @db.Uuid
+  match_results Json
+  calculated_at DateTime @default(now())
+  expires_at    DateTime
+  topics        topics   @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, topic_id])
+}
+
+model topics {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String
+  category          String
+  description       String?
+  icon              String?
+  is_active         Boolean             @default(true)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  connections       connections[]
+  topic_match_cache topic_match_cache[]
+  user_topics       user_topics[]
 
   @@unique([name, category])
-  @@map("topics")
 }
 
-model UserTopic {
+model universities {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String    @unique
+  domain     String    @unique
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  courses    courses[]
+}
+
+model user_courses {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
-  topicId     String   @map("topic_id") @db.Uuid
-  proficiency String? // "beginner", "intermediate", "advanced", null
-  interest    String? // "high", "medium", "low", null
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  user_id     String   @db.Uuid
+  course_id   String   @db.Uuid
+  enrolled_at DateTime @default(now())
+  is_active   Boolean  @default(true)
+  status      String   @default("Enrolled")
+  courses     courses  @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  users       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  // Relations
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, topicId])
-  @@map("user_topics")
+  @@unique([user_id, course_id])
 }
 
-model UserCourse {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  courseId   String   @map("course_id") @db.Uuid
-  status     String   @default("Enrolled") // "Enrolled", "Waitlist"
-  enrolledAt DateTime @default(now()) @map("enrolled_at")
-  isActive   Boolean  @default(true) @map("is_active")
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])
-  @@map("user_courses")
+model user_profiles {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id              String   @unique @db.Uuid
+  preferred_location   String?
+  study_style          String?
+  study_pace           String?
+  bio                  String?
+  created_at           DateTime @default(now())
+  updated_at           DateTime
+  onboarding_completed Boolean  @default(false)
+  users                users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
-model Availability {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  dayOfWeek Int      @map("day_of_week")
-  startTime String   @map("start_time")
-  endTime   String   @map("end_time")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("availability")
+model user_sessions {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String   @db.Uuid
+  refresh_token String   @unique
+  device_info   String?
+  ip_address    String?  @db.Inet
+  expires_at    DateTime
+  created_at    DateTime @default(now())
+  updated_at    DateTime
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
-model Connection {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  requesterId    String    @map("requester_id") @db.Uuid
-  targetId       String    @map("target_id") @db.Uuid
-  courseId       String?   @map("course_id") @db.Uuid
-  topicId        String?   @map("topic_id") @db.Uuid
-  status         String    @default("pending")
-  initialMessage String?   @map("initial_message")
-  requestedAt    DateTime  @default(now()) @map("requested_at")
-  respondedAt    DateTime? @map("responded_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+model user_topics {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String   @db.Uuid
+  topic_id    String   @db.Uuid
+  proficiency String?
+  interest    String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime
+  topics      topics   @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  users       users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  // Relations
-  requester User      @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
-  target    User      @relation("ConnectionTarget", fields: [targetId], references: [id], onDelete: Cascade)
-  course    Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  topic     Topic?    @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  messages  Message[]
-
-  // Note: Unique constraint handled at application level
-  // At least one of courseId or topicId must be set
-  @@map("connections")
+  @@unique([user_id, topic_id])
 }
 
-// Match model for swipe-based matching (separate from Connection)
-model Match {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId1    String   @map("user_id_1") @db.Uuid
-  userId2    String   @map("user_id_2") @db.Uuid
-  status     String   @default("Pending") // "Pending", "Accepted", "Rejected"
-  matchScore Int?     @map("match_score") // 0-100 compatibility score
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user1 User @relation("MatchUser1", fields: [userId1], references: [id], onDelete: Cascade)
-  user2 User @relation("MatchUser2", fields: [userId2], references: [id], onDelete: Cascade)
-
-  @@unique([userId1, userId2])
-  @@map("matches")
+model users {
+  id                                          String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                                       String                       @unique
+  password_hash                               String
+  first_name                                  String
+  last_name                                   String
+  university                                  String
+  profile_image_url                           String?
+  is_verified                                 Boolean                      @default(false)
+  is_active                                   Boolean                      @default(true)
+  email_verified_at                           DateTime?
+  last_login_at                               DateTime?
+  created_at                                  DateTime                     @default(now())
+  updated_at                                  DateTime
+  major                                       String?
+  settings                                    Json?
+  accounts                                    accounts[]
+  availability                                availability[]
+  connections_connections_requester_idTousers connections[]                @relation("connections_requester_idTousers")
+  connections_connections_target_idTousers    connections[]                @relation("connections_target_idTousers")
+  conversation_participants                   conversation_participants[]
+  group_members                               group_members[]
+  match_cache                                 match_cache[]
+  matches_matches_user_id_1Tousers            matches[]                    @relation("matches_user_id_1Tousers")
+  matches_matches_user_id_2Tousers            matches[]                    @relation("matches_user_id_2Tousers")
+  messages                                    messages[]
+  sessions                                    sessions[]
+  study_session_participants                  study_session_participants[]
+  study_sessions                              study_sessions[]
+  topic_match_cache                           topic_match_cache[]
+  user_courses                                user_courses[]
+  user_profiles                               user_profiles?
+  user_sessions                               user_sessions[]
+  user_topics                                 user_topics[]
 }
 
-model Message {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  connectionId   String?  @map("connection_id") @db.Uuid // Legacy: for Connection-based messages
-  conversationId String?  @map("conversation_id") @db.Uuid // New: for Conversation-based messages
-  senderId       String   @map("sender_id") @db.Uuid
-  content        String
-  messageType    String   @default("text") @map("message_type") // "text", "code", "invite", "image"
-  metadata       Json? // JSONB: { "language": "python" } for code, { "sessionId": "xyz", "date": "..." } for invite
-  isRead         Boolean  @default(false) @map("is_read")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  connection   Connection?   @relation(fields: [connectionId], references: [id], onDelete: Cascade)
-  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
-
-  @@map("messages")
-}
-
-model MatchCache {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  courseId     String   @map("course_id") @db.Uuid
-  matchResults Json     @map("match_results")
-  calculatedAt DateTime @default(now()) @map("calculated_at")
-  expiresAt    DateTime @map("expires_at")
-
-  // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])
-  @@map("match_cache")
-}
-
-model TopicMatchCache {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  topicId      String   @map("topic_id") @db.Uuid
-  matchResults Json     @map("match_results")
-  calculatedAt DateTime @default(now()) @map("calculated_at")
-  expiresAt    DateTime @map("expires_at")
-
-  // Relations
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, topicId])
-  @@map("topic_match_cache")
-}
-
-model UserSession {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  refreshToken String   @unique @map("refresh_token")
-  deviceInfo   String?  @map("device_info")
-  ipAddress    String?  @map("ip_address") @db.Inet
-  expiresAt    DateTime @map("expires_at")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_sessions")
-}
-
-// NextAuth.js Tables
-model Account {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String   @map("user_id") @db.Uuid
-  type              String
-  provider          String
-  providerAccountId String   @map("provider_account_id")
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?  @db.Text
-  session_state     String?
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id") @db.Uuid
-  expires      DateTime
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model VerificationToken {
+model verification_tokens {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   identifier String
   token      String   @unique
   expires    DateTime
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  created_at DateTime @default(now())
+  updated_at DateTime
 
   @@unique([identifier, token])
-  @@map("verification_tokens")
-}
-
-// Study Groups
-model Group {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String // e.g., "React Masters"
-  description String?
-  courseId    String?  @map("course_id") @db.Uuid // Optional: if group is for a specific course
-  maxMembers  Int      @default(6) @map("max_members")
-  vibe        String? // e.g., "Intense", "Chill", "Collaborative"
-  tags        Json? // JSONB: ["Frontend", "Hooks", "Exam Prep"]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  course        Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  members       GroupMember[]
-  conversations Conversation[]
-
-  @@map("groups")
-}
-
-model GroupMember {
-  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  groupId  String   @map("group_id") @db.Uuid
-  userId   String   @map("user_id") @db.Uuid
-  role     String   @default("Member") // "Admin", "Member"
-  joinedAt DateTime @default(now()) @map("joined_at")
-
-  // Relations
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([groupId, userId])
-  @@map("group_members")
-}
-
-// Conversations (for both Direct and Group chats)
-model Conversation {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type      String   @default("Direct") // "Direct", "Group"
-  groupId   String?  @map("group_id") @db.Uuid // If type is "Group"
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  group        Group?                    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  participants ConversationParticipant[]
-  messages     Message[]
-
-  @@map("conversations")
-}
-
-model ConversationParticipant {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  conversationId String    @map("conversation_id") @db.Uuid
-  userId         String    @map("user_id") @db.Uuid
-  joinedAt       DateTime  @default(now()) @map("joined_at")
-  lastReadAt     DateTime? @map("last_read_at")
-
-  // Relations
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([conversationId, userId])
-  @@map("conversation_participants")
-}
-
-// Study Sessions (for Chat invite cards and Dashboard "Next Up")
-model StudySession {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizerId String    @map("organizer_id") @db.Uuid
-  courseId    String?   @map("course_id") @db.Uuid // Optional: if session is for a specific course
-  title       String? // Session title/description
-  startTime   DateTime  @map("start_time")
-  endTime     DateTime? @map("end_time")
-  location    String? // e.g., "Library Room 302"
-  status      String    @default("Proposed") // "Proposed", "Confirmed", "Cancelled"
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  // Relations
-  organizer    User                      @relation("StudySessionOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
-  course       Course?                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  participants StudySessionParticipant[]
-
-  @@map("study_sessions")
-}
-
-model StudySessionParticipant {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionId String    @map("session_id") @db.Uuid
-  userId    String    @map("user_id") @db.Uuid
-  status    String    @default("Pending") // "Pending", "Accepted", "Declined"
-  joinedAt  DateTime? @map("joined_at")
-
-  // Relations
-  session StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([sessionId, userId])
-  @@map("study_session_participants")
 }
