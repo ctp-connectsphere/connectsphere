@@ -339,12 +339,13 @@ export async function updateUserTopic(formData: FormData) {
  * Get user's topics
  */
 export async function getUserTopics() {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return { success: false, error: 'Unauthorized' };
-    }
+  // Declare session outside try-catch to reuse in error handling
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: 'Unauthorized' };
+  }
 
+  try {
     const userTopics = await prisma.userTopic.findMany({
       where: {
         userId: session.user.id,
@@ -364,7 +365,6 @@ export async function getUserTopics() {
       },
     };
   } catch (error: unknown) {
-    const session = await auth();
     // Handle case where user_topics table doesn't exist yet
     if (
       error &&
@@ -376,7 +376,7 @@ export async function getUserTopics() {
       logger.warn(
         'user_topics table does not exist yet. Run: npx tsx scripts/create-user-topics-table.ts',
         {
-          userId: session?.user?.id,
+          userId: session.user.id,
         }
       );
       return {
@@ -388,7 +388,7 @@ export async function getUserTopics() {
     }
 
     logger.error('Error getting user topics', error, {
-      userId: session?.user?.id,
+      userId: session.user.id,
     });
     return {
       success: false,
