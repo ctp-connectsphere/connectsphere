@@ -1,14 +1,11 @@
 import { prisma } from '@/lib/db/edge-connection';
 import { logger } from '@/lib/utils/logger';
 import bcrypt from 'bcryptjs';
-import NextAuth from 'next-auth';
 import type { User as NextAuthUser } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
-import type { Session } from 'next-auth';
+import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
-import type { Prisma } from '@prisma/client';
 
 // Type definitions for OAuth profiles
 interface GoogleProfile {
