@@ -207,3 +207,4 @@ logs_result.json
 *.backup.*
 schema.backup.*
 schema.new.*
+logs_result*.json
