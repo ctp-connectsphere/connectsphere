@@ -153,8 +153,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (account.provider === 'google' && profile) {
             // Google profile structure
             const googleProfile = profile as any;
-            firstName = googleProfile.given_name || googleProfile.name?.split(' ')[0] || firstName;
-            lastName = googleProfile.family_name || googleProfile.name?.split(' ').slice(1).join(' ') || '';
+            firstName =
+              googleProfile.given_name ||
+              googleProfile.name?.split(' ')[0] ||
+              firstName;
+            lastName =
+              googleProfile.family_name ||
+              googleProfile.name?.split(' ').slice(1).join(' ') ||
+              '';
             profileImageUrl = googleProfile.picture || profileImageUrl;
             logger.debug('Google OAuth profile', {
               email,
@@ -165,7 +171,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           } else if (account.provider === 'github' && profile) {
             // GitHub profile structure
             const githubProfile = profile as any;
-            const nameParts = (githubProfile.name || user.name || '').split(' ') || [];
+            const nameParts =
+              (githubProfile.name || user.name || '').split(' ') || [];
             firstName = nameParts[0] || githubProfile.login || firstName;
             lastName = nameParts.slice(1).join(' ') || '';
             profileImageUrl = githubProfile.avatar_url || profileImageUrl;
@@ -205,9 +212,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           } catch (error: any) {
             // Handle column not found errors gracefully
             if (error?.message?.includes('does not exist')) {
-              logger.warn('Database column missing, retrying with minimal select', {
-                error: error.message,
-              });
+              logger.warn(
+                'Database column missing, retrying with minimal select',
+                {
+                  error: error.message,
+                }
+              );
               // Retry with minimal fields only
               try {
                 dbUser = await prisma.user.findUnique({
@@ -281,7 +291,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!dbUser) {
             // Create new user from OAuth
             const emailDomain = email.split('@')[1] || 'Unknown University';
-            
+
             try {
               dbUser = await prisma.user.create({
                 data: {
