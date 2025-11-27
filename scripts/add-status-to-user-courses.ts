@@ -33,5 +33,13 @@ async function addStatusColumn() {
   }
 }
 
-addStatusColumn();
+addStatusColumn()
+  .then(() => {
+    console.log('Script completed successfully');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('Script failed:', error);
+    process.exit(1);
+  });
 
