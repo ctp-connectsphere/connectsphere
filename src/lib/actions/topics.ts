@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
+import { logger } from '@/lib/utils/logger';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -268,8 +269,32 @@ export async function getUserTopics() {
         userTopics,
       },
     };
-  } catch (error) {
-    console.error('Error getting user topics:', error);
+  } catch (error: unknown) {
+    // Handle case where user_topics table doesn't exist yet
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'P2021'
+    ) {
+      // Table doesn't exist - return empty array instead of error
+      logger.warn(
+        'user_topics table does not exist yet. Run: npx tsx scripts/create-user-topics-table.ts',
+        {
+          userId: session?.user?.id,
+        }
+      );
+      return {
+        success: true,
+        data: {
+          userTopics: [],
+        },
+      };
+    }
+
+    logger.error('Error getting user topics', error, {
+      userId: session?.user?.id,
+    });
     return {
       success: false,
       error: 'Failed to get user topics',
