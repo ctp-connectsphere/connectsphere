@@ -345,14 +345,8 @@ export async function joinStudySession(formData: FormData) {
     }
 
     // Check if already a participant
-    if (!session.user?.id) {
-      return {
-        success: false,
-        error: 'User not found',
-      };
-    }
     const existingParticipant = studySession.participants.find(
-      p => p.userId === session.user.id
+      p => p.userId === userId
     );
 
     if (existingParticipant) {
