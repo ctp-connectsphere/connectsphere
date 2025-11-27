@@ -7,7 +7,6 @@ import { useSession, signOut } from 'next-auth/react';
 import { useSidebarSafe } from './sidebar-context';
 import {
   Search,
-  Bell,
   Settings,
   LogOut,
   User,
@@ -30,7 +29,6 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
   const { data: session } = useSession();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [localCollapsed, setLocalCollapsed] = useState(false);
-  const [notifications] = useState(3); // Mock notification count
 
   // Use context if available, otherwise use local state
   const context = useSidebarSafe();
@@ -43,13 +41,6 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
     { name: 'Groups', href: '/groups', icon: Users },
     { name: 'Courses', href: '/courses', icon: BookOpen },
     { name: 'Chat', href: '/chat', icon: MessageCircle },
-    {
-      name: 'Notifications',
-      href: '#',
-      icon: Bell,
-      badge: notifications,
-      onClick: true,
-    }, // Moved here, onClick prevents navigation
   ];
 
   const handleSignOut = async () => {
@@ -132,40 +123,6 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
             const Icon = item.icon;
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + '/');
-
-            // Handle notifications as a button instead of link
-            if (item.onClick) {
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => {
-                    // TODO: Open notifications panel
-                    console.log('Open notifications');
-                  }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 group w-full ${
-                    isActive
-                      ? 'text-white bg-white/10 shadow-lg shadow-indigo-500/20'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                  title={isCollapsed ? item.name : undefined}
-                >
-                  <Icon size={20} className="flex-shrink-0" />
-                  {!isCollapsed && (
-                    <>
-                      <span className="flex-1 text-left">{item.name}</span>
-                      {item.badge && item.badge > 0 && (
-                        <span className="px-2 py-0.5 text-xs font-bold text-white bg-gradient-to-r from-pink-500 to-red-500 rounded-full min-w-[24px] text-center">
-                          {item.badge > 99 ? '99+' : item.badge}
-                        </span>
-                      )}
-                    </>
-                  )}
-                  {isCollapsed && item.badge && item.badge > 0 && (
-                    <span className="absolute left-8 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gradient-to-r from-pink-500 to-red-500 rounded-full"></span>
-                  )}
-                </button>
-              );
-            }
 
             return (
               <Link
