@@ -63,9 +63,30 @@ SELECT column_name FROM information_schema.columns
 WHERE table_name = 'user_courses' AND column_name = 'status';
 ```
 
+## Demo Data
+
+To populate the database with demo topics and user topics for testing:
+
+```bash
+npx tsx scripts/seed-topics-demo.ts
+```
+
+This script will:
+- Create 24 demo topics across different categories (skills, interests, subjects)
+- Assign 3-6 random topics to each existing user
+- Set random proficiency levels for skills
+- Set random interest levels for interests
+- Skip topics that already exist (safe to run multiple times)
+
+**Demo Topics Include:**
+- **Skills**: JavaScript, Python, React, Node.js, TypeScript, SQL, Git, Docker
+- **Interests**: Web Development, Machine Learning, Mobile Development, Cloud Computing, etc.
+- **Subjects**: Computer Science, Mathematics, Physics, Chemistry, Biology, etc.
+
 ## Notes
 
 - The application will gracefully handle missing tables by returning empty arrays
 - Check application logs for warnings about missing tables
 - All migration scripts include proper error handling and connection cleanup
+- Demo data scripts are safe to run multiple times (won't create duplicates)
 
