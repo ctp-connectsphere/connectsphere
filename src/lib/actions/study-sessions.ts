@@ -360,7 +360,7 @@ export async function joinStudySession(formData: FormData) {
     await prisma.studySessionParticipant.create({
       data: {
         sessionId: data.sessionId,
-        userId,
+        userId: session.user.id,
         status: 'Pending',
       },
     });
