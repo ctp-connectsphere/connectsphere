@@ -242,6 +242,100 @@ export async function removeUserTopic(formData: FormData) {
 }
 
 /**
+ * Update user topic (proficiency/interest)
+ */
+export async function updateUserTopic(formData: FormData) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const topicId = formData.get('topicId') as string;
+    const proficiency = formData.get('proficiency') as string | null;
+    const interest = formData.get('interest') as string | null;
+
+    if (!topicId) {
+      return {
+        success: false,
+        error: 'Topic ID is required',
+      };
+    }
+
+    // Verify user topic exists
+    const userTopic = await prisma.userTopic.findUnique({
+      where: {
+        userId_topicId: {
+          userId: session.user.id,
+          topicId,
+        },
+      },
+      include: {
+        topic: true,
+      },
+    });
+
+    if (!userTopic) {
+      return {
+        success: false,
+        error: 'Topic not found in your profile',
+      };
+    }
+
+    // Validate proficiency and interest based on topic category
+    if (userTopic.topic.category === 'skill' && proficiency) {
+      if (!['beginner', 'intermediate', 'advanced'].includes(proficiency)) {
+        return {
+          success: false,
+          error: 'Invalid proficiency level',
+        };
+      }
+    }
+
+    if (userTopic.topic.category === 'interest' && interest) {
+      if (!['high', 'medium', 'low'].includes(interest)) {
+        return {
+          success: false,
+          error: 'Invalid interest level',
+        };
+      }
+    }
+
+    // Update user topic
+    const updated = await prisma.userTopic.update({
+      where: {
+        id: userTopic.id,
+      },
+      data: {
+        proficiency: proficiency || userTopic.proficiency,
+        interest: interest || userTopic.interest,
+      },
+      include: {
+        topic: true,
+      },
+    });
+
+    revalidatePath('/topics');
+    revalidatePath('/profile');
+    revalidatePath('/dashboard');
+
+    return {
+      success: true,
+      data: {
+        userTopic: updated,
+        message: 'Topic updated successfully',
+      },
+    };
+  } catch (error) {
+    logger.error('Error updating topic:', error);
+    return {
+      success: false,
+      error: 'Failed to update topic',
+    };
+  }
+}
+
+/**
  * Get user's topics
  */
 export async function getUserTopics() {
@@ -270,6 +364,7 @@ export async function getUserTopics() {
       },
     };
   } catch (error: unknown) {
+    const session = await auth();
     // Handle case where user_topics table doesn't exist yet
     if (
       error &&

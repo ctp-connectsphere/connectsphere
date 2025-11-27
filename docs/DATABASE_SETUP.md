@@ -15,6 +15,7 @@ npx tsx scripts/create-user-topics-table.ts
 ```
 
 This script will:
+
 - Create the `user_topics` table with proper schema
 - Add foreign key constraints to `users` and `topics` tables
 - Create indexes for better query performance
@@ -30,6 +31,7 @@ npx tsx scripts/add-status-to-user-courses.ts
 ```
 
 This script will:
+
 - Add the `status` column to `user_courses` table
 - Set default value to `'Enrolled'`
 - Update existing rows with the default status
@@ -40,10 +42,11 @@ When deploying to production (e.g., Vercel), ensure these scripts are run on you
 
 1. Connect to your production database
 2. Run the migration scripts in order:
+
    ```bash
    # Set production DATABASE_URL
    export DATABASE_URL="your-production-database-url"
-   
+
    # Run migrations
    npx tsx scripts/create-user-topics-table.ts
    npx tsx scripts/add-status-to-user-courses.ts
@@ -55,11 +58,11 @@ After running the scripts, verify the tables exist:
 
 ```sql
 -- Check if user_topics table exists
-SELECT * FROM information_schema.tables 
+SELECT * FROM information_schema.tables
 WHERE table_name = 'user_topics';
 
 -- Check if status column exists in user_courses
-SELECT column_name FROM information_schema.columns 
+SELECT column_name FROM information_schema.columns
 WHERE table_name = 'user_courses' AND column_name = 'status';
 ```
 
@@ -72,6 +75,7 @@ npx tsx scripts/seed-topics-demo.ts
 ```
 
 This script will:
+
 - Create 24 demo topics across different categories (skills, interests, subjects)
 - Assign 3-6 random topics to each existing user
 - Set random proficiency levels for skills
@@ -79,6 +83,7 @@ This script will:
 - Skip topics that already exist (safe to run multiple times)
 
 **Demo Topics Include:**
+
 - **Skills**: JavaScript, Python, React, Node.js, TypeScript, SQL, Git, Docker
 - **Interests**: Web Development, Machine Learning, Mobile Development, Cloud Computing, etc.
 - **Subjects**: Computer Science, Mathematics, Physics, Chemistry, Biology, etc.
@@ -89,4 +94,3 @@ This script will:
 - Check application logs for warnings about missing tables
 - All migration scripts include proper error handling and connection cleanup
 - Demo data scripts are safe to run multiple times (won't create duplicates)
-

@@ -19,6 +19,7 @@ Google OAuth 提供以下用户信息（通过 `profile` 参数）：
 - `email_verified` - 邮箱是否已验证
 
 **当前实现：**
+
 - 使用 `given_name` 和 `family_name` 分别作为 `firstName` 和 `lastName`
 - 使用 `picture` 作为 `profileImageUrl`
 - 如果 `given_name`/`family_name` 不可用，则从 `name` 字段拆分
@@ -37,6 +38,7 @@ GitHub OAuth 提供以下用户信息（通过 `profile` 参数）：
 - `blog` - 博客URL
 
 **当前实现：**
+
 - 从 `name` 字段拆分获取 `firstName` 和 `lastName`
 - 如果 `name` 为空，使用 `login` 作为 `firstName`
 - 使用 `avatar_url` 作为 `profileImageUrl`
@@ -50,6 +52,7 @@ GitHub OAuth 提供以下用户信息（通过 `profile` 参数）：
    - 使用 `select` 明确指定字段，避免查询可能不存在的列
 
 2. **创建新用户**（如果不存在）
+
    ```typescript
    {
      email: string,
@@ -98,6 +101,7 @@ psql $DATABASE_URL -f scripts/add-missing-columns.sql
 在生产环境，确保运行迁移：
 
 1. **使用迁移脚本**（推荐用于生产）：
+
    ```bash
    npx tsx scripts/add-missing-user-columns.ts
    ```
@@ -112,6 +116,7 @@ psql $DATABASE_URL -f scripts/add-missing-columns.sql
 ### 列不存在错误
 
 代码已实现容错机制：
+
 - 使用 `select` 明确指定需要的字段
 - 如果查询失败，会尝试使用最小字段集重试
 - 记录警告日志，但不会阻止用户登录
@@ -164,4 +169,3 @@ psql $DATABASE_URL -f scripts/add-missing-columns.sql
 4. **错误场景**
    - 测试数据库列缺失的情况
    - 验证容错机制正常工作
-

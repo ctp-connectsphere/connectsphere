@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
+import { logger } from '@/lib/utils/logger';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -248,6 +249,94 @@ export async function sendMessage(formData: FormData) {
     return {
       success: false,
       error: 'Failed to send message',
+    };
+  }
+}
+
+/**
+ * Delete a message
+ */
+export async function deleteMessage(formData: FormData) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/login');
+    }
+
+    const messageId = formData.get('messageId') as string;
+    if (!messageId) {
+      return {
+        success: false,
+        error: 'Message ID is required',
+      };
+    }
+
+    // Verify message exists and user is the sender
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+      include: {
+        connection: true,
+      },
+    });
+
+    if (!message) {
+      return {
+        success: false,
+        error: 'Message not found',
+      };
+    }
+
+    // Verify user is part of the connection
+    const userId = session.user.id;
+    if (!message.connection) {
+      return {
+        success: false,
+        error: 'Message connection not found',
+      };
+    }
+    if (
+      message.connection.requesterId !== userId &&
+      message.connection.targetId !== userId
+    ) {
+      return {
+        success: false,
+        error: 'Unauthorized to delete this message',
+      };
+    }
+
+    // Only sender can delete their own message
+    if (message.senderId !== userId) {
+      return {
+        success: false,
+        error: 'You can only delete your own messages',
+      };
+    }
+
+    // Delete message
+    await prisma.message.delete({
+      where: { id: messageId },
+    });
+
+    // Update connection updatedAt if connection exists
+    if (message.connectionId) {
+      await prisma.connection.update({
+        where: { id: message.connectionId },
+        data: { updatedAt: new Date() },
+      });
+    }
+
+    revalidatePath(`/chat/${message.connectionId}`);
+    revalidatePath('/chat');
+
+    return {
+      success: true,
+      message: 'Message deleted successfully',
+    };
+  } catch (error) {
+    logger.error('Error deleting message', error);
+    return {
+      success: false,
+      error: 'Failed to delete message',
     };
   }
 }

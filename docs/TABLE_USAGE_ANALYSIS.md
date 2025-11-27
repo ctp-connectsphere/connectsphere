@@ -7,6 +7,7 @@ This document analyzes which database tables are actually used in the codebase a
 ## ✅ Tables Currently Used in Code
 
 ### Core User & Authentication
+
 1. **users** ✅ - Extensively used
    - User authentication, profiles, OAuth
    - Used in: `auth/config.ts`, `actions/auth.ts`, `actions/settings.ts`, `actions/profile.ts`
@@ -32,6 +33,7 @@ This document analyzes which database tables are actually used in the codebase a
    - Used in: `actions/profile.ts`, `actions/onboarding.ts`, `auth/config.ts`
 
 ### Academic Data
+
 7. **universities** ✅ - University information
    - University names and domains
    - Used in: `actions/courses.ts`
@@ -53,6 +55,7 @@ This document analyzes which database tables are actually used in the codebase a
     - Used in: `actions/topics.ts`, `actions/matches.ts`, `actions/dashboard.ts`
 
 ### Social & Matching
+
 12. **connections** ✅ - User connections
     - Friend/study partner connections
     - Used in: `actions/matches.ts`, `actions/messages.ts`, `actions/dashboard.ts`
@@ -66,6 +69,7 @@ This document analyzes which database tables are actually used in the codebase a
     - Used in: `actions/availability.ts`, `actions/matches.ts`
 
 ### Groups & Study Sessions
+
 15. **groups** ✅ - Study groups
     - Study groups for courses
     - Used in: `actions/groups.ts`
@@ -85,6 +89,7 @@ This document analyzes which database tables are actually used in the codebase a
 ## ❌ Tables Defined but NOT Used in Code
 
 ### Matching & Caching (Replaced by Real-time Queries & Redis)
+
 19. **matches** ❌ - User matches
     - **Status**: NOT USED - Matching is done via real-time raw SQL queries in `actions/matches.ts`
     - **Finding**: The `findMatches()` function uses `$queryRaw` to calculate matches on-the-fly
@@ -101,6 +106,7 @@ This document analyzes which database tables are actually used in the codebase a
     - **Recommendation**: Can be removed from schema
 
 ### Chat System (Not Used - Direct Connection-Based Messaging)
+
 22. **conversations** ❌ - Conversation threads
     - **Status**: NOT USED - Chat uses `connections` + `messages` directly
     - **Finding**: `actions/messages.ts` uses `Connection` model with `messages` relation
@@ -113,6 +119,7 @@ This document analyzes which database tables are actually used in the codebase a
     - **Recommendation**: Can be removed (or kept for future group chat feature)
 
 ### Legacy/Alternative Session Management
+
 24. **user_sessions** ❌ - Alternative session storage
     - **Status**: NOT USED - NextAuth uses `sessions` table instead
     - **Finding**: No code references to `user_sessions` table
@@ -122,6 +129,7 @@ This document analyzes which database tables are actually used in the codebase a
 ## 🔍 Detailed Usage by Feature
 
 ### Authentication & User Management
+
 - ✅ `users` - Core user data
 - ✅ `accounts` - OAuth accounts
 - ✅ `sessions` - NextAuth sessions
@@ -130,15 +138,18 @@ This document analyzes which database tables are actually used in the codebase a
 - ✅ `user_profiles` - Extended user profile
 
 ### Course Management
+
 - ✅ `universities` - University data
 - ✅ `courses` - Course catalog
 - ✅ `user_courses` - Enrollments
 
 ### Topic & Interest Management
+
 - ✅ `topics` - Topic definitions
 - ✅ `user_topics` - User topic associations
 
 ### Matching & Connections
+
 - ✅ `connections` - User connections
 - ✅ `availability` - Time availability
 - ⚠️ `matches` - Match records (check usage)
@@ -146,22 +157,26 @@ This document analyzes which database tables are actually used in the codebase a
 - ⚠️ `topic_match_cache` - Topic match caching (may use Redis instead)
 
 ### Messaging
+
 - ✅ `messages` - Direct messages
 - ⚠️ `conversations` - Conversation threads (future feature?)
 - ⚠️ `conversation_participants` - Conversation participants (future feature?)
 
 ### Groups & Study Sessions
+
 - ✅ `groups` - Study groups
 - ✅ `group_members` - Group membership
 - ✅ `study_sessions` - Scheduled sessions
 - ✅ `study_session_participants` - Session participants
 
 ### Legacy/Unused
+
 - ⚠️ `user_sessions` - Alternative session storage (check if needed)
 
 ## 📋 Recommendations
 
 ### ✅ Confirmed: Safe to Remove (Not Used)
+
 1. **matches** - Can be removed (matching is real-time via SQL)
 2. **match_cache** - Can be removed (Redis is used instead)
 3. **topic_match_cache** - Can be removed (Redis is used instead)
@@ -170,13 +185,16 @@ This document analyzes which database tables are actually used in the codebase a
 6. **user_sessions** - Can be removed (NextAuth uses `sessions` table)
 
 ### ⚠️ Optional: Keep for Future Features
+
 - **conversations** + **conversation_participants** - Keep if planning group chat feature
 - **matches** - Keep if you want to store match history (currently calculated on-the-fly)
 
 ## 🛠️ Next Steps
 
 ### Option 1: Clean Up Schema (Recommended)
+
 Remove unused tables to simplify schema:
+
 ```sql
 -- These tables are safe to drop (not used in code):
 DROP TABLE IF EXISTS matches CASCADE;
@@ -188,6 +206,7 @@ DROP TABLE IF EXISTS user_sessions CASCADE;
 ```
 
 ### Option 2: Keep for Future
+
 If you plan to use these tables in the future, keep them in the schema but document that they're not currently used.
 
 ## 📊 Summary
@@ -197,6 +216,7 @@ If you plan to use these tables in the future, keep them in the schema but docum
 **Tables Not Used**: 6 ❌
 
 **Used Tables (18)**:
+
 1. users ✅
 2. accounts ✅
 3. sessions ✅
@@ -217,10 +237,10 @@ If you plan to use these tables in the future, keep them in the schema but docum
 18. study_session_participants ✅
 
 **Unused Tables (6)**:
+
 1. matches ❌
 2. match_cache ❌
 3. topic_match_cache ❌
 4. conversations ❌
 5. conversation_participants ❌
 6. user_sessions ❌
-

@@ -350,6 +350,166 @@ export async function getAllGroups(limit = 20) {
 }
 
 /**
+ * Update a study group
+ */
+export async function updateGroup(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
+  const userId = session.user.id as string;
+
+  try {
+    const groupId = formData.get('groupId') as string;
+    const tagsStr = formData.get('tags') as string;
+
+    if (!groupId) {
+      return { success: false, error: 'Group ID is required' };
+    }
+
+    // Verify group exists and user is admin
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      include: {
+        members: true,
+      },
+    });
+
+    if (!group) {
+      return { success: false, error: 'Group not found' };
+    }
+
+    const userMember = group.members.find(m => m.userId === userId);
+    if (!userMember || userMember.role !== 'Admin') {
+      return {
+        success: false,
+        error: 'Only group admins can update the group',
+      };
+    }
+
+    // Parse update data
+    const updateData: any = {};
+    if (formData.get('name')) {
+      updateData.name = formData.get('name') as string;
+    }
+    if (formData.get('description') !== null) {
+      updateData.description = formData.get('description') as string | null;
+    }
+    if (formData.get('maxMembers')) {
+      const maxMembers = Number(formData.get('maxMembers'));
+      if (maxMembers >= group.members.length && maxMembers <= 20) {
+        updateData.maxMembers = maxMembers;
+      }
+    }
+    if (formData.get('vibe')) {
+      updateData.vibe = formData.get('vibe') as string;
+    }
+    if (tagsStr) {
+      updateData.tags = JSON.parse(tagsStr);
+    }
+
+    // Update group
+    const updatedGroup = await prisma.group.update({
+      where: { id: groupId },
+      data: updateData,
+      include: {
+        course: {
+          select: {
+            name: true,
+            code: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profileImageUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    revalidatePath('/groups');
+    return {
+      success: true,
+      message: 'Group updated successfully',
+      data: updatedGroup,
+    };
+  } catch (error) {
+    logger.error('Error updating group', error);
+    return {
+      success: false,
+      error: 'Failed to update group',
+    };
+  }
+}
+
+/**
+ * Delete a study group
+ */
+export async function deleteGroup(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
+  const userId = session.user.id as string;
+
+  try {
+    const groupId = formData.get('groupId') as string;
+
+    if (!groupId) {
+      return { success: false, error: 'Group ID is required' };
+    }
+
+    // Verify group exists and user is admin
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      include: {
+        members: true,
+      },
+    });
+
+    if (!group) {
+      return { success: false, error: 'Group not found' };
+    }
+
+    const userMember = group.members.find(m => m.userId === userId);
+    if (!userMember || userMember.role !== 'Admin') {
+      return {
+        success: false,
+        error: 'Only group admins can delete the group',
+      };
+    }
+
+    // Delete group (cascade will delete members)
+    await prisma.group.delete({
+      where: { id: groupId },
+    });
+
+    revalidatePath('/groups');
+    return {
+      success: true,
+      message: 'Group deleted successfully',
+    };
+  } catch (error) {
+    logger.error('Error deleting group', error);
+    return {
+      success: false,
+      error: 'Failed to delete group',
+    };
+  }
+}
+
+/**
  * Get groups the user is a member of
  */
 export async function getUserGroups() {

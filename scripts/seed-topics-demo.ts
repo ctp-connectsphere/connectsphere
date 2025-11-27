@@ -10,34 +10,118 @@ const prisma = new PrismaClient();
 // Demo topics data
 const demoTopics = [
   // Skills
-  { name: 'JavaScript', category: 'skill', description: 'Programming language for web development' },
-  { name: 'Python', category: 'skill', description: 'Versatile programming language' },
-  { name: 'React', category: 'skill', description: 'JavaScript library for building user interfaces' },
-  { name: 'Node.js', category: 'skill', description: 'JavaScript runtime for server-side development' },
-  { name: 'TypeScript', category: 'skill', description: 'Typed superset of JavaScript' },
+  {
+    name: 'JavaScript',
+    category: 'skill',
+    description: 'Programming language for web development',
+  },
+  {
+    name: 'Python',
+    category: 'skill',
+    description: 'Versatile programming language',
+  },
+  {
+    name: 'React',
+    category: 'skill',
+    description: 'JavaScript library for building user interfaces',
+  },
+  {
+    name: 'Node.js',
+    category: 'skill',
+    description: 'JavaScript runtime for server-side development',
+  },
+  {
+    name: 'TypeScript',
+    category: 'skill',
+    description: 'Typed superset of JavaScript',
+  },
   { name: 'SQL', category: 'skill', description: 'Database query language' },
   { name: 'Git', category: 'skill', description: 'Version control system' },
-  { name: 'Docker', category: 'skill', description: 'Containerization platform' },
-  
+  {
+    name: 'Docker',
+    category: 'skill',
+    description: 'Containerization platform',
+  },
+
   // Interests
-  { name: 'Web Development', category: 'interest', description: 'Building websites and web applications' },
-  { name: 'Machine Learning', category: 'interest', description: 'AI and data science' },
-  { name: 'Mobile Development', category: 'interest', description: 'iOS and Android app development' },
-  { name: 'Cloud Computing', category: 'interest', description: 'AWS, Azure, GCP' },
-  { name: 'Cybersecurity', category: 'interest', description: 'Security and ethical hacking' },
-  { name: 'UI/UX Design', category: 'interest', description: 'User interface and experience design' },
-  { name: 'Data Science', category: 'interest', description: 'Data analysis and visualization' },
-  { name: 'DevOps', category: 'interest', description: 'Development and operations' },
-  
+  {
+    name: 'Web Development',
+    category: 'interest',
+    description: 'Building websites and web applications',
+  },
+  {
+    name: 'Machine Learning',
+    category: 'interest',
+    description: 'AI and data science',
+  },
+  {
+    name: 'Mobile Development',
+    category: 'interest',
+    description: 'iOS and Android app development',
+  },
+  {
+    name: 'Cloud Computing',
+    category: 'interest',
+    description: 'AWS, Azure, GCP',
+  },
+  {
+    name: 'Cybersecurity',
+    category: 'interest',
+    description: 'Security and ethical hacking',
+  },
+  {
+    name: 'UI/UX Design',
+    category: 'interest',
+    description: 'User interface and experience design',
+  },
+  {
+    name: 'Data Science',
+    category: 'interest',
+    description: 'Data analysis and visualization',
+  },
+  {
+    name: 'DevOps',
+    category: 'interest',
+    description: 'Development and operations',
+  },
+
   // Subjects
-  { name: 'Computer Science', category: 'subject', description: 'Core CS fundamentals' },
-  { name: 'Mathematics', category: 'subject', description: 'Calculus, algebra, statistics' },
-  { name: 'Physics', category: 'subject', description: 'Classical and modern physics' },
-  { name: 'Chemistry', category: 'subject', description: 'Organic and inorganic chemistry' },
+  {
+    name: 'Computer Science',
+    category: 'subject',
+    description: 'Core CS fundamentals',
+  },
+  {
+    name: 'Mathematics',
+    category: 'subject',
+    description: 'Calculus, algebra, statistics',
+  },
+  {
+    name: 'Physics',
+    category: 'subject',
+    description: 'Classical and modern physics',
+  },
+  {
+    name: 'Chemistry',
+    category: 'subject',
+    description: 'Organic and inorganic chemistry',
+  },
   { name: 'Biology', category: 'subject', description: 'Life sciences' },
-  { name: 'Economics', category: 'subject', description: 'Micro and macro economics' },
-  { name: 'Psychology', category: 'subject', description: 'Human behavior and mind' },
-  { name: 'Business', category: 'subject', description: 'Business administration and management' },
+  {
+    name: 'Economics',
+    category: 'subject',
+    description: 'Micro and macro economics',
+  },
+  {
+    name: 'Psychology',
+    category: 'subject',
+    description: 'Human behavior and mind',
+  },
+  {
+    name: 'Business',
+    category: 'subject',
+    description: 'Business administration and management',
+  },
 ];
 
 async function seedTopicsDemo() {
@@ -62,26 +146,36 @@ async function seedTopicsDemo() {
     // Create topics (skip if already exist)
     console.log('📚 Creating topics...');
     const createdTopics = [];
-    
+
     for (const topic of demoTopics) {
       try {
         const existingTopic = await prisma.topic.findUnique({
           where: {
             name_category: {
               name: topic.name,
-              category: topic.category as 'skill' | 'interest' | 'subject' | 'course',
+              category: topic.category as
+                | 'skill'
+                | 'interest'
+                | 'subject'
+                | 'course',
             },
           },
         });
 
         if (existingTopic) {
-          console.log(`  ⏭️  Topic "${topic.name}" already exists, skipping...`);
+          console.log(
+            `  ⏭️  Topic "${topic.name}" already exists, skipping...`
+          );
           createdTopics.push(existingTopic);
         } else {
           const newTopic = await prisma.topic.create({
             data: {
               name: topic.name,
-              category: topic.category as 'skill' | 'interest' | 'subject' | 'course',
+              category: topic.category as
+                | 'skill'
+                | 'interest'
+                | 'subject'
+                | 'course',
               description: topic.description,
               isActive: true,
             },
@@ -128,7 +222,11 @@ async function seedTopicsDemo() {
             'intermediate',
             'advanced',
           ];
-          const interests: ('high' | 'medium' | 'low')[] = ['high', 'medium', 'low'];
+          const interests: ('high' | 'medium' | 'low')[] = [
+            'high',
+            'medium',
+            'low',
+          ];
 
           const proficiency =
             topic.category === 'skill'
@@ -180,8 +278,7 @@ seedTopicsDemo()
     console.log('Script completed successfully');
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error('Script failed:', error);
     process.exit(1);
   });
-

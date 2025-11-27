@@ -3,6 +3,7 @@
 ## Summary
 
 This document analyzes all features to verify:
+
 1. Each feature has complete CRUD operations (Create, Read, Update, Delete)
 2. Each feature has corresponding database tables
 3. Missing operations or tables are identified
@@ -12,6 +13,7 @@ This document analyzes all features to verify:
 ### 1. ✅ Dashboard (`/dashboard`)
 
 **Required Tables:**
+
 - `users` ✅
 - `user_courses` ✅
 - `user_topics` ✅
@@ -20,6 +22,7 @@ This document analyzes all features to verify:
 - `groups` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getDashboardStats()` - Reads stats from multiple tables
 - ✅ **Read**: `getRecommendedPeers()` - Reads users with matching topics
 - ✅ **Read**: `getActiveGroups()` - Reads groups
@@ -32,11 +35,13 @@ This document analyzes all features to verify:
 ### 2. ✅ Courses (`/courses`)
 
 **Required Tables:**
+
 - `universities` ✅
 - `courses` ✅
 - `user_courses` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `searchCourses()` - Search courses
 - ✅ **Read**: `getUserCourses()` - Get user's enrolled courses
 - ✅ **Read**: `getCourseDetails()` - Get course details
@@ -45,6 +50,7 @@ This document analyzes all features to verify:
 - ✅ **Delete**: `dropCourse()` - Drop course (soft delete via `isActive = false`)
 
 **Missing Operations:**
+
 - ❌ **Create**: No admin function to create courses
 - ❌ **Update**: No admin function to update courses
 - ❌ **Delete**: No admin function to delete/deactivate courses
@@ -56,16 +62,19 @@ This document analyzes all features to verify:
 ### 3. ✅ Topics (`/topics`)
 
 **Required Tables:**
+
 - `topics` ✅
 - `user_topics` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `searchTopics()` - Search topics
 - ✅ **Read**: `getUserTopics()` - Get user's topics
 - ✅ **Create**: `addUserTopic()` - Add topic to user (creates `user_topics`)
 - ✅ **Delete**: `removeUserTopic()` - Remove topic from user
 
 **Missing Operations:**
+
 - ❌ **Create**: No admin function to create topics (topics are seeded)
 - ❌ **Update**: No function to update user topic proficiency/interest
 - ❌ **Delete**: No admin function to delete topics
@@ -77,6 +86,7 @@ This document analyzes all features to verify:
 ### 4. ✅ Matches (`/matches`)
 
 **Required Tables:**
+
 - `users` ✅
 - `user_courses` ✅
 - `user_topics` ✅
@@ -84,6 +94,7 @@ This document analyzes all features to verify:
 - `connections` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `findMatches()` - Find matching users (real-time calculation)
 - ✅ **Create**: `sendConnectionRequest()` - Send connection request (creates `connections`)
 
@@ -94,11 +105,13 @@ This document analyzes all features to verify:
 ### 5. ✅ Connections (`/connections`)
 
 **Required Tables:**
+
 - `connections` ✅
 - `users` ✅
 - `messages` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getUserConnections()` - Get user's connections
 - ✅ **Read**: `getPendingConnectionRequests()` - Get pending requests
 - ✅ **Create**: `sendConnectionRequest()` - Send request (creates `connections`)
@@ -112,11 +125,13 @@ This document analyzes all features to verify:
 ### 6. ✅ Chat (`/chat`)
 
 **Required Tables:**
+
 - `connections` ✅
 - `messages` ✅
 - `users` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getMessages()` - Get messages for a connection
 - ✅ **Read**: `getConversations()` - Get all conversations (connections with messages)
 - ✅ **Create**: `sendMessage()` - Send message (creates `messages`)
@@ -130,11 +145,13 @@ This document analyzes all features to verify:
 ### 7. ✅ Groups (`/groups`)
 
 **Required Tables:**
+
 - `groups` ✅
 - `group_members` ✅
 - `courses` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getAllGroups()` - Get all groups
 - ✅ **Read**: `getUserGroups()` - Get user's groups
 - ✅ **Create**: `createGroup()` - Create group (creates `groups` and `group_members`)
@@ -150,10 +167,12 @@ This document analyzes all features to verify:
 ### 8. ✅ Availability (`/availability`)
 
 **Required Tables:**
+
 - `availability` ✅
 - `users` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getUserAvailability()` - Get user's availability
 - ✅ **Read**: `getUserAvailabilityById()` - Get specific user's availability
 - ✅ **Create**: `createAvailability()` - Create availability slots
@@ -167,10 +186,12 @@ This document analyzes all features to verify:
 ### 9. ✅ Profile (`/profile`)
 
 **Required Tables:**
+
 - `users` ✅
 - `user_profiles` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getUserProfile()` - Get user profile
 - ✅ **Create/Update**: `createOrUpdateProfile()` - Upsert profile
 - ✅ **Update**: User can update profile image via settings
@@ -183,9 +204,11 @@ This document analyzes all features to verify:
 ### 10. ✅ Settings (`/settings`)
 
 **Required Tables:**
+
 - `users` ✅ (settings stored in `users.settings` JSON field)
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getUserSettings()` - Get user settings
 - ✅ **Update**: `updateNotifications()` - Update notification settings
 - ✅ **Update**: `updatePrivacy()` - Update privacy settings
@@ -199,10 +222,12 @@ This document analyzes all features to verify:
 ### 11. ✅ Onboarding (`/onboarding`)
 
 **Required Tables:**
+
 - `user_profiles` ✅
 - `users` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `hasCompletedOnboarding()` - Check onboarding status
 - ✅ **Create/Update**: `completeOnboarding()` - Complete onboarding (updates `user_profiles.onboarding_completed`)
 
@@ -213,11 +238,13 @@ This document analyzes all features to verify:
 ### 12. ⚠️ Study Sessions (via Dashboard)
 
 **Required Tables:**
+
 - `study_sessions` ✅
 - `study_session_participants` ✅
 - `courses` ✅
 
 **CRUD Operations:**
+
 - ✅ **Read**: `getUpcomingSessions()` - Get upcoming sessions
 - ❌ **Create**: No function to create study session
 - ❌ **Update**: No function to update study session
@@ -231,20 +258,20 @@ This document analyzes all features to verify:
 
 ## 📊 Summary Table
 
-| Feature | Table | Create | Read | Update | Delete | Status |
-|---------|-------|--------|------|--------|--------|--------|
-| Dashboard | Multiple | N/A | ✅ | N/A | N/A | ✅ |
-| Courses | `courses`, `user_courses` | ✅ User | ✅ | ✅ User | ✅ User | ✅ |
-| Topics | `topics`, `user_topics` | ⚠️ User only | ✅ | ❌ | ⚠️ User only | ⚠️ |
-| Matches | Calculated | N/A | ✅ | N/A | N/A | ✅ |
-| Connections | `connections` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Chat | `messages` | ✅ | ✅ | ✅ | ❌ | ⚠️ |
-| Groups | `groups`, `group_members` | ✅ | ✅ | ❌ | ❌ | ⚠️ |
-| Availability | `availability` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Profile | `users`, `user_profiles` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Settings | `users` | N/A | ✅ | ✅ | ✅ | ✅ |
-| Onboarding | `user_profiles` | ✅ | ✅ | ✅ | N/A | ✅ |
-| Study Sessions | `study_sessions`, `study_session_participants` | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Feature        | Table                                          | Create       | Read | Update  | Delete       | Status |
+| -------------- | ---------------------------------------------- | ------------ | ---- | ------- | ------------ | ------ |
+| Dashboard      | Multiple                                       | N/A          | ✅   | N/A     | N/A          | ✅     |
+| Courses        | `courses`, `user_courses`                      | ✅ User      | ✅   | ✅ User | ✅ User      | ✅     |
+| Topics         | `topics`, `user_topics`                        | ⚠️ User only | ✅   | ❌      | ⚠️ User only | ⚠️     |
+| Matches        | Calculated                                     | N/A          | ✅   | N/A     | N/A          | ✅     |
+| Connections    | `connections`                                  | ✅           | ✅   | ✅      | ✅           | ✅     |
+| Chat           | `messages`                                     | ✅           | ✅   | ✅      | ❌           | ⚠️     |
+| Groups         | `groups`, `group_members`                      | ✅           | ✅   | ❌      | ❌           | ⚠️     |
+| Availability   | `availability`                                 | ✅           | ✅   | ✅      | ✅           | ✅     |
+| Profile        | `users`, `user_profiles`                       | ✅           | ✅   | ✅      | ✅           | ✅     |
+| Settings       | `users`                                        | N/A          | ✅   | ✅      | ✅           | ✅     |
+| Onboarding     | `user_profiles`                                | ✅           | ✅   | ✅      | N/A          | ✅     |
+| Study Sessions | `study_sessions`, `study_session_participants` | ❌           | ✅   | ❌      | ❌           | ❌     |
 
 ## 🚨 Missing CRUD Operations
 
@@ -322,4 +349,3 @@ This document analyzes all features to verify:
 
 5. **Admin Panel** - Create admin functions for courses and topics management
 6. **Unenroll from Course** - Add explicit unenroll function (currently only update status)
-
