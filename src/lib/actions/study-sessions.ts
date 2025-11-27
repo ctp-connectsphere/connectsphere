@@ -363,16 +363,10 @@ export async function joinStudySession(formData: FormData) {
     }
 
     // Create participant
-    if (!session.user?.id) {
-      return {
-        success: false,
-        error: 'User not found',
-      };
-    }
     await prisma.studySessionParticipant.create({
       data: {
         sessionId: data.sessionId,
-        userId: session.user.id,
+        userId,
         status: 'Pending',
       },
     });
