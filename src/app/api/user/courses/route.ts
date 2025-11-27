@@ -1,10 +1,12 @@
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
+import { logger } from '@/lib/utils/logger';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
+  let session;
   try {
-    const session = await auth();
+    session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -30,7 +32,9 @@ export async function GET() {
       courses: enrollments,
     });
   } catch (error) {
-    console.error('Error fetching user courses:', error);
+    logger.error('Error fetching user courses', error, {
+      userId: session?.user?.id,
+    });
     return NextResponse.json(
       { error: 'Failed to fetch courses' },
       { status: 500 }
