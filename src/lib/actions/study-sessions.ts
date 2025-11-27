@@ -337,7 +337,8 @@ export async function joinStudySession(formData: FormData) {
         error: 'User not found',
       };
     }
-    if (studySession.organizerId === session.user.id) {
+    const userId = session.user.id;
+    if (studySession.organizerId === userId) {
       return {
         success: false,
         error: 'You are already the organizer of this session',
@@ -360,7 +361,7 @@ export async function joinStudySession(formData: FormData) {
     await prisma.studySessionParticipant.create({
       data: {
         sessionId: data.sessionId,
-        userId: session.user.id,
+        userId,
         status: 'Pending',
       },
     });
@@ -561,4 +562,3 @@ export async function getUserStudySessions() {
     };
   }
 }
-

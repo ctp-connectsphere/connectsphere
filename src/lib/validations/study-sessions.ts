@@ -18,7 +18,9 @@ export const updateStudySessionSchema = z.object({
   startTime: z.string().datetime().optional(),
   endTime: z.string().datetime().optional(),
   location: z.string().max(200).optional(),
-  status: z.enum(['Proposed', 'Confirmed', 'Cancelled', 'Completed']).optional(),
+  status: z
+    .enum(['Proposed', 'Confirmed', 'Cancelled', 'Completed'])
+    .optional(),
 });
 
 export const joinStudySessionSchema = z.object({
@@ -37,4 +39,3 @@ export type JoinStudySessionData = z.infer<typeof joinStudySessionSchema>;
 export type UpdateParticipantStatusData = z.infer<
   typeof updateParticipantStatusSchema
 >;
-
