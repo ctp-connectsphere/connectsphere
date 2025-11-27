@@ -2,9 +2,49 @@ import { prisma } from '@/lib/db/edge-connection';
 import { logger } from '@/lib/utils/logger';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
+import type { User as NextAuthUser } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
+import type { Session } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
+import type { Prisma } from '@prisma/client';
+
+// Type definitions for OAuth profiles
+interface GoogleProfile {
+  email?: string;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
+}
+
+interface GitHubProfile {
+  email?: string;
+  name?: string;
+  login?: string;
+  avatar_url?: string;
+}
+
+// Type for user data from database query
+type UserSelect = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  university: string;
+  profileImageUrl: string | null;
+  isVerified: boolean;
+  emailVerifiedAt: Date | null;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+// Extended NextAuth User type with role
+interface ExtendedNextAuthUser extends NextAuthUser {
+  role?: string;
+}
 
 // Get OAuth credentials from environment variables
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -88,7 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      authorize: async (credentials): Promise<any> => {
+      authorize: async (credentials): Promise<NextAuthUser | null> => {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -120,7 +160,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: `${user.firstName} ${user.lastName}`,
             image: user.profileImageUrl ?? undefined,
             role: 'student',
-          };
+          } as ExtendedNextAuthUser;
         } catch (error) {
           logger.error('Authentication error', error);
           return null;
@@ -152,7 +192,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (account.provider === 'google' && profile) {
             // Google profile structure
-            const googleProfile = profile as any;
+            const googleProfile = profile as GoogleProfile;
             firstName =
               googleProfile.given_name ||
               googleProfile.name?.split(' ')[0] ||
@@ -170,7 +210,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
           } else if (account.provider === 'github' && profile) {
             // GitHub profile structure
-            const githubProfile = profile as any;
+            const githubProfile = profile as GitHubProfile;
             const nameParts =
               (githubProfile.name || user.name || '').split(' ') || [];
             firstName = nameParts[0] || githubProfile.login || firstName;
@@ -190,7 +230,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           // Check if user exists - use select to avoid querying non-existent columns
-          let dbUser: any;
+          let dbUser: UserSelect | null;
           try {
             dbUser = await prisma.user.findUnique({
               where: { email },
@@ -209,13 +249,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 // Explicitly exclude major and settings to avoid errors if columns don't exist
               },
             });
-          } catch (error: any) {
+          } catch (error: unknown) {
             // Handle column not found errors gracefully
-            if (error?.message?.includes('does not exist')) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            if (errorMessage.includes('does not exist')) {
               logger.warn(
                 'Database column missing, retrying with minimal select',
                 {
-                  error: error.message,
+                  error: errorMessage,
                 }
               );
               // Retry with minimal fields only
@@ -234,12 +276,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     isActive: true,
                   },
                 });
-              } catch (retryError: any) {
+              } catch (retryError: unknown) {
+                const retryErrorMessage =
+                  retryError instanceof Error
+                    ? retryError.message
+                    : String(retryError);
+                const retryErrorCode =
+                  retryError &&
+                  typeof retryError === 'object' &&
+                  'code' in retryError
+                    ? String(retryError.code)
+                    : undefined;
                 const isConnectionError =
-                  retryError?.message?.includes('Closed') ||
-                  retryError?.message?.includes('connection') ||
-                  retryError?.code === 'P1001' ||
-                  retryError?.code === 'P1008';
+                  retryErrorMessage.includes('Closed') ||
+                  retryErrorMessage.includes('connection') ||
+                  retryErrorCode === 'P1001' ||
+                  retryErrorCode === 'P1008';
                 if (isConnectionError) {
                   await new Promise(resolve => setTimeout(resolve, 500));
                   dbUser = await prisma.user.findUnique({
@@ -261,11 +313,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
               }
             } else {
+              const errorCode =
+                error && typeof error === 'object' && 'code' in error
+                  ? String(error.code)
+                  : undefined;
               const isConnectionError =
-                error?.message?.includes('Closed') ||
-                error?.message?.includes('connection') ||
-                error?.code === 'P1001' ||
-                error?.code === 'P1008';
+                errorMessage.includes('Closed') ||
+                errorMessage.includes('connection') ||
+                errorCode === 'P1001' ||
+                errorCode === 'P1008';
               if (isConnectionError) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 dbUser = await prisma.user.findUnique({
@@ -312,12 +368,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 provider: account.provider,
                 userId: dbUser.id,
               });
-            } catch (error: any) {
+            } catch (error: unknown) {
+              const errorMessage =
+                error instanceof Error ? error.message : String(error);
+              const errorCode =
+                error && typeof error === 'object' && 'code' in error
+                  ? String(error.code)
+                  : undefined;
               const isConnectionError =
-                error?.message?.includes('Closed') ||
-                error?.message?.includes('connection') ||
-                error?.code === 'P1001' ||
-                error?.code === 'P1008';
+                errorMessage.includes('Closed') ||
+                errorMessage.includes('connection') ||
+                errorCode === 'P1001' ||
+                errorCode === 'P1008';
               if (isConnectionError) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 dbUser = await prisma.user.create({
@@ -347,12 +409,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   onboardingCompleted: false,
                 },
               });
-            } catch (error: any) {
+            } catch (error: unknown) {
+              const errorMessage =
+                error instanceof Error ? error.message : String(error);
+              const errorCode =
+                error && typeof error === 'object' && 'code' in error
+                  ? String(error.code)
+                  : undefined;
               const isConnectionError =
-                error?.message?.includes('Closed') ||
-                error?.message?.includes('connection') ||
-                error?.code === 'P1001' ||
-                error?.code === 'P1008';
+                errorMessage.includes('Closed') ||
+                errorMessage.includes('connection') ||
+                errorCode === 'P1001' ||
+                errorCode === 'P1008';
               if (isConnectionError) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await prisma.userProfile.create({
@@ -382,12 +450,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 provider: account.provider,
                 userId: dbUser.id,
               });
-            } catch (error: any) {
+            } catch (error: unknown) {
+              const errorMessage =
+                error instanceof Error ? error.message : String(error);
+              const errorCode =
+                error && typeof error === 'object' && 'code' in error
+                  ? String(error.code)
+                  : undefined;
               const isConnectionError =
-                error?.message?.includes('Closed') ||
-                error?.message?.includes('connection') ||
-                error?.code === 'P1001' ||
-                error?.code === 'P1008';
+                errorMessage.includes('Closed') ||
+                errorMessage.includes('connection') ||
+                errorCode === 'P1001' ||
+                errorCode === 'P1008';
               if (isConnectionError) {
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await prisma.user.update({
@@ -434,12 +508,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 scope: (account.scope as string | null) || null,
               },
             });
-          } catch (error: any) {
+          } catch (error: unknown) {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            const errorCode =
+              error && typeof error === 'object' && 'code' in error
+                ? String(error.code)
+                : undefined;
             const isConnectionError =
-              error?.message?.includes('Closed') ||
-              error?.message?.includes('connection') ||
-              error?.code === 'P1001' ||
-              error?.code === 'P1008';
+              errorMessage.includes('Closed') ||
+              errorMessage.includes('connection') ||
+              errorCode === 'P1001' ||
+              errorCode === 'P1008';
             if (isConnectionError) {
               await new Promise(resolve => setTimeout(resolve, 500));
               await prisma.account.upsert({
@@ -476,7 +556,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // Update user object for JWT
           user.id = dbUser.id;
           user.name = `${dbUser.firstName} ${dbUser.lastName}`;
-          (user as any).role = 'student';
+          (user as ExtendedNextAuthUser).role = 'student';
         } catch (error) {
           logger.error('OAuth sign-in error', error);
           return false;
@@ -485,7 +565,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user, account }) {
       logger.debug('JWT callback', {
         userEmail: user?.email,
         tokenEmail: token?.email,
@@ -499,19 +579,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.name = user.name;
         token.image = user.image;
-        token.role = (user as any).role || 'student';
+        token.role =
+          user && typeof user === 'object' && 'role' in user
+            ? String(user.role)
+            : 'student';
       }
 
       logger.debug('JWT token result', { id: token.id, email: token.email });
       return token;
     },
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       logger.debug('Session callback', {
         tokenEmail: token?.email,
         sessionEmail: session?.user?.email,
       });
 
-      if (token) {
+      if (token && session.user) {
         session.user = {
           ...session.user,
           id: token.id as string,
@@ -519,7 +602,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: token.name as string,
           image: token.image as string,
           role: token.role as string,
-        };
+        } as ExtendedNextAuthUser & typeof session.user;
         logger.debug('Session updated', {
           userId: session.user.id,
           email: session.user.email,
