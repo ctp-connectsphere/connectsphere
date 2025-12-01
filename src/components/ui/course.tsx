@@ -10,6 +10,19 @@ interface CourseProps extends React.HTMLAttributes<HTMLDivElement> {
   description?: string;
   uuid: string;
 }
+interface CourseItem {
+  id: string;
+  name: string;
+  code: string;
+  section: string | null;
+  semester: string | null;
+  instructor: string | null;
+  schedule: string | null;
+  universityId: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export function Course({
   title, description
@@ -25,6 +38,7 @@ export function Course({
 
 export function NewCourse() {
   const [showForm, setShowForm] = useState(false);
+  const [courseSuggestions, setCourseSuggestions] = useState(Array<CourseItem>());
 
   const createCourse = (data: { title: string; description?: string }) => {
     // Logic to create a new course
@@ -37,9 +51,21 @@ export function NewCourse() {
     const title = (form.elements.namedItem('title') as HTMLInputElement).value;
     createCourse({ title });
   }
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     // Don't lookup unless more than 3 characters to avoid unnecessary load
-    console.log(e.target.value.length > 3 ? lookupCourses(e.target.value) : []);
+    const courseInput = e.target.value;
+    if (courseInput.length <= 3) {
+      setCourseSuggestions([]);
+      return;
+    }
+
+    try {
+      const results = await lookupCourses(courseInput); // assume this returns CourseItem[]
+      setCourseSuggestions(results);
+    } catch (err) {
+      console.error('Failed to lookup courses', err);
+      setCourseSuggestions([]);
+    }
   }
 
   return (
@@ -56,7 +82,14 @@ export function NewCourse() {
               <label className="block text-gray-700 mb-2" htmlFor="courseTitle">
                 Course Title
               </label>
-              <input type="text" name="title" id="courseTitle" onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter course title"/>
+              <input type="text" name="title" list="suggestions" id="courseTitle" onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter course title"/>
+              <datalist id="suggestions">
+                { courseSuggestions.map((course) => (
+                  <option key={course.id} value={course.name}>
+                    {course.code} - {course.section} ({course.semester}) | {course.name}
+                  </option>
+                )) }
+              </datalist>
             </div>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
               Submit
