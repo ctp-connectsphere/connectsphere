@@ -29,7 +29,7 @@ export async function searchCourses(formData: FormData) {
       offset: formData.get('offset') || 0,
     });
 
-    // Get user's university from their email domain
+    // Get user's university from their email domain (optional filter)
     const userEmail = session.user.email || '';
     const emailDomain = userEmail.split('@')[1] || '';
 
@@ -44,7 +44,18 @@ export async function searchCourses(formData: FormData) {
       isActive: true,
     };
 
-    if (userUniversity) {
+    // Only filter by university if explicitly requested or if user has a matching university
+    // Otherwise, show all courses
+    if (data.universityId) {
+      where.universityId = data.universityId;
+    } else if (
+      userUniversity &&
+      !data.query &&
+      !data.code &&
+      !data.instructor
+    ) {
+      // Only auto-filter by university if no search query is provided
+      // This allows users to search across all universities
       where.universityId = userUniversity.id;
     }
 
