@@ -2,7 +2,7 @@
 @import '../styles/design-system.css';
 
 /* Import ConnectSphere Theme */
-@import '../styles/nexus-theme.css';
+@import '../styles/connectsphere-theme.css';
 
 @tailwind base;
 @tailwind components;
