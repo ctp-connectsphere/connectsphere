@@ -43,14 +43,17 @@ export const MatchView = () => {
       if (loading && matches.length === 0) {
         console.warn('Match loading timeout - stopping loading state');
         setLoading(false);
-        if (!error) {
-          setError('Loading took too long. Please try again.');
-        }
+        setError(prevError => {
+          if (!prevError) {
+            return 'Loading took too long. Please try again.';
+          }
+          return prevError;
+        });
       }
     }, 30000); // 30 second timeout
 
     return () => clearTimeout(timeout);
-  }, [loading, matches.length, error]);
+  }, [loading, matches.length]); // Removed 'error' from dependencies to prevent timeout reset
 
   useEffect(() => {
     if (selectedTopicId) {
@@ -70,10 +73,15 @@ export const MatchView = () => {
         setUserTopics(topics);
         if (topics.length > 0 && !selectedTopicId) {
           setSelectedTopicId(topics[0].topicId);
+          // Note: loading will be set to false when loadTopicMatches completes
         } else if (topics.length === 0) {
           // No topics available - stop loading
           setLoading(false);
           setError(null);
+        } else if (topics.length > 0 && selectedTopicId) {
+          // Topics exist and topic is already selected - stop loading
+          // The selected topic will trigger loadTopicMatches via useEffect
+          setLoading(false);
         }
       } else {
         // Failed to load topics or no topics available
