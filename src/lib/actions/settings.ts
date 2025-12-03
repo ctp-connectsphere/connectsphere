@@ -91,10 +91,18 @@ export async function updateNotifications(formData: FormData) {
       redirect('/login');
     }
 
+    // Parse boolean values from FormData (can be 'true', 'True', 'false', 'False', or boolean)
+    const parseBoolean = (value: FormDataEntryValue | null): boolean => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'boolean') return value;
+      const str = String(value).toLowerCase();
+      return str === 'true';
+    };
+
     const data = notificationsSchema.parse({
-      newMatches: formData.get('newMatches') === 'true',
-      sessionReminders: formData.get('sessionReminders') === 'true',
-      marketingEmails: formData.get('marketingEmails') === 'true',
+      newMatches: parseBoolean(formData.get('newMatches')),
+      sessionReminders: parseBoolean(formData.get('sessionReminders')),
+      marketingEmails: parseBoolean(formData.get('marketingEmails')),
     });
 
     const user = await prisma.user.findUnique({
@@ -153,10 +161,18 @@ export async function updatePrivacy(formData: FormData) {
       redirect('/login');
     }
 
+    // Parse boolean values from FormData
+    const parseBoolean = (value: FormDataEntryValue | null): boolean => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'boolean') return value;
+      const str = String(value).toLowerCase();
+      return str === 'true';
+    };
+
     const data = privacySchema.parse({
-      profileVisibility: formData.get('profileVisibility') === 'true',
-      showOnlineStatus: formData.get('showOnlineStatus') === 'true',
-      allowMatching: formData.get('allowMatching') === 'true',
+      profileVisibility: parseBoolean(formData.get('profileVisibility')),
+      showOnlineStatus: parseBoolean(formData.get('showOnlineStatus')),
+      allowMatching: parseBoolean(formData.get('allowMatching')),
     });
 
     const user = await prisma.user.findUnique({
@@ -215,9 +231,17 @@ export async function updateAppearance(formData: FormData) {
       redirect('/login');
     }
 
+    // Parse boolean values from FormData
+    const parseBoolean = (value: FormDataEntryValue | null): boolean => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'boolean') return value;
+      const str = String(value).toLowerCase();
+      return str === 'true';
+    };
+
     const data = appearanceSchema.parse({
-      darkMode: formData.get('darkMode') === 'true',
-      animations: formData.get('animations') === 'true',
+      darkMode: parseBoolean(formData.get('darkMode')),
+      animations: parseBoolean(formData.get('animations')),
     });
 
     const user = await prisma.user.findUnique({
