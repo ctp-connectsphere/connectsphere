@@ -323,6 +323,8 @@ model Group {
   id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name          String
   description   String?
+  announcement  String?         @db.Text
+  zoomLink      String?
   courseId      String?        @map("course_id") @db.Uuid
   maxMembers    Int            @default(6) @map("max_members")
   vibe          String?

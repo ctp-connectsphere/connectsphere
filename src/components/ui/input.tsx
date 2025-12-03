@@ -212,34 +212,74 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ) => {
     const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
-    const baseClasses =
-      'w-full px-4 py-3 border rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-white';
+    // Check if dark mode classes are present in className
+    const isDarkMode =
+      className.includes('bg-[#1a1a1a]') ||
+      (className.includes('bg-[') && className.includes('#1a1a1a'));
+
+    const baseClasses = isDarkMode
+      ? 'w-full px-4 py-3 border rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-[#1a1a1a] text-white border-white/10'
+      : 'w-full px-4 py-3 border rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-white text-gray-900';
+
     const errorClasses = error
       ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-      : 'border-gray-300 focus:border-primary';
+      : isDarkMode
+        ? 'border-white/10 focus:border-indigo-500'
+        : 'border-gray-300 focus:border-primary';
 
     const selectClasses = `${baseClasses} ${errorClasses} ${className}`;
+
+    const labelClasses = isDarkMode
+      ? 'block text-sm font-medium text-gray-300 mb-2'
+      : 'block text-sm font-medium text-gray-700 mb-2';
+
+    const helperTextClasses = isDarkMode
+      ? 'mt-2 text-sm text-gray-400'
+      : 'mt-2 text-sm text-gray-500';
+
+    const errorTextClasses = isDarkMode
+      ? 'mt-2 text-sm text-red-400 flex items-center'
+      : 'mt-2 text-sm text-red-600 flex items-center';
 
     return (
       <div className="w-full">
         {label && (
-          <label
-            htmlFor={selectId}
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
+          <label htmlFor={selectId} className={labelClasses}>
             {label}
           </label>
         )}
 
         <div className="relative">
-          <select ref={ref} id={selectId} className={selectClasses} {...props}>
+          <select
+            ref={ref}
+            id={selectId}
+            className={selectClasses}
+            style={isDarkMode ? { colorScheme: 'dark' } : undefined}
+            {...props}
+          >
             {placeholder && (
-              <option value="" disabled>
+              <option
+                value=""
+                disabled
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#1a1a1a', color: '#ffffff' }
+                    : undefined
+                }
+              >
                 {placeholder}
               </option>
             )}
             {options.map(option => (
-              <option key={option.value} value={option.value}>
+              <option
+                key={option.value}
+                value={option.value}
+                style={
+                  isDarkMode
+                    ? { backgroundColor: '#1a1a1a', color: '#ffffff' }
+                    : undefined
+                }
+              >
                 {option.label}
               </option>
             ))}
@@ -248,7 +288,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           {/* Custom dropdown arrow */}
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
             <svg
-              className="w-5 h-5 text-gray-400"
+              className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -264,7 +304,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         </div>
 
         {error && (
-          <p className="mt-2 text-sm text-red-600 flex items-center">
+          <p className={errorTextClasses}>
             <svg
               className="w-4 h-4 mr-1"
               fill="currentColor"
@@ -281,7 +321,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
 
         {helperText && !error && (
-          <p className="mt-2 text-sm text-gray-500">{helperText}</p>
+          <p className={helperTextClasses}>{helperText}</p>
         )}
       </div>
     );

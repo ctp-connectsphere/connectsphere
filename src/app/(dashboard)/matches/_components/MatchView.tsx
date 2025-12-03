@@ -257,10 +257,10 @@ export const MatchView = () => {
   }
 
   const profile = matches[currentMatch];
-  const matchScore = Math.min(
-    100,
-    Math.round((profile.availabilityScore || 0) * 10 + 60)
-  );
+  const availabilityScore = profile.availabilityScore
+    ? Number(profile.availabilityScore)
+    : 0;
+  const matchScore = Math.min(100, Math.round(availabilityScore * 10 + 60));
   const selectedTopic = userTopics.find(
     ut => ut.topicId === selectedTopicId
   )?.topic;
@@ -394,9 +394,9 @@ export const MatchView = () => {
                     {profile.studyPace}
                   </span>
                 )}
-                {profile.availabilityScore > 0 && (
+                {Number(profile.availabilityScore) > 0 && (
                   <span className="px-4 py-2 rounded-full text-sm font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    {profile.availabilityScore} overlapping slots
+                    {Number(profile.availabilityScore)} overlapping slots
                   </span>
                 )}
               </div>

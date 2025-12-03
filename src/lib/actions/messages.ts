@@ -7,12 +7,17 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
-const sendMessageSchema = z.object({
-  connectionId: z.string().uuid(),
-  content: z.string().min(1).max(5000),
-  messageType: z.enum(['text', 'code', 'invite']).default('text'),
-  metadata: z.any().optional(), // For code language, invite details, etc.
-});
+const sendMessageSchema = z
+  .object({
+    connectionId: z.string().uuid().optional(),
+    conversationId: z.string().uuid().optional(),
+    content: z.string().min(1).max(5000),
+    messageType: z.enum(['text', 'code', 'invite']).default('text'),
+    metadata: z.any().optional(), // For code language, invite details, etc.
+  })
+  .refine(data => data.connectionId || data.conversationId, {
+    message: 'Either connectionId or conversationId must be provided',
+  });
 
 /**
  * Get messages for a connection
@@ -169,7 +174,8 @@ export async function sendMessage(formData: FormData) {
     const userId = session.user.id;
 
     const data = sendMessageSchema.parse({
-      connectionId: formData.get('connectionId'),
+      connectionId: formData.get('connectionId') || undefined,
+      conversationId: formData.get('conversationId') || undefined,
       content: formData.get('content'),
       messageType: formData.get('messageType') || 'text',
       metadata: formData.get('metadata')
@@ -177,10 +183,79 @@ export async function sendMessage(formData: FormData) {
         : undefined,
     });
 
+    // Handle conversation messages (group chats)
+    if (data.conversationId) {
+      // Verify user is part of this conversation
+      const participant = await prisma.conversationParticipant.findFirst({
+        where: {
+          conversationId: data.conversationId,
+          userId,
+        },
+        include: {
+          conversation: true,
+        },
+      });
+
+      if (!participant) {
+        return {
+          success: false,
+          error: 'Conversation not found or not authorized',
+        };
+      }
+
+      // Create message
+      const message = await prisma.message.create({
+        data: {
+          conversationId: data.conversationId,
+          senderId: userId,
+          content: data.content,
+          messageType: data.messageType,
+          metadata: data.metadata,
+          isRead: false,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profileImageUrl: true,
+            },
+          },
+        },
+      });
+
+      // Update conversation updatedAt
+      await prisma.conversation.update({
+        where: { id: data.conversationId },
+        data: { updatedAt: new Date() },
+      });
+
+      revalidatePath(`/groups/${participant.conversation.groupId}`);
+      revalidatePath('/chat');
+
+      return {
+        success: true,
+        data: {
+          message: {
+            id: message.id,
+            senderId: message.senderId,
+            sender: message.sender,
+            content: message.content,
+            messageType: message.messageType,
+            isRead: message.isRead,
+            createdAt: message.createdAt,
+            isMe: true,
+          },
+        },
+      };
+    }
+
+    // Handle connection messages (direct messages)
     // Verify user is part of this connection
     const connection = await prisma.connection.findFirst({
       where: {
-        id: data.connectionId,
+        id: data.connectionId!,
         OR: [{ requesterId: userId }, { targetId: userId }],
         status: 'accepted',
       },
@@ -466,6 +541,111 @@ export async function getConversations() {
     return {
       success: false,
       error: 'Failed to load conversations',
+    };
+  }
+}
+
+/**
+ * Get messages for a conversation (group chat)
+ */
+export async function getConversationMessages(
+  conversationId: string,
+  limit = 50
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/login');
+    }
+
+    const userId = session.user.id;
+
+    // Verify user is part of this conversation
+    const participant = await prisma.conversationParticipant.findFirst({
+      where: {
+        conversationId,
+        userId,
+      },
+      include: {
+        conversation: {
+          include: {
+            group: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!participant) {
+      return {
+        success: false,
+        error: 'Conversation not found or not authorized',
+      };
+    }
+
+    // Get messages
+    const messages = await prisma.message.findMany({
+      where: {
+        conversationId,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      take: limit,
+    });
+
+    // Mark messages as read
+    await prisma.message.updateMany({
+      where: {
+        conversationId,
+        senderId: { not: userId },
+        isRead: false,
+      },
+      data: {
+        isRead: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        conversation: {
+          id: participant.conversation.id,
+          type: participant.conversation.type,
+          group: participant.conversation.group,
+        },
+        messages: messages.map(msg => ({
+          id: msg.id,
+          senderId: msg.senderId,
+          sender: msg.sender,
+          content: msg.content,
+          messageType: msg.messageType,
+          metadata: msg.metadata,
+          isRead: msg.isRead,
+          createdAt: msg.createdAt,
+          isMe: msg.senderId === userId,
+        })),
+      },
+    };
+  } catch (error) {
+    console.error('Error getting conversation messages:', error);
+    return {
+      success: false,
+      error: 'Failed to load messages',
     };
   }
 }

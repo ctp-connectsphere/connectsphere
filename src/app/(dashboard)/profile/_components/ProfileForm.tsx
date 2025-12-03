@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Select, Textarea } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/input';
 import { createOrUpdateProfile } from '@/lib/actions/profile';
-import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
 interface ProfileFormProps {
   initialData?: {
@@ -15,29 +15,6 @@ interface ProfileFormProps {
   };
   onSuccess?: () => void;
 }
-
-const studyLocations = [
-  { value: '', label: 'Select location...' },
-  { value: 'library', label: 'Library' },
-  { value: 'cafe', label: 'Cafe' },
-  { value: 'dorm', label: 'Dorm Room' },
-  { value: 'online', label: 'Online' },
-  { value: 'other', label: 'Other' },
-];
-
-const studyStyles = [
-  { value: '', label: 'Select style...' },
-  { value: 'collaborative', label: 'Collaborative' },
-  { value: 'quiet', label: 'Quiet' },
-  { value: 'mixed', label: 'Mixed' },
-];
-
-const studyPaces = [
-  { value: '', label: 'Select pace...' },
-  { value: 'fast', label: 'Fast' },
-  { value: 'moderate', label: 'Moderate' },
-  { value: 'slow', label: 'Slow' },
-];
 
 export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
   const [isPending, startTransition] = useTransition();
@@ -92,42 +69,8 @@ export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
           defaultValue={initialData?.bio || ''}
           error={errors.bio}
           helperText="Optional: Share a bit about yourself (max 500 characters)"
+          className="bg-[#1a1a1a] border-white/10 text-white placeholder-gray-500"
         />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Select
-            label="Preferred Study Location"
-            name="preferredLocation"
-            options={studyLocations}
-            defaultValue={initialData?.preferredLocation || ''}
-            error={errors.preferredLocation}
-            helperText="Where do you prefer to study?"
-          />
-        </div>
-
-        <div>
-          <Select
-            label="Study Style"
-            name="studyStyle"
-            options={studyStyles}
-            defaultValue={initialData?.studyStyle || ''}
-            error={errors.studyStyle}
-            helperText="How do you like to study?"
-          />
-        </div>
-
-        <div>
-          <Select
-            label="Study Pace"
-            name="studyPace"
-            options={studyPaces}
-            defaultValue={initialData?.studyPace || ''}
-            error={errors.studyPace}
-            helperText="What's your preferred pace?"
-          />
-        </div>
       </div>
 
       <div className="flex justify-end">

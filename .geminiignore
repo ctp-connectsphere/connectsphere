@@ -1,0 +1,28 @@
+# Build outputs
+.next/
+dist/
+build/
+
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Environment variables (Security)
+.env
+.env.*
+!.env.example
+
+# Logs and temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+*.pem
+*.key
+
+# Documentation assets (if they are large images)
+docs/images/
+public/uploads/

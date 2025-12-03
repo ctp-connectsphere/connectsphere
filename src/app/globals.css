@@ -80,3 +80,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Dark mode select styling */
+@layer utilities {
+  select[class*='bg-\[#1a1a1a\]'] {
+    color-scheme: dark;
+  }
+
+  select[class*='bg-\[#1a1a1a\]'] option {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+
+  select[class*='bg-\[#1a1a1a\]']:focus option:checked {
+    background-color: #4f46e5;
+    color: #ffffff;
+  }
+}

@@ -371,7 +371,15 @@ export async function findMatches(formData: FormData) {
       };
     }
 
-    return { success: true, matches };
+    // Convert BigInt availabilityScore to number
+    const processedMatches = (matches as any[]).map((match: any) => ({
+      ...match,
+      availabilityScore: match.availabilityScore
+        ? Number(match.availabilityScore)
+        : 0,
+    }));
+
+    return { success: true, matches: processedMatches };
   } catch (error) {
     console.error('Error finding matches:', error);
     return { success: false, message: 'Failed to find matches' };

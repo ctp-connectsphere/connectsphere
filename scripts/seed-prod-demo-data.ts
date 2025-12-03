@@ -477,16 +477,38 @@ async function seedProductionDemoData() {
 
     // 2. 创建课程（多个学期和 section）
     console.log('📖 Step 2: Creating courses...');
-    const semesters = ['Spring 2024']; // Only current semester for faster seeding
-    const sections = ['001']; // Only one section for faster seeding
+    const semesters = ['Fall 2023', 'Spring 2024'];
+    const sections = ['001'];
     const courses = [];
     let courseCount = 0;
+
+    // Helper function to generate varied schedules
+    const getSchedule = (sectionIndex: number, semesterIndex: number) => {
+      const schedules = [
+        'MWF 10:00-11:00 AM',
+        'TTh 2:00-3:30 PM',
+        'MWF 1:00-2:00 PM',
+        'TTh 11:00-12:30 PM',
+      ];
+      const index = (sectionIndex + semesterIndex) % schedules.length;
+      return schedules[index];
+    };
+
+    // Helper function to generate varied instructor names
+    const getInstructor = (template: any, sectionIndex: number) => {
+      const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+      const firstName = template.department === 'ACC' ? 'Prof. ACC' : `Dr. ${template.department}`;
+      const lastName = lastNames[sectionIndex % lastNames.length];
+      return `${firstName} ${lastName}`;
+    };
 
     // Create UC Berkeley courses with progress logging
     console.log('   Creating UC Berkeley courses...');
     for (const template of courseTemplates) {
-      for (const semester of semesters) {
-        for (const section of sections) {
+      for (let semIdx = 0; semIdx < semesters.length; semIdx++) {
+        const semester = semesters[semIdx];
+        for (let secIdx = 0; secIdx < sections.length; secIdx++) {
+          const section = sections[secIdx];
           const course = await prisma.course.upsert({
             where: {
               code_section_semester_universityId: {
@@ -502,8 +524,8 @@ async function seedProductionDemoData() {
               code: template.code,
               section,
               semester,
-              instructor: `Dr. ${template.department} Instructor`,
-              schedule: 'MWF 10:00-11:00 AM',
+              instructor: getInstructor(template, secIdx),
+              schedule: getSchedule(secIdx, semIdx),
               universityId: university.id,
               isActive: true,
             },
@@ -525,8 +547,17 @@ async function seedProductionDemoData() {
     );
     for (const cunyUni of cunyUnis) {
       for (const template of cunyCourseTemplates) {
-        for (const semester of semesters) {
-          for (const section of sections) {
+        for (let semIdx = 0; semIdx < semesters.length; semIdx++) {
+          const semester = semesters[semIdx];
+          for (let secIdx = 0; secIdx < sections.length; secIdx++) {
+            const section = sections[secIdx];
+            // Special handling for ACC 2101 to match the image
+            let instructor = getInstructor(template, secIdx);
+            let schedule = getSchedule(secIdx, semIdx);
+            if (template.code === 'ACC 2101') {
+              instructor = 'Prof. ACC Instructor';
+              schedule = 'MWF 10:00-11:00 AM'; // Match the image
+            }
             const course = await prisma.course.upsert({
               where: {
                 code_section_semester_universityId: {
@@ -542,8 +573,8 @@ async function seedProductionDemoData() {
                 code: template.code,
                 section,
                 semester,
-                instructor: `Prof. ${template.department} Instructor`,
-                schedule: 'MWF 10:00-11:00 AM',
+                instructor,
+                schedule,
                 universityId: cunyUni.id,
                 isActive: true,
               },
@@ -869,6 +900,16 @@ async function seedProductionDemoData() {
         include: { course: true, user: true },
       });
 
+      // Initial messages for connections
+      const initialMessages = [
+        'Hey! I saw we\'re in the same class. Want to study together?',
+        'Hi! Looking for a study partner for this course. Interested?',
+        'Hello! Would you like to form a study group?',
+        'Hey there! I\'m looking for someone to review notes with.',
+        'Hi! Want to work on assignments together?',
+        'Hello! I think we could help each other with this course.',
+      ];
+
       // 找到有共同课程的用户对
       const commonCourses = new Map<string, string[]>();
       for (const uc of userCourses) {
@@ -879,20 +920,26 @@ async function seedProductionDemoData() {
         commonCourses.get(key)!.push(uc.userId);
       }
 
+      // Create connections for users with shared courses
       for (const [courseId, userIds] of commonCourses.entries()) {
         if (userIds.length >= 2) {
-          // 为有共同课程的用户创建连接
+          // 为有共同课程的用户创建连接 - increased probability to 70%
           for (let i = 0; i < userIds.length; i++) {
             for (let j = i + 1; j < userIds.length; j++) {
-              if (Math.random() > 0.5) {
+              if (Math.random() > 0.3) {
+                const status = Math.random() > 0.3 ? 'accepted' : 'pending';
+                const hasMessage = Math.random() > 0.4; // 60% chance of having initial message
+                
                 await prisma.connection.create({
                   data: {
                     requesterId: userIds[i],
                     targetId: userIds[j],
                     courseId,
-                    status: ['pending', 'accepted'][
-                      Math.floor(Math.random() * 2)
-                    ],
+                    status,
+                    initialMessage: hasMessage 
+                      ? initialMessages[Math.floor(Math.random() * initialMessages.length)]
+                      : null,
+                    respondedAt: status === 'accepted' ? new Date() : null,
                   },
                 });
                 connectionCount++;
@@ -901,7 +948,153 @@ async function seedProductionDemoData() {
           }
         }
       }
+
+      // Create additional connections between users in the same university (even without shared courses)
+      // This ensures demo users have connections to show
+      const universityUsers = new Map<string, string[]>();
+      for (const user of users) {
+        const uniKey = user.university;
+        if (!universityUsers.has(uniKey)) {
+          universityUsers.set(uniKey, []);
+        }
+        universityUsers.get(uniKey)!.push(user.id);
+      }
+
+      // Create some cross-course connections within same university
+      for (const [university, uniUserIds] of universityUsers.entries()) {
+        if (uniUserIds.length >= 2) {
+          // Create 2-5 connections per university for demo purposes
+          const numConnections = Math.min(
+            Math.floor(Math.random() * 4) + 2,
+            Math.floor((uniUserIds.length * (uniUserIds.length - 1)) / 2)
+          );
+          
+          const createdPairs = new Set<string>();
+          for (let i = 0; i < numConnections && createdPairs.size < numConnections; i++) {
+            const idx1 = Math.floor(Math.random() * uniUserIds.length);
+            const idx2 = Math.floor(Math.random() * uniUserIds.length);
+            
+            if (idx1 === idx2) continue;
+            
+            const user1 = uniUserIds[idx1];
+            const user2 = uniUserIds[idx2];
+            const pairKey = [user1, user2].sort().join('-');
+            
+            if (createdPairs.has(pairKey)) continue;
+            createdPairs.add(pairKey);
+
+            // Get a random course from one of the users
+            const user1Courses = userCourses.filter(uc => uc.userId === user1);
+            const user2Courses = userCourses.filter(uc => uc.userId === user2);
+            const allCourses = [...user1Courses, ...user2Courses];
+            
+            if (allCourses.length === 0) continue;
+            const randomCourse = allCourses[Math.floor(Math.random() * allCourses.length)];
+
+            const status = Math.random() > 0.4 ? 'accepted' : 'pending';
+            const hasMessage = Math.random() > 0.5;
+
+            // Check if connection already exists
+            const existing = await prisma.connection.findFirst({
+              where: {
+                OR: [
+                  { requesterId: user1, targetId: user2 },
+                  { requesterId: user2, targetId: user1 },
+                ],
+              },
+            });
+
+            if (!existing) {
+              await prisma.connection.create({
+                data: {
+                  requesterId: user1,
+                  targetId: user2,
+                  courseId: randomCourse.courseId,
+                  status,
+                  initialMessage: hasMessage
+                    ? initialMessages[Math.floor(Math.random() * initialMessages.length)]
+                    : null,
+                  respondedAt: status === 'accepted' ? new Date() : null,
+                },
+              });
+              connectionCount++;
+            }
+          }
+        }
+      }
+
       console.log(`✅ Created ${connectionCount} connections\n`);
+
+      // 11. 为已接受的连接创建消息
+      console.log('💬 Step 11: Creating messages for accepted connections...');
+      let messageCount = 0;
+      try {
+        // Check if messages table exists
+        await prisma.$queryRaw`SELECT 1 FROM messages LIMIT 1`;
+
+        const acceptedConnections = await prisma.connection.findMany({
+          where: { status: 'accepted' },
+          include: { requester: true, target: true },
+        });
+
+        const sampleMessages = [
+          'Hey! Thanks for accepting my connection request.',
+          'Hi there! Looking forward to studying together.',
+          'Hello! When would be a good time to meet up?',
+          'Hey! Do you want to review the lecture notes together?',
+          'Hi! I\'m free this week if you want to study.',
+          'Hello! Let me know when you\'re available.',
+          'Hey! I found some good study materials. Want to share?',
+          'Hi! Are you working on the assignment?',
+        ];
+        for (const connection of acceptedConnections) {
+          // Create 2-5 messages per connection for demo
+          const numMessages = Math.floor(Math.random() * 4) + 2;
+          const messages = [];
+          
+          for (let i = 0; i < numMessages; i++) {
+            // Alternate between requester and target
+            const senderId = i % 2 === 0 ? connection.requesterId : connection.targetId;
+            const content = sampleMessages[Math.floor(Math.random() * sampleMessages.length)];
+            
+            // Create messages with timestamps spread over the last few days
+            const daysAgo = Math.floor(Math.random() * 7);
+            const hoursAgo = Math.floor(Math.random() * 24);
+            const createdAt = new Date();
+            createdAt.setDate(createdAt.getDate() - daysAgo);
+            createdAt.setHours(createdAt.getHours() - hoursAgo);
+            
+            messages.push({
+              connectionId: connection.id,
+              senderId,
+              content,
+              messageType: 'text',
+              isRead: i < numMessages - 1, // Last message is unread
+              createdAt,
+            });
+          }
+          
+          // Sort messages by creation time
+          messages.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+          
+          // Create messages in order
+          for (const msg of messages) {
+            await prisma.message.create({
+              data: msg,
+            });
+            messageCount++;
+          }
+        }
+        console.log(`✅ Created ${messageCount} messages across ${acceptedConnections.length} connections\n`);
+      } catch (error: any) {
+        if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+          console.log(
+            `⚠️  Messages table does not exist. Skipping messages creation.\n`
+          );
+        } else {
+          throw error;
+        }
+      }
     } catch (error: any) {
       if (error.code === 'P2021' || error.message?.includes('does not exist')) {
         console.log(
@@ -930,7 +1123,8 @@ async function seedProductionDemoData() {
     console.log(`   - User Topics: ${userTopicCount}`);
     console.log(`   - Availability Slots: ${availabilityCount}`);
     console.log(`   - Matches: ${matchCount}`);
-    console.log(`   - Connections: ${connectionCount}\n`);
+    console.log(`   - Connections: ${connectionCount}`);
+    console.log(`   - Messages: ${messageCount}\n`);
     console.log('💡 All users have password: password123');
     console.log('💡 CUNY Colleges included:');
     cunyUnis.forEach(uni => {

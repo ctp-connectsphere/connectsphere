@@ -10,6 +10,8 @@ import { logger } from '@/lib/utils/logger';
 const createGroupSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
+  announcement: z.string().max(1000).optional(),
+  zoomLink: z.string().url().optional().or(z.literal('')),
   courseId: z.string().uuid().optional(),
   maxMembers: z.number().min(2).max(20).default(6),
   vibe: z.string().optional(),
@@ -53,6 +55,8 @@ export async function createGroup(formData: FormData) {
     const data = createGroupSchema.parse({
       name: formData.get('name'),
       description: formData.get('description') || undefined,
+      announcement: formData.get('announcement') || undefined,
+      zoomLink: formData.get('zoomLink') || undefined,
       courseId:
         courseId && courseId.trim() && courseId !== 'null'
           ? courseId
@@ -67,6 +71,8 @@ export async function createGroup(formData: FormData) {
       data: {
         name: data.name,
         description: data.description,
+        announcement: data.announcement,
+        zoomLink: data.zoomLink || null,
         courseId: data.courseId,
         maxMembers: data.maxMembers,
         vibe: data.vibe,
@@ -425,6 +431,13 @@ export async function updateGroup(formData: FormData) {
     if (formData.get('description') !== null) {
       updateData.description = formData.get('description') as string | null;
     }
+    if (formData.get('announcement') !== null) {
+      updateData.announcement = formData.get('announcement') as string | null;
+    }
+    if (formData.get('zoomLink') !== null) {
+      const zoomLink = formData.get('zoomLink') as string;
+      updateData.zoomLink = zoomLink && zoomLink.trim() ? zoomLink : null;
+    }
     if (formData.get('maxMembers')) {
       const maxMembers = Number(formData.get('maxMembers'));
       if (maxMembers >= group.members.length && maxMembers <= 20) {
@@ -538,6 +551,157 @@ export async function deleteGroup(formData: FormData) {
 }
 
 /**
+ * Get a single group by ID with full details
+ */
+export async function getGroupById(groupId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/login');
+    }
+
+    const userId = session.user.id as string;
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      include: {
+        course: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            section: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                profileImageUrl: true,
+              },
+            },
+          },
+        },
+        conversations: {
+          where: {
+            type: 'Group',
+          },
+          include: {
+            messages: {
+              take: 1,
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
+          },
+          take: 1,
+        },
+        _count: {
+          select: {
+            members: true,
+          },
+        },
+      },
+    });
+
+    if (!group) {
+      return {
+        success: false,
+        error: 'Group not found',
+      };
+    }
+
+    const isMember = group.members.some(m => m.userId === userId);
+    const memberCount = group._count.members;
+    const isFull = memberCount >= group.maxMembers;
+
+    // Get group conversation
+    let conversation = group.conversations[0] || null;
+    if (!conversation && isMember) {
+      // Create group conversation if member and doesn't exist
+      try {
+        const newConversation = await prisma.conversation.create({
+          data: {
+            type: 'Group',
+            groupId: group.id,
+            participants: {
+              create: group.members.map(member => ({
+                userId: member.userId,
+              })),
+            },
+          },
+          include: {
+            messages: {
+              take: 1,
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
+          },
+        });
+        conversation = newConversation as (typeof group.conversations)[0];
+      } catch (_error) {
+        // If creation fails, try to find it again (race condition)
+        const foundConversation = await prisma.conversation.findFirst({
+          where: {
+            groupId: group.id,
+            type: 'Group',
+          },
+          include: {
+            messages: {
+              take: 1,
+              orderBy: {
+                createdAt: 'desc',
+              },
+            },
+          },
+        });
+        if (foundConversation) {
+          conversation = foundConversation as (typeof group.conversations)[0];
+        }
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        announcement: group.announcement,
+        zoomLink: group.zoomLink,
+        course: group.course,
+        maxMembers: group.maxMembers,
+        memberCount,
+        isFull,
+        isMember,
+        vibe: group.vibe || 'Collaborative',
+        tags: Array.isArray(group.tags) ? group.tags : [],
+        members: group.members.map(m => ({
+          id: m.user.id,
+          firstName: m.user.firstName,
+          lastName: m.user.lastName,
+          profileImageUrl: m.user.profileImageUrl,
+          role: m.role,
+        })),
+        conversationId: conversation?.id,
+        createdAt: group.createdAt,
+        updatedAt: group.updatedAt,
+      },
+    };
+  } catch (error) {
+    logger.error('Error getting group by ID', error);
+    return {
+      success: false,
+      error: 'Failed to load group',
+    };
+  }
+}
+
+/**
  * Get groups the user is a member of
  */
 export async function getUserGroups() {
@@ -606,8 +770,8 @@ export async function getUserGroups() {
         })),
       },
     };
-  } catch (error) {
-    logger.error('Error getting user groups', error);
+  } catch (err) {
+    logger.error('Error getting user groups', err);
     return {
       success: false,
       error: 'Failed to load your groups',

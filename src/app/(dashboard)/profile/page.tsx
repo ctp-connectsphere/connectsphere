@@ -1,31 +1,33 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import {
-  MapPin,
-  Calendar,
-  Mail,
-  Github,
-  Linkedin,
-  Edit3,
-  Code,
-  Cpu,
-  Layers,
-  Clock,
-  BookOpen,
-  Zap,
-} from 'lucide-react';
+import { TopicSelector } from '@/app/(dashboard)/topics/_components/TopicSelector';
 import { GlowingButton } from '@/components/ui/glowing-button';
+import { getUserAvailability } from '@/lib/actions/availability';
+import { getUserCourses } from '@/lib/actions/courses';
+import { getDashboardStats } from '@/lib/actions/dashboard';
 import { getUserProfile } from '@/lib/actions/profile';
 import { getUserTopics } from '@/lib/actions/topics';
-import { getUserAvailability } from '@/lib/actions/availability';
-import { getDashboardStats } from '@/lib/actions/dashboard';
-import { getUserCourses } from '@/lib/actions/courses';
-import { TopicSelector } from '@/app/(dashboard)/topics/_components/TopicSelector';
-import { ProfileForm } from './_components/ProfileForm';
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  Code,
+  Cpu,
+  Edit3,
+  Github,
+  Layers,
+  Linkedin,
+  Mail,
+  MapPin,
+  Zap,
+} from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { AvailabilityEditor } from './_components/AvailabilityEditor';
+import { InlineSelect } from './_components/InlineSelect';
+import { ProfileForm } from './_components/ProfileForm';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -296,21 +298,27 @@ export default function ProfilePage() {
                     loadProfileData();
                   }}
                 />
-                {isEditing && (
-                  <button
-                    onClick={() => {
-                      loadProfileData();
-                      setIsEditing(false);
-                    }}
-                    className="mt-4 text-sm text-indigo-400 hover:text-indigo-300"
-                  >
-                    Done editing
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    loadProfileData();
+                    setIsEditing(false);
+                  }}
+                  className="mt-4 text-sm text-indigo-400 hover:text-indigo-300"
+                >
+                  Done editing
+                </button>
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-bold text-white mb-4">About Me</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-white">About Me</h3>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-sm text-indigo-400 hover:text-indigo-300 transition"
+                  >
+                    Edit
+                  </button>
+                </div>
                 <p className="text-gray-400 leading-relaxed mb-6">
                   {profile?.bio ||
                     'No bio yet. Add one to help others get to know you!'}
@@ -462,20 +470,16 @@ export default function ProfilePage() {
             </div>
 
             {showAvailabilityEditor && isEditing ? (
-              <div className="space-y-4">
-                <p className="text-sm text-gray-400">
-                  Availability editor will be implemented here
-                </p>
-                <button
-                  onClick={() => {
-                    setShowAvailabilityEditor(false);
-                    loadProfileData();
-                  }}
-                  className="text-sm text-indigo-400 hover:text-indigo-300"
-                >
-                  Done
-                </button>
-              </div>
+              <AvailabilityEditor
+                initialAvailability={availability}
+                onSave={() => {
+                  setShowAvailabilityEditor(false);
+                  loadProfileData();
+                }}
+                onCancel={() => {
+                  setShowAvailabilityEditor(false);
+                }}
+              />
             ) : (
               <>
                 <div className="space-y-3">
@@ -513,33 +517,62 @@ export default function ProfilePage() {
           <div className="bg-[#121212] border border-white/10 rounded-3xl p-6">
             <h3 className="font-bold text-white mb-4">Study Style</h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center p-3 rounded-xl bg-[#1a1a1a] border border-white/5">
-                <div className="flex items-center gap-3">
-                  <BookOpen size={16} className="text-gray-400" />
-                  <span className="text-sm text-gray-300">Location</span>
-                </div>
-                <span className="text-xs font-medium text-white">
-                  {profile?.preferredLocation || 'Not set'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 rounded-xl bg-[#1a1a1a] border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Zap size={16} className="text-gray-400" />
-                  <span className="text-sm text-gray-300">Pace</span>
-                </div>
-                <span className="text-xs font-medium text-white">
-                  {profile?.studyPace || 'Not set'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 rounded-xl bg-[#1a1a1a] border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Calendar size={16} className="text-gray-400" />
-                  <span className="text-sm text-gray-300">Style</span>
-                </div>
-                <span className="text-xs font-medium text-white">
-                  {profile?.studyStyle || 'Not set'}
-                </span>
-              </div>
+              <InlineSelect
+                value={profile?.preferredLocation || null}
+                options={[
+                  { value: 'library', label: 'Library' },
+                  { value: 'cafe', label: 'Cafe' },
+                  { value: 'dorm', label: 'Dorm Room' },
+                  { value: 'online', label: 'Online' },
+                  { value: 'other', label: 'Other' },
+                ]}
+                onChange={value => {
+                  setProfile((prev: any) => ({
+                    ...prev,
+                    preferredLocation: value,
+                  }));
+                  loadProfileData();
+                }}
+                fieldName="preferredLocation"
+                icon={<BookOpen size={16} />}
+                label="Location"
+              />
+              <InlineSelect
+                value={profile?.studyPace || null}
+                options={[
+                  { value: 'fast', label: 'Fast' },
+                  { value: 'moderate', label: 'Moderate' },
+                  { value: 'slow', label: 'Slow' },
+                ]}
+                onChange={value => {
+                  setProfile((prev: any) => ({
+                    ...prev,
+                    studyPace: value,
+                  }));
+                  loadProfileData();
+                }}
+                fieldName="studyPace"
+                icon={<Zap size={16} />}
+                label="Pace"
+              />
+              <InlineSelect
+                value={profile?.studyStyle || null}
+                options={[
+                  { value: 'collaborative', label: 'Collaborative' },
+                  { value: 'quiet', label: 'Quiet' },
+                  { value: 'mixed', label: 'Mixed' },
+                ]}
+                onChange={value => {
+                  setProfile((prev: any) => ({
+                    ...prev,
+                    studyStyle: value,
+                  }));
+                  loadProfileData();
+                }}
+                fieldName="studyStyle"
+                icon={<Calendar size={16} />}
+                label="Style"
+              />
             </div>
           </div>
 

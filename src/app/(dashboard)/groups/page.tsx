@@ -78,10 +78,12 @@ const StudyGroupCard = ({
   group,
   members = [],
   onJoinGroup,
+  router,
 }: {
   group: any;
   members?: any[];
   onJoinGroup?: (groupId: string) => void;
+  router: any;
 }) => {
   const isAlmostFull = group.memberCount >= (group.maxMembers || 6) - 1;
   const spotsLeft = (group.maxMembers || 6) - group.memberCount;
@@ -98,8 +100,15 @@ const StudyGroupCard = ({
     name: m?.firstName || `User ${i + 1}`,
   }));
 
+  const handleCardClick = () => {
+    router.push(`/groups/${group.id}`);
+  };
+
   return (
-    <div className="group relative bg-[#111] border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+    <div
+      onClick={handleCardClick}
+      className="group relative bg-[#111] border border-gray-800 rounded-3xl p-6 hover:border-gray-700 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+    >
       {/* Top gradient bar */}
       <div
         className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${categoryStyle.gradient} opacity-60 rounded-t-3xl`}
@@ -210,7 +219,12 @@ const StudyGroupCard = ({
         </div>
 
         <button
-          onClick={() => !isFull && !group.isMember && onJoinGroup?.(group.id)}
+          onClick={e => {
+            e.stopPropagation();
+            if (!isFull && !group.isMember) {
+              onJoinGroup?.(group.id);
+            }
+          }}
           className="bg-white text-black hover:bg-gray-200 rounded-xl px-5 py-2.5 font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isFull || group.isMember}
         >
@@ -236,6 +250,8 @@ export default function GroupsPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    announcement: '',
+    zoomLink: '',
     courseId: '',
     maxMembers: 6,
     vibe: '',
@@ -312,6 +328,12 @@ export default function GroupsPage() {
       if (formData.description) {
         submitFormData.append('description', formData.description);
       }
+      if (formData.announcement) {
+        submitFormData.append('announcement', formData.announcement);
+      }
+      if (formData.zoomLink) {
+        submitFormData.append('zoomLink', formData.zoomLink);
+      }
       if (formData.courseId) {
         submitFormData.append('courseId', formData.courseId);
       }
@@ -330,6 +352,8 @@ export default function GroupsPage() {
         setFormData({
           name: '',
           description: '',
+          announcement: '',
+          zoomLink: '',
           courseId: '',
           maxMembers: 6,
           vibe: '',
@@ -434,6 +458,7 @@ export default function GroupsPage() {
                   group={group}
                   members={group.members || []}
                   onJoinGroup={handleJoinGroup}
+                  router={router}
                 />
               ))}
             </div>
@@ -505,6 +530,39 @@ export default function GroupsPage() {
                   rows={3}
                   className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition resize-none"
                   maxLength={500}
+                />
+              </div>
+
+              {/* Announcement */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Announcement (Optional)
+                </label>
+                <textarea
+                  value={formData.announcement}
+                  onChange={e =>
+                    setFormData({ ...formData, announcement: e.target.value })
+                  }
+                  placeholder="Any important announcements for group members?"
+                  rows={3}
+                  className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition resize-none"
+                  maxLength={1000}
+                />
+              </div>
+
+              {/* Zoom Link */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Zoom Meeting Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.zoomLink}
+                  onChange={e =>
+                    setFormData({ ...formData, zoomLink: e.target.value })
+                  }
+                  placeholder="https://zoom.us/j/..."
+                  className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
                 />
               </div>
 

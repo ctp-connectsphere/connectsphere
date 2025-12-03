@@ -1,0 +1,17 @@
+{
+  "context": {
+    "fileFiltering": {
+      "respectGitIgnore": true,
+      "respectGeminiIgnore": true,
+      "enableRecursiveFileSearch": true
+    },
+    "discoveryMaxDirs": 200
+  },
+  "general": {
+    "preferredEditor": "code"
+  },
+  "ui": {
+    "showLineNumbers": true,
+    "showCitations": true
+  }
+}

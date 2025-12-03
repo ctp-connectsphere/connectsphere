@@ -2,12 +2,12 @@
 
 import { auth } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/connection';
-import { profileSchema } from '@/lib/validations/profile';
 import {
-  uploadToCloudinary,
   extractPublicIdFromUrl,
+  uploadToCloudinary,
 } from '@/lib/storage/cloudinary';
 import { calculateProfileCompletion } from '@/lib/utils/profile';
+import { profileSchema } from '@/lib/validations/profile';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
