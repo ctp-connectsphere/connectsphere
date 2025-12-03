@@ -1,6 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
+// Log which database we're connecting to
+const dbUrl = process.env.DATABASE_URL || '';
+const dbType = dbUrl.includes('ep-spring-glade-ah133wuj-pooler')
+  ? 'PRODUCTION'
+  : 'DEV';
+console.log(`\n🔍 Database Connection Info:`);
+console.log(`   Type: ${dbType}`);
+console.log(`   URL: ${dbUrl.substring(0, 50)}...`);
+console.log(`   Full URL: ${dbUrl}\n`);
+
 const prisma = new PrismaClient();
 
 // 课程模板 - 这些是系统建议的课程
@@ -114,77 +124,275 @@ const topicCategories = [
   },
 ];
 
-// 用户数据模板
+// CUNY Course Templates (using CUNY course codes)
+const cunyCourseTemplates = [
+  // Computer Science
+  { code: 'CSC 220', name: 'Data Structures', department: 'CSC' },
+  { code: 'CSC 221', name: 'Computer Organization', department: 'CSC' },
+  { code: 'CSC 332', name: 'Operating Systems', department: 'CSC' },
+  { code: 'CSC 430', name: 'Database Systems', department: 'CSC' },
+  { code: 'CSC 490', name: 'Software Engineering', department: 'CSC' },
+  { code: 'CSC 598', name: 'Machine Learning', department: 'CSC' },
+
+  // Math
+  { code: 'MATH 201', name: 'Calculus I', department: 'MATH' },
+  { code: 'MATH 202', name: 'Calculus II', department: 'MATH' },
+  { code: 'MATH 301', name: 'Linear Algebra', department: 'MATH' },
+  { code: 'MATH 350', name: 'Discrete Mathematics', department: 'MATH' },
+
+  // Business (Baruch/Hunter focus)
+  { code: 'ACC 2101', name: 'Financial Accounting', department: 'ACC' },
+  { code: 'MGT 3120', name: 'Principles of Management', department: 'MGT' },
+  { code: 'MKT 3000', name: 'Marketing Management', department: 'MKT' },
+
+  // Psychology
+  { code: 'PSY 100', name: 'Introduction to Psychology', department: 'PSY' },
+  { code: 'PSY 201', name: 'Research Methods', department: 'PSY' },
+
+  // English
+  { code: 'ENG 101', name: 'Composition I', department: 'ENG' },
+  { code: 'ENG 102', name: 'Composition II', department: 'ENG' },
+];
+
+// CUNY Universities
+const cunyUniversities = [
+  { name: 'Baruch College', domain: 'baruch.cuny.edu' },
+  { name: 'Brooklyn College', domain: 'brooklyn.cuny.edu' },
+  { name: 'City College', domain: 'ccny.cuny.edu' },
+  { name: 'Hunter College', domain: 'hunter.cuny.edu' },
+  { name: 'John Jay College', domain: 'jjay.cuny.edu' },
+  { name: 'Lehman College', domain: 'lehman.cuny.edu' },
+  { name: 'Queens College', domain: 'qc.cuny.edu' },
+  { name: 'York College', domain: 'york.cuny.edu' },
+];
+
+// CUNY User Templates
+const cunyUserTemplates = [
+  // Baruch College
+  {
+    firstName: 'Maria',
+    lastName: 'Rodriguez',
+    email: 'maria.rodriguez@baruch.cuny.edu',
+    major: 'Business Administration',
+    university: 'Baruch College',
+  },
+  {
+    firstName: 'Kevin',
+    lastName: 'Chen',
+    email: 'kevin.chen@baruch.cuny.edu',
+    major: 'Finance',
+    university: 'Baruch College',
+  },
+  {
+    firstName: 'Priya',
+    lastName: 'Patel',
+    email: 'priya.patel@baruch.cuny.edu',
+    major: 'Accounting',
+    university: 'Baruch College',
+  },
+
+  // Brooklyn College
+  {
+    firstName: 'Jasmine',
+    lastName: 'Williams',
+    email: 'jasmine.williams@brooklyn.cuny.edu',
+    major: 'Computer Science',
+    university: 'Brooklyn College',
+  },
+  {
+    firstName: 'Carlos',
+    lastName: 'Martinez',
+    email: 'carlos.martinez@brooklyn.cuny.edu',
+    major: 'Mathematics',
+    university: 'Brooklyn College',
+  },
+  {
+    firstName: 'Aisha',
+    lastName: 'Johnson',
+    email: 'aisha.johnson@brooklyn.cuny.edu',
+    major: 'Psychology',
+    university: 'Brooklyn College',
+  },
+
+  // City College
+  {
+    firstName: 'Ahmed',
+    lastName: 'Hassan',
+    email: 'ahmed.hassan@ccny.cuny.edu',
+    major: 'Electrical Engineering',
+    university: 'City College',
+  },
+  {
+    firstName: 'Sofia',
+    lastName: 'Garcia',
+    email: 'sofia.garcia@ccny.cuny.edu',
+    major: 'Computer Science',
+    university: 'City College',
+  },
+  {
+    firstName: 'David',
+    lastName: 'Kim',
+    email: 'david.kim@ccny.cuny.edu',
+    major: 'Mechanical Engineering',
+    university: 'City College',
+  },
+
+  // Hunter College
+  {
+    firstName: 'Rachel',
+    lastName: 'Green',
+    email: 'rachel.green@hunter.cuny.edu',
+    major: 'Psychology',
+    university: 'Hunter College',
+  },
+  {
+    firstName: 'Michael',
+    lastName: 'Brown',
+    email: 'michael.brown@hunter.cuny.edu',
+    major: 'Biology',
+    university: 'Hunter College',
+  },
+  {
+    firstName: 'Lisa',
+    lastName: 'Wang',
+    email: 'lisa.wang@hunter.cuny.edu',
+    major: 'Nursing',
+    university: 'Hunter College',
+  },
+
+  // John Jay College
+  {
+    firstName: 'James',
+    lastName: 'Wilson',
+    email: 'james.wilson@jjay.cuny.edu',
+    major: 'Criminal Justice',
+    university: 'John Jay College',
+  },
+  {
+    firstName: 'Nicole',
+    lastName: 'Taylor',
+    email: 'nicole.taylor@jjay.cuny.edu',
+    major: 'Forensic Science',
+    university: 'John Jay College',
+  },
+
+  // Lehman College
+  {
+    firstName: 'Roberto',
+    lastName: 'Lopez',
+    email: 'roberto.lopez@lehman.cuny.edu',
+    major: 'Social Work',
+    university: 'Lehman College',
+  },
+  {
+    firstName: 'Fatima',
+    lastName: 'Ali',
+    email: 'fatima.ali@lehman.cuny.edu',
+    major: 'Education',
+    university: 'Lehman College',
+  },
+
+  // Queens College
+  {
+    firstName: 'Jennifer',
+    lastName: 'Lee',
+    email: 'jennifer.lee@qc.cuny.edu',
+    major: 'Computer Science',
+    university: 'Queens College',
+  },
+  {
+    firstName: 'Daniel',
+    lastName: 'Smith',
+    email: 'daniel.smith@qc.cuny.edu',
+    major: 'Data Science',
+    university: 'Queens College',
+  },
+  {
+    firstName: 'Amanda',
+    lastName: 'Davis',
+    email: 'amanda.davis@qc.cuny.edu',
+    major: 'Mathematics',
+    university: 'Queens College',
+  },
+
+  // York College
+  {
+    firstName: 'Tyler',
+    lastName: 'Moore',
+    email: 'tyler.moore@york.cuny.edu',
+    major: 'Business Administration',
+    university: 'York College',
+  },
+  {
+    firstName: 'Nina',
+    lastName: 'Singh',
+    email: 'nina.singh@york.cuny.edu',
+    major: 'Health Sciences',
+    university: 'York College',
+  },
+];
+
+// 用户数据模板 (UC Berkeley)
 const userTemplates = [
   {
     firstName: 'Alex',
     lastName: 'Chen',
     email: 'alex.chen@berkeley.edu',
     major: 'Computer Science',
-    schoolYear: 'Junior',
   },
   {
     firstName: 'Sarah',
     lastName: 'Johnson',
     email: 'sarah.j@berkeley.edu',
     major: 'Data Science',
-    schoolYear: 'Senior',
   },
   {
     firstName: 'Michael',
     lastName: 'Zhang',
     email: 'michael.z@berkeley.edu',
     major: 'Computer Science',
-    schoolYear: 'Sophomore',
   },
   {
     firstName: 'Emily',
     lastName: 'Wang',
     email: 'emily.w@berkeley.edu',
     major: 'Electrical Engineering',
-    schoolYear: 'Junior',
   },
   {
     firstName: 'David',
     lastName: 'Kim',
     email: 'david.k@berkeley.edu',
     major: 'Computer Science',
-    schoolYear: 'Senior',
   },
   {
     firstName: 'Jessica',
     lastName: 'Liu',
     email: 'jessica.l@berkeley.edu',
     major: 'Mathematics',
-    schoolYear: 'Junior',
   },
   {
     firstName: 'Ryan',
     lastName: 'Patel',
     email: 'ryan.p@berkeley.edu',
     major: 'Computer Science',
-    schoolYear: 'Sophomore',
   },
   {
     firstName: 'Sophia',
     lastName: 'Martinez',
     email: 'sophia.m@berkeley.edu',
     major: 'Data Science',
-    schoolYear: 'Senior',
   },
   {
     firstName: 'James',
     lastName: 'Anderson',
     email: 'james.a@berkeley.edu',
     major: 'Computer Science',
-    schoolYear: 'Junior',
   },
   {
     firstName: 'Olivia',
     lastName: 'Brown',
     email: 'olivia.b@berkeley.edu',
     major: 'Electrical Engineering',
-    schoolYear: 'Sophomore',
   },
 ];
 
@@ -202,14 +410,32 @@ async function seedDemoData() {
       isActive: true,
     },
   });
-  console.log(`✅ University: ${university.name}\n`);
+  console.log(`✅ University: ${university.name}`);
+
+  // Create CUNY universities
+  const cunyUnis = [];
+  for (const cunyUni of cunyUniversities) {
+    const created = await prisma.university.upsert({
+      where: { domain: cunyUni.domain },
+      update: {},
+      create: {
+        name: cunyUni.name,
+        domain: cunyUni.domain,
+        isActive: true,
+      },
+    });
+    cunyUnis.push(created);
+    console.log(`✅ University: ${created.name}`);
+  }
+  console.log(`✅ Created ${cunyUnis.length + 1} universities total\n`);
 
   // 2. 创建课程（多个学期和 section）
   console.log('📖 Step 2: Creating courses...');
-  const semesters = ['Fall 2024', 'Spring 2024', 'Fall 2023', 'Spring 2023'];
-  const sections = ['001', '002', '003'];
+  const semesters = ['Spring 2024', 'Fall 2024']; // Reduced to 2 semesters for faster seeding
+  const sections = ['001', '002']; // Reduced to 2 sections for faster seeding
   const courses = [];
 
+  // Create UC Berkeley courses
   for (const template of courseTemplates) {
     for (const semester of semesters) {
       for (const section of sections) {
@@ -236,6 +462,39 @@ async function seedDemoData() {
           },
         });
         courses.push(course);
+      }
+    }
+  }
+
+  // Create CUNY courses
+  for (const cunyUni of cunyUnis) {
+    for (const template of cunyCourseTemplates) {
+      for (const semester of semesters) {
+        for (const section of sections) {
+          const course = await prisma.course.upsert({
+            where: {
+              code_section_semester_universityId: {
+                code: template.code,
+                section,
+                semester,
+                universityId: cunyUni.id,
+              },
+            },
+            update: {},
+            create: {
+              name: template.name,
+              code: template.code,
+              section,
+              semester,
+              instructor: `Prof. ${template.department} Instructor`,
+              schedule: 'MWF 10:00-11:00 AM',
+              room: `${template.department} Building Room ${section}`,
+              universityId: cunyUni.id,
+              isActive: true,
+            },
+          });
+          courses.push(course);
+        }
       }
     }
   }
@@ -273,6 +532,7 @@ async function seedDemoData() {
   const hashedPassword = await bcrypt.hash('password123', 12);
   const users = [];
 
+  // Create UC Berkeley users
   for (const template of userTemplates) {
     const user = await prisma.user.upsert({
       where: { email: template.email },
@@ -284,7 +544,30 @@ async function seedDemoData() {
         lastName: template.lastName,
         university: university.name,
         major: template.major,
-        schoolYear: template.schoolYear,
+        profileImageUrl: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
+        isVerified: true,
+        isActive: true,
+        settings: {
+          darkMode: Math.random() > 0.5,
+          notifications: true,
+        },
+      },
+    });
+    users.push(user);
+  }
+
+  // Create CUNY users
+  for (const template of cunyUserTemplates) {
+    const user = await prisma.user.upsert({
+      where: { email: template.email },
+      update: {},
+      create: {
+        email: template.email,
+        passwordHash: hashedPassword,
+        firstName: template.firstName,
+        lastName: template.lastName,
+        university: template.university,
+        major: template.major,
         profileImageUrl: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70)}`,
         isVerified: true,
         isActive: true,
@@ -310,7 +593,7 @@ async function seedDemoData() {
       update: {},
       create: {
         userId: user.id,
-        bio: `${user.firstName} is a ${user.schoolYear} studying ${user.major}. Looking for study partners!`,
+        bio: `${user.firstName} is studying ${user.major}. Looking for study partners!`,
         preferredLocation:
           studyLocations[Math.floor(Math.random() * studyLocations.length)],
         studyStyle: studyStyles[Math.floor(Math.random() * studyStyles.length)],
@@ -324,13 +607,26 @@ async function seedDemoData() {
   // 6. 用户选课
   console.log('📚 Step 6: Creating course enrollments...');
   const currentSemester = 'Spring 2024';
-  const currentCourses = courses.filter(c => c.semester === currentSemester);
   let enrollmentCount = 0;
 
   for (const user of users) {
+    // Find user's university
+    const userUni = await prisma.university.findFirst({
+      where: {
+        OR: [{ name: user.university }, { domain: user.email.split('@')[1] }],
+      },
+    });
+
+    if (!userUni) continue;
+
+    // Get courses for user's university
+    const userUniCourses = courses.filter(
+      c => c.universityId === userUni.id && c.semester === currentSemester
+    );
+
     // 每个用户随机选 2-4 门课
     const numCourses = Math.floor(Math.random() * 3) + 2;
-    const selectedCourses = currentCourses
+    const selectedCourses = userUniCourses
       .sort(() => Math.random() - 0.5)
       .slice(0, numCourses);
 
@@ -433,8 +729,15 @@ async function seedDemoData() {
       if (Math.random() > 0.7) {
         // 30% 概率创建匹配
         const matchScore = Math.floor(Math.random() * 40) + 60; // 60-100
-        await prisma.match.create({
-          data: {
+        await prisma.match.upsert({
+          where: {
+            userId1_userId2: {
+              userId1: users[i].id,
+              userId2: users[j].id,
+            },
+          },
+          update: {},
+          create: {
             userId1: users[i].id,
             userId2: users[j].id,
             status: ['Pending', 'Accepted', 'Rejected'][
@@ -492,12 +795,16 @@ async function seedDemoData() {
   // 总结
   console.log('🎉 Demo data seeding completed!\n');
   console.log('📊 Summary:');
-  console.log(`   - University: 1`);
   console.log(
-    `   - Courses: ${courses.length} (${courseTemplates.length} unique courses × ${semesters.length} semesters × ${sections.length} sections)`
+    `   - Universities: ${cunyUnis.length + 1} (1 UC Berkeley + ${cunyUnis.length} CUNY colleges)`
+  );
+  console.log(
+    `   - Courses: ${courses.length} (${courseTemplates.length} UC Berkeley + ${cunyCourseTemplates.length} CUNY courses × ${semesters.length} semesters × ${sections.length} sections × ${cunyUnis.length + 1} universities)`
   );
   console.log(`   - Topics: ${allTopics.length}`);
-  console.log(`   - Users: ${users.length}`);
+  console.log(
+    `   - Users: ${users.length} (${userTemplates.length} UC Berkeley + ${cunyUserTemplates.length} CUNY)`
+  );
   console.log(`   - User Profiles: ${users.length}`);
   console.log(`   - Course Enrollments: ${enrollmentCount}`);
   console.log(`   - User Topics: ${userTopicCount}`);
@@ -505,8 +812,12 @@ async function seedDemoData() {
   console.log(`   - Matches: ${matchCount}`);
   console.log(`   - Connections: ${connectionCount}\n`);
   console.log('💡 All users have password: password123');
+  console.log('💡 CUNY Colleges included:');
+  cunyUnis.forEach(uni => {
+    console.log(`   - ${uni.name}`);
+  });
   console.log(
-    '💡 Users can also input their own courses, but system will suggest from the course catalog.\n'
+    '\n💡 Users can also input their own courses, but system will suggest from the course catalog.\n'
   );
 }
 
