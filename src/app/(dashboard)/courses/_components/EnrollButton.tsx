@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { enrollInCourse } from '@/lib/actions/courses';
 
 interface EnrollButtonProps {

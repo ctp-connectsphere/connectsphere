@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getUserTopics } from '@/lib/actions/topics';
-import { Badge } from '@/components/nexus/ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 export function UserTopicsDisplay() {
   const [userTopics, setUserTopics] = useState<any[]>([]);

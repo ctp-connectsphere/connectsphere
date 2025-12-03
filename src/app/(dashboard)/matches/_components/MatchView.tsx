@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { GlowingButton } from '../ui/glowing-button';
+import { GlowingButton } from '@/components/ui/glowing-button';
 
 export const MatchView = () => {
   const { data: session } = useSession();

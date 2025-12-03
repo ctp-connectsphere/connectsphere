@@ -1,6 +1,6 @@
 'use client';
 
-import { LandingView } from './nexus';
+import { LandingView } from '@/app/_components/LandingView';
 
 export default function ConnectSpherePlatform() {
   return (
@@ -21,4 +21,7 @@ export default function ConnectSpherePlatform() {
 }
 
 // Export other views for use in separate pages
-export { ChatView, DashboardView, MatchView, OnboardingView } from './nexus';
+export { ChatView } from '@/app/(dashboard)/chat/_components/ChatView';
+export { DashboardView } from '@/app/(dashboard)/dashboard/_components/DashboardView';
+export { MatchView } from '@/app/(dashboard)/matches/_components/MatchView';
+export { OnboardingView } from '@/app/(dashboard)/onboarding/_components/OnboardingView';

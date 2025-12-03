@@ -10,8 +10,8 @@ import {
   Plus,
   ArrowRight,
 } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { GlowingButton } from '../ui/glowing-button';
+import { Badge } from '@/components/ui/badge';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import {
@@ -147,7 +147,7 @@ export const DashboardView = ({ userName = 'User' }: DashboardViewProps) => {
   }
 
   return (
-    <div className="p-6 md:p-10 h-full overflow-y-auto pb-32 relative bg-[#0a0a0a]">
+    <div className="p-4 sm:p-6 md:p-10 min-h-screen overflow-y-auto pb-20 md:pb-32 relative bg-[#0a0a0a]">
       {/* Subtle background effect */}
       <div
         className="fixed inset-0 pointer-events-none z-0"
@@ -156,24 +156,24 @@ export const DashboardView = ({ userName = 'User' }: DashboardViewProps) => {
         }}
       />
 
-      {/* Header Section - Warm Greeting with CTA */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 relative z-10">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-2">
+      {/* Header Section - Warm Greeting with CTA - Mobile-first */}
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 relative z-10">
+        <div className="mb-4 md:mb-0">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-2">
             {getGreeting()},{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">
               {userFirstName}
             </span>
           </h1>
-          <p className="text-gray-400 text-lg">
+          <p className="text-sm sm:text-base md:text-lg text-gray-400">
             {stats.matches > 0
               ? `You have ${stats.matches} potential matches this week.`
               : 'Start by adding topics or courses to find study partners.'}
           </p>
         </div>
-        <div className="mt-4 md:mt-0">
-          <Link href="/matches">
-            <GlowingButton className="flex items-center gap-2">
+        <div className="mt-4 md:mt-0 w-full md:w-auto">
+          <Link href="/matches" className="block w-full md:w-auto">
+            <GlowingButton className="flex items-center justify-center gap-2 w-full md:w-auto">
               <Plus size={18} />
               Find Study Partner
             </GlowingButton>
@@ -181,10 +181,10 @@ export const DashboardView = ({ userName = 'User' }: DashboardViewProps) => {
         </div>
       </header>
 
-      {/* Bento Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto relative z-10">
-        {/* Main Feature: Next Up Session (2 columns) */}
-        <div className="md:col-span-2 bg-[#121212] border border-gray-800/50 rounded-3xl p-6 md:p-8 relative overflow-hidden group hover:border-gray-700/50 transition-all">
+      {/* Bento Grid Layout - Mobile-first */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto relative z-10">
+        {/* Main Feature: Next Up Session (2 columns) - Mobile-first */}
+        <div className="md:col-span-2 bg-[#121212] border border-gray-800/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 relative overflow-hidden group hover:border-gray-700/50 transition-all">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition">
             <Calendar size={120} className="text-indigo-400" />
           </div>
@@ -199,11 +199,11 @@ export const DashboardView = ({ userName = 'User' }: DashboardViewProps) => {
                     Next Up
                   </div>
                   {upcomingSession ? (
-                    <h2 className="text-2xl md:text-3xl font-black text-white mb-1">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1">
                       {upcomingSession.topic}
                     </h2>
                   ) : (
-                    <h2 className="text-2xl md:text-3xl font-black text-white mb-1">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1">
                       No upcoming sessions
                     </h2>
                   )}

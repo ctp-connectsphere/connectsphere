@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
-import { Badge } from '@/components/nexus';
+import { Badge } from '@/components/ui/badge';
 import {
   addUserTopic,
   removeUserTopic,

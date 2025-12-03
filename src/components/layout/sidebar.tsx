@@ -36,11 +36,11 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
   const setIsCollapsed = context?.setIsCollapsed ?? setLocalCollapsed;
 
   const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Matches', href: '/matches', icon: Heart, badge: 3 },
+    { name: 'Study Partner', href: '/matches', icon: Heart, badge: 3 },
+    { name: 'Chat', href: '/chat', icon: MessageCircle },
     { name: 'Groups', href: '/groups', icon: Users },
     { name: 'Courses', href: '/courses', icon: BookOpen },
-    { name: 'Chat', href: '/chat', icon: MessageCircle },
+    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
   ];
 
   const handleSignOut = async () => {
@@ -53,7 +53,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full glass-panel border-r border-white/10 transition-all duration-300 z-50 ${isCollapsed ? 'w-20' : 'w-72'} ${className}`}
+      className={`fixed left-0 top-0 h-full glass-panel border-r border-white/10 transition-all duration-300 z-40 ${isCollapsed ? 'w-20' : 'w-72'} ${className}`}
       style={
         {
           '--sidebar-width': isCollapsed ? '5rem' : '18rem',
@@ -65,7 +65,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-between">
             {!isCollapsed && (
-              <Link href="/dashboard" className="flex items-center gap-3 group">
+              <Link href="/matches" className="flex items-center gap-3 group">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:shadow-indigo-500/50 transition-all flex-shrink-0">
                   <span className="text-white font-black text-lg">C</span>
                 </div>
@@ -79,7 +79,7 @@ export const Sidebar = ({ className = '' }: SidebarProps) => {
             )}
             {isCollapsed && (
               <Link
-                href="/dashboard"
+                href="/matches"
                 className="flex items-center justify-center w-full"
               >
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all">

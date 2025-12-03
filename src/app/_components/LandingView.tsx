@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight, Sparkles, BookOpen, Users, Zap } from 'lucide-react';
-import { GlowingButton } from '../ui/glowing-button';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { useState, useEffect } from 'react';
 
 interface FloatingBubble {
@@ -66,18 +66,18 @@ export const LandingView = () => {
       </div>
 
       {/* Hero Content */}
-      <div className="z-10 text-center max-w-5xl px-6 relative">
+      <div className="z-10 text-center max-w-5xl px-4 sm:px-6 relative">
         {/* Status Badge */}
-        <div className="mb-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg">
-          <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></span>
-          <span className="text-sm text-gray-200 font-medium">
+        <div className="mb-6 sm:mb-8 inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg">
+          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/50"></span>
+          <span className="text-xs sm:text-sm text-gray-200 font-medium">
             ConnectSphere v2.0 • Live
           </span>
         </div>
 
-        {/* Main Hero Text */}
-        <h1 className="text-7xl md:text-9xl font-black tracking-tighter mb-8 leading-none">
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60 mb-2">
+        {/* Main Hero Text - Mobile-first sizing */}
+        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-9xl font-black tracking-tighter mb-6 sm:mb-8 leading-none">
+          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60 mb-1 sm:mb-2">
             Find Your
           </span>
           <span className="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 via-pink-400 to-cyan-400 neon-text animate-gradient-x bg-[length:200%_auto]">
@@ -85,28 +85,31 @@ export const LandingView = () => {
           </span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto font-light">
+        {/* Subtitle - Mobile-first sizing */}
+        <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 sm:mb-12 leading-relaxed max-w-3xl mx-auto font-light px-2">
           Stop studying alone. Our neural matching algorithm connects you with
           peers who share your major, vibe, and caffeine addiction.
         </p>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-          <GlowingButton href="/login" className="text-lg px-8 py-4">
-            Sign In <ArrowRight size={20} className="ml-2" />
+        {/* CTA Buttons - Mobile-first */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-12 sm:mb-16 w-full">
+          <GlowingButton
+            href="/login"
+            className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
+          >
+            Sign In <ArrowRight size={18} className="ml-2" />
           </GlowingButton>
           <GlowingButton
             href="/register"
             variant="secondary"
-            className="text-lg px-8 py-4"
+            className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
           >
-            Get Started <Sparkles size={20} className="ml-2" />
+            Get Started <Sparkles size={18} className="ml-2" />
           </GlowingButton>
         </div>
 
-        {/* Feature Pills */}
-        <div className="flex flex-wrap justify-center gap-4">
+        {/* Feature Pills - Mobile-first */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 px-2">
           {[
             { icon: Users, text: 'Smart Matching' },
             { icon: BookOpen, text: 'Study Groups' },
@@ -114,13 +117,13 @@ export const LandingView = () => {
           ].map((feature, i) => (
             <div
               key={i}
-              className="glass-panel px-6 py-3 rounded-full flex items-center gap-2 border border-white/10 hover:border-indigo-400/50 transition-all group"
+              className="glass-panel px-4 sm:px-6 py-2 sm:py-3 rounded-full flex items-center gap-2 border border-white/10 hover:border-indigo-400/50 transition-all group"
             >
               <feature.icon
-                size={18}
-                className="text-indigo-400 group-hover:scale-110 transition-transform"
+                size={16}
+                className="text-indigo-400 group-hover:scale-110 transition-transform sm:w-[18px] sm:h-[18px]"
               />
-              <span className="text-sm text-gray-300 font-medium">
+              <span className="text-xs sm:text-sm text-gray-300 font-medium">
                 {feature.text}
               </span>
             </div>

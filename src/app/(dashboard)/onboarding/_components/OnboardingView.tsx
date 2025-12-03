@@ -15,8 +15,8 @@ import {
   ArrowRight,
   ArrowLeft,
 } from 'lucide-react';
-import { GlowingButton } from '../ui/glowing-button';
-import { TopicSelector } from '@/components/topics/topic-selector';
+import { GlowingButton } from '@/components/ui/glowing-button';
+import { TopicSelector } from '@/app/(dashboard)/topics/_components/TopicSelector';
 import { getUserTopics } from '@/lib/actions/topics';
 import { searchCourses } from '@/lib/actions/courses';
 
