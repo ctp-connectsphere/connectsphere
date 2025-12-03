@@ -292,6 +292,9 @@ export default function ProfilePage() {
                     studyStyle: profile?.studyStyle || null,
                     studyPace: profile?.studyPace || null,
                   }}
+                  onSuccess={() => {
+                    loadProfileData();
+                  }}
                 />
                 {isEditing && (
                   <button

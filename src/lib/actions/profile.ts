@@ -29,24 +29,58 @@ export async function createOrUpdateProfile(formData: FormData) {
     });
 
     // Create or update profile
-    const profile = await prisma.userProfile.upsert({
-      where: {
-        userId: session.user.id,
-      },
-      create: {
-        userId: session.user.id,
-        bio: data.bio,
-        preferredLocation: data.preferredLocation,
-        studyStyle: data.studyStyle,
-        studyPace: data.studyPace,
-      },
-      update: {
-        bio: data.bio,
-        preferredLocation: data.preferredLocation,
-        studyStyle: data.studyStyle,
-        studyPace: data.studyPace,
-      },
-    });
+    // Handle onboardingCompleted field gracefully in case column doesn't exist
+    let profile;
+    try {
+      profile = await prisma.userProfile.upsert({
+        where: {
+          userId: session.user.id,
+        },
+        create: {
+          userId: session.user.id,
+          bio: data.bio,
+          preferredLocation: data.preferredLocation,
+          studyStyle: data.studyStyle,
+          studyPace: data.studyPace,
+          onboardingCompleted: false,
+        },
+        update: {
+          bio: data.bio,
+          preferredLocation: data.preferredLocation,
+          studyStyle: data.studyStyle,
+          studyPace: data.studyPace,
+        },
+      });
+    } catch (error: any) {
+      // Handle case where onboarding_completed column doesn't exist
+      if (
+        error?.code === 'P2022' ||
+        error?.message?.includes('onboarding_completed') ||
+        error?.message?.includes('does not exist')
+      ) {
+        // Column doesn't exist - create/update without it
+        profile = await prisma.userProfile.upsert({
+          where: {
+            userId: session.user.id,
+          },
+          create: {
+            userId: session.user.id,
+            bio: data.bio,
+            preferredLocation: data.preferredLocation,
+            studyStyle: data.studyStyle,
+            studyPace: data.studyPace,
+          },
+          update: {
+            bio: data.bio,
+            preferredLocation: data.preferredLocation,
+            studyStyle: data.studyStyle,
+            studyPace: data.studyPace,
+          },
+        });
+      } else {
+        throw error;
+      }
+    }
 
     revalidatePath('/profile');
     revalidatePath('/dashboard');

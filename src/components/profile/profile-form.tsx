@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, Textarea } from '@/components/ui/input';
 import { createOrUpdateProfile } from '@/lib/actions/profile';
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface ProfileFormProps {
   initialData?: {
@@ -12,6 +13,7 @@ interface ProfileFormProps {
     studyStyle?: string | null;
     studyPace?: string | null;
   };
+  onSuccess?: () => void;
 }
 
 const studyLocations = [
@@ -37,10 +39,11 @@ const studyPaces = [
   { value: 'slow', label: 'Slow' },
 ];
 
-export function ProfileForm({ initialData }: ProfileFormProps) {
+export function ProfileForm({ initialData, onSuccess }: ProfileFormProps) {
   const [isPending, startTransition] = useTransition();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (formData: FormData) => {
     setErrors({});
@@ -51,6 +54,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
       if (result.success) {
         setSuccess(true);
+        // Refresh the page data
+        router.refresh();
+        // Call onSuccess callback if provided
+        if (onSuccess) {
+          onSuccess();
+        }
         setTimeout(() => setSuccess(false), 3000);
       } else {
         setErrors({

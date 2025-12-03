@@ -9,25 +9,36 @@ export const profileSchema = z.object({
     .string()
     .max(500, 'Bio must be less than 500 characters')
     .optional()
-    .nullable(),
+    .nullable()
+    .transform(val => (val && val.trim() ? val.trim() : null)),
   preferredLocation: z
-    .enum(['library', 'cafe', 'dorm', 'online', 'other'], {
-      message: 'Please select a valid study location',
-    })
+    .string()
+    .refine(
+      val =>
+        !val || ['library', 'cafe', 'dorm', 'online', 'other'].includes(val),
+      {
+        message: 'Please select a valid study location',
+      }
+    )
     .optional()
-    .nullable(),
+    .nullable()
+    .transform(val => (val && val.trim() ? val.trim() : null)),
   studyStyle: z
-    .enum(['collaborative', 'quiet', 'mixed'], {
+    .string()
+    .refine(val => !val || ['collaborative', 'quiet', 'mixed'].includes(val), {
       message: 'Please select a valid study style',
     })
     .optional()
-    .nullable(),
+    .nullable()
+    .transform(val => (val && val.trim() ? val.trim() : null)),
   studyPace: z
-    .enum(['fast', 'moderate', 'slow'], {
+    .string()
+    .refine(val => !val || ['fast', 'moderate', 'slow'].includes(val), {
       message: 'Please select a valid study pace',
     })
     .optional()
-    .nullable(),
+    .nullable()
+    .transform(val => (val && val.trim() ? val.trim() : null)),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
