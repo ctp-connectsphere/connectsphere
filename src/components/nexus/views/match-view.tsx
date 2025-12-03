@@ -31,32 +31,67 @@ export const MatchView = () => {
   useEffect(() => {
     if (session?.user?.id) {
       loadUserTopics();
+    } else if (session === null) {
+      // Session is loaded but user is not authenticated
+      setLoading(false);
     }
   }, [session]);
+
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading && matches.length === 0) {
+        console.warn('Match loading timeout - stopping loading state');
+        setLoading(false);
+        if (!error) {
+          setError('Loading took too long. Please try again.');
+        }
+      }
+    }, 30000); // 30 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [loading, matches.length, error]);
 
   useEffect(() => {
     if (selectedTopicId) {
       loadTopicMatches();
+    } else if (userTopics.length === 0 && !loading) {
+      // If we've loaded topics but have none, stop loading
+      setLoading(false);
     }
-  }, [selectedTopicId]);
+  }, [selectedTopicId, userTopics.length]);
 
   const loadUserTopics = async () => {
     try {
+      setLoading(true);
       const result = await getUserTopics();
       if (result.success && result.data) {
         const topics = result.data.userTopics;
         setUserTopics(topics);
         if (topics.length > 0 && !selectedTopicId) {
           setSelectedTopicId(topics[0].topicId);
+        } else if (topics.length === 0) {
+          // No topics available - stop loading
+          setLoading(false);
+          setError(null);
         }
+      } else {
+        // Failed to load topics or no topics available
+        setLoading(false);
+        setError(null);
       }
     } catch (error) {
       console.error('Failed to load topics:', error);
+      setLoading(false);
+      setError(null);
     }
   };
 
   const loadTopicMatches = async () => {
-    if (!selectedTopicId) return;
+    if (!selectedTopicId) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -72,12 +107,17 @@ export const MatchView = () => {
         const limitedMatches = matchesArray.slice(0, 10);
         setMatches(limitedMatches);
         setCurrentMatch(0);
+        if (limitedMatches.length === 0) {
+          setError(null); // No matches found, but not an error
+        }
       } else {
         setError(result.message || 'Failed to load matches');
+        setMatches([]);
       }
     } catch (error) {
       console.error('Failed to load matches:', error);
       setError('Failed to load matches');
+      setMatches([]);
     } finally {
       setLoading(false);
     }
@@ -147,7 +187,8 @@ export const MatchView = () => {
     }
   }, [matches, selectedTopicId]);
 
-  if (loading && matches.length === 0) {
+  // Show loading only if we're actively loading and have a topic selected
+  if (loading && matches.length === 0 && selectedTopicId) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center p-4">
         <div className="relative">
@@ -156,6 +197,21 @@ export const MatchView = () => {
         </div>
         <div className="text-gray-400 text-lg font-semibold">
           Finding your perfect matches...
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading while checking for topics
+  if (loading && !selectedTopicId && userTopics.length === 0) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center p-4">
+        <div className="relative">
+          <div className="w-24 h-24 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-6"></div>
+          <Brain className="absolute inset-0 m-auto w-12 h-12 text-indigo-400 animate-pulse" />
+        </div>
+        <div className="text-gray-400 text-lg font-semibold">
+          Loading your topics...
         </div>
       </div>
     );
