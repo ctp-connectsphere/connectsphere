@@ -396,3 +396,115 @@ export async function getUserTopics() {
     };
   }
 }
+
+/**
+ * Create a custom topic (skill, interest, or subject)
+ */
+export async function createTopic(formData: FormData) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const name = formData.get('name') as string;
+    const category = formData.get('category') as string;
+    const description = formData.get('description') as string | null;
+
+    // Validation
+    if (!name || name.trim().length < 2) {
+      return {
+        success: false,
+        error: 'Topic name must be at least 2 characters',
+      };
+    }
+
+    if (!['skill', 'interest', 'subject'].includes(category)) {
+      return {
+        success: false,
+        error: 'Invalid category. Must be skill, interest, or subject',
+      };
+    }
+
+    // Check if topic already exists (case-insensitive)
+    const existing = await prisma.topic.findFirst({
+      where: {
+        name: { equals: name.trim(), mode: 'insensitive' },
+        category: category,
+      },
+    });
+
+    if (existing) {
+      // Topic exists - return it and add to user's topics
+      const userTopic = await prisma.userTopic.upsert({
+        where: {
+          userId_topicId: {
+            userId: session.user.id,
+            topicId: existing.id,
+          },
+        },
+        create: {
+          userId: session.user.id,
+          topicId: existing.id,
+        },
+        update: {},
+        include: {
+          topic: true,
+        },
+      });
+
+      revalidatePath('/topics');
+      revalidatePath('/onboarding');
+      revalidatePath('/dashboard');
+
+      return {
+        success: true,
+        data: {
+          message: 'Topic already exists and has been added',
+          topic: existing,
+          userTopic,
+        },
+      };
+    }
+
+    // Create new topic
+    const newTopic = await prisma.topic.create({
+      data: {
+        name: name.trim(),
+        category: category,
+        description: description?.trim() || null,
+        isActive: true,
+      },
+    });
+
+    // Automatically add to user's topics
+    const userTopic = await prisma.userTopic.create({
+      data: {
+        userId: session.user.id,
+        topicId: newTopic.id,
+      },
+      include: {
+        topic: true,
+      },
+    });
+
+    revalidatePath('/topics');
+    revalidatePath('/onboarding');
+    revalidatePath('/dashboard');
+
+    return {
+      success: true,
+      data: {
+        message: 'Topic created and added successfully',
+        topic: newTopic,
+        userTopic,
+      },
+    };
+  } catch (error) {
+    logger.error('Error creating topic:', error);
+    return {
+      success: false,
+      error: 'Failed to create topic',
+    };
+  }
+}
