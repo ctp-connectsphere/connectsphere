@@ -54,157 +54,316 @@ export async function findMatches(formData: FormData) {
 
     // If matching by topic, verify user has the topic
     if (data.topicId) {
-      const userTopic = await prisma.userTopic.findUnique({
-        where: {
-          userId_topicId: {
-            userId: session.user.id,
-            topicId: data.topicId,
+      try {
+        const userTopic = await prisma.userTopic.findUnique({
+          where: {
+            userId_topicId: {
+              userId: session.user.id,
+              topicId: data.topicId,
+            },
           },
-        },
-      });
+        });
 
-      if (!userTopic) {
-        return {
-          success: false,
-          message: 'You do not have this topic selected',
-        };
+        if (!userTopic) {
+          return {
+            success: false,
+            message: 'You do not have this topic selected',
+          };
+        }
+      } catch (error: any) {
+        if (
+          error.code === 'P2021' ||
+          error.message?.includes('does not exist')
+        ) {
+          return {
+            success: false,
+            message: 'Topics feature is not available in this environment',
+          };
+        }
+        throw error;
       }
     }
 
     // Build the matching query based on course or topic
     let matches;
 
+    // Check if connections table exists
+    let connectionsTableExists = false;
+    try {
+      await prisma.$queryRaw`SELECT 1 FROM connections LIMIT 1`;
+      connectionsTableExists = true;
+    } catch (error: any) {
+      if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+        connectionsTableExists = false;
+      } else {
+        throw error;
+      }
+    }
+
     if (data.courseId) {
       // Course-based matching
-      matches = await prisma.$queryRaw`
-        WITH user_course_mates AS (
-          SELECT uc2.user_id
-          FROM user_courses uc1
-          JOIN user_courses uc2 ON uc1.course_id = uc2.course_id
-          WHERE uc1.user_id = ${session.user.id}::uuid
-            AND uc1.course_id = ${data.courseId}::uuid
-            AND uc2.user_id != ${session.user.id}::uuid
-            AND uc2.is_active = TRUE
-        ),
-        availability_overlaps AS (
+      if (connectionsTableExists) {
+        matches = await prisma.$queryRaw`
+          WITH user_course_mates AS (
+            SELECT uc2.user_id
+            FROM user_courses uc1
+            JOIN user_courses uc2 ON uc1.course_id = uc2.course_id
+            WHERE uc1.user_id = ${session.user.id}::uuid
+              AND uc1.course_id = ${data.courseId}::uuid
+              AND uc2.user_id != ${session.user.id}::uuid
+              AND uc2.is_active = TRUE
+          ),
+          availability_overlaps AS (
+            SELECT 
+              ucm.user_id,
+              COUNT(*) as overlap_count,
+              ARRAY_AGG(
+                JSON_BUILD_OBJECT(
+                  'day', a1.day_of_week,
+                  'start', a1.start_time,
+                  'end', a1.end_time
+                )
+              ) as common_slots
+            FROM user_course_mates ucm
+            JOIN availability a1 ON ucm.user_id = a1.user_id
+            JOIN availability a2 ON a1.day_of_week = a2.day_of_week
+            WHERE a2.user_id = ${session.user.id}::uuid
+              AND a1.start_time < a2.end_time
+              AND a1.end_time > a2.start_time
+            GROUP BY ucm.user_id
+          )
           SELECT 
-            ucm.user_id,
-            COUNT(*) as overlap_count,
-            ARRAY_AGG(
-              JSON_BUILD_OBJECT(
-                'day', a1.day_of_week,
-                'start', a1.start_time,
-                'end', a1.end_time
-              )
-            ) as common_slots
+            u.id,
+            u.first_name as "firstName",
+            u.last_name as "lastName",
+            u.profile_image_url as "profileImageUrl",
+            up.preferred_location as "preferredLocation",
+            up.study_style as "studyStyle",
+            up.study_pace as "studyPace",
+            up.bio,
+            COALESCE(ao.overlap_count, 0) as "availabilityScore",
+            COALESCE(ao.common_slots, '{}') as "commonAvailability",
+            CASE 
+              WHEN c.id IS NOT NULL THEN 'connected'
+              WHEN c2.id IS NOT NULL THEN 'pending'
+              ELSE 'none'
+            END as "connectionStatus",
+            'course' as "matchType",
+            ${data.courseId}::uuid as "matchContextId"
           FROM user_course_mates ucm
-          JOIN availability a1 ON ucm.user_id = a1.user_id
-          JOIN availability a2 ON a1.day_of_week = a2.day_of_week
-          WHERE a2.user_id = ${session.user.id}::uuid
-            AND a1.start_time < a2.end_time
-            AND a1.end_time > a2.start_time
-          GROUP BY ucm.user_id
-        )
-        SELECT 
-          u.id,
-          u.first_name as "firstName",
-          u.last_name as "lastName",
-          u.profile_image_url as "profileImageUrl",
-          up.preferred_location as "preferredLocation",
-          up.study_style as "studyStyle",
-          up.study_pace as "studyPace",
-          up.bio,
-          COALESCE(ao.overlap_count, 0) as "availabilityScore",
-          COALESCE(ao.common_slots, '{}') as "commonAvailability",
-          CASE 
-            WHEN c.id IS NOT NULL THEN 'connected'
-            WHEN c2.id IS NOT NULL THEN 'pending'
-            ELSE 'none'
-          END as "connectionStatus",
-          'course' as "matchType",
-          ${data.courseId}::uuid as "matchContextId"
-        FROM user_course_mates ucm
-        JOIN users u ON ucm.user_id = u.id
-        LEFT JOIN user_profiles up ON u.id = up.user_id
-        LEFT JOIN availability_overlaps ao ON u.id = ao.user_id
-        LEFT JOIN connections c ON (
-          (c.requester_id = ${session.user.id}::uuid AND c.target_id = u.id AND c.course_id = ${data.courseId}::uuid AND c.status = 'accepted') OR
-          (c.target_id = ${session.user.id}::uuid AND c.requester_id = u.id AND c.course_id = ${data.courseId}::uuid AND c.status = 'accepted')
-        )
-        LEFT JOIN connections c2 ON (
-          (c2.requester_id = ${session.user.id}::uuid AND c2.target_id = u.id AND c2.course_id = ${data.courseId}::uuid AND c2.status = 'pending') OR
-          (c2.target_id = ${session.user.id}::uuid AND c2.requester_id = u.id AND c2.course_id = ${data.courseId}::uuid AND c2.status = 'pending')
-        )
-        WHERE u.is_active = TRUE
-          AND u.is_verified = TRUE
-        ORDER BY availability_score DESC, u.created_at ASC
-        LIMIT ${data.limit}
-      `;
-    } else if (data.topicId) {
-      // Topic-based matching
-      matches = await prisma.$queryRaw`
-        WITH user_topic_mates AS (
-          SELECT ut2.user_id
-          FROM user_topics ut1
-          JOIN user_topics ut2 ON ut1.topic_id = ut2.topic_id
-          WHERE ut1.user_id = ${session.user.id}::uuid
-            AND ut1.topic_id = ${data.topicId}::uuid
-            AND ut2.user_id != ${session.user.id}::uuid
-        ),
-        availability_overlaps AS (
+          JOIN users u ON ucm.user_id = u.id
+          LEFT JOIN user_profiles up ON u.id = up.user_id
+          LEFT JOIN availability_overlaps ao ON u.id = ao.user_id
+          LEFT JOIN connections c ON (
+            (c.requester_id = ${session.user.id}::uuid AND c.target_id = u.id AND c.course_id = ${data.courseId}::uuid AND c.status = 'accepted') OR
+            (c.target_id = ${session.user.id}::uuid AND c.requester_id = u.id AND c.course_id = ${data.courseId}::uuid AND c.status = 'accepted')
+          )
+          LEFT JOIN connections c2 ON (
+            (c2.requester_id = ${session.user.id}::uuid AND c2.target_id = u.id AND c2.course_id = ${data.courseId}::uuid AND c2.status = 'pending') OR
+            (c2.target_id = ${session.user.id}::uuid AND c2.requester_id = u.id AND c2.course_id = ${data.courseId}::uuid AND c2.status = 'pending')
+          )
+          WHERE u.is_active = TRUE
+            AND u.is_verified = TRUE
+          ORDER BY ao.overlap_count DESC, u.created_at ASC
+          LIMIT ${data.limit}
+        `;
+      } else {
+        // Simplified query without connections table
+        matches = await prisma.$queryRaw`
+          WITH user_course_mates AS (
+            SELECT uc2.user_id
+            FROM user_courses uc1
+            JOIN user_courses uc2 ON uc1.course_id = uc2.course_id
+            WHERE uc1.user_id = ${session.user.id}::uuid
+              AND uc1.course_id = ${data.courseId}::uuid
+              AND uc2.user_id != ${session.user.id}::uuid
+              AND uc2.is_active = TRUE
+          ),
+          availability_overlaps AS (
+            SELECT 
+              ucm.user_id,
+              COUNT(*) as overlap_count,
+              ARRAY_AGG(
+                JSON_BUILD_OBJECT(
+                  'day', a1.day_of_week,
+                  'start', a1.start_time,
+                  'end', a1.end_time
+                )
+              ) as common_slots
+            FROM user_course_mates ucm
+            JOIN availability a1 ON ucm.user_id = a1.user_id
+            JOIN availability a2 ON a1.day_of_week = a2.day_of_week
+            WHERE a2.user_id = ${session.user.id}::uuid
+              AND a1.start_time < a2.end_time
+              AND a1.end_time > a2.start_time
+            GROUP BY ucm.user_id
+          )
           SELECT 
-            utm.user_id,
-            COUNT(*) as overlap_count,
-            ARRAY_AGG(
-              JSON_BUILD_OBJECT(
-                'day', a1.day_of_week,
-                'start', a1.start_time,
-                'end', a1.end_time
-              )
-            ) as common_slots
+            u.id,
+            u.first_name as "firstName",
+            u.last_name as "lastName",
+            u.profile_image_url as "profileImageUrl",
+            up.preferred_location as "preferredLocation",
+            up.study_style as "studyStyle",
+            up.study_pace as "studyPace",
+            up.bio,
+            COALESCE(ao.overlap_count, 0) as "availabilityScore",
+            COALESCE(ao.common_slots, '{}') as "commonAvailability",
+            'none' as "connectionStatus",
+            'course' as "matchType",
+            ${data.courseId}::uuid as "matchContextId"
+          FROM user_course_mates ucm
+          JOIN users u ON ucm.user_id = u.id
+          LEFT JOIN user_profiles up ON u.id = up.user_id
+          LEFT JOIN availability_overlaps ao ON u.id = ao.user_id
+          WHERE u.is_active = TRUE
+            AND u.is_verified = TRUE
+          ORDER BY ao.overlap_count DESC, u.created_at ASC
+          LIMIT ${data.limit}
+        `;
+      }
+    } else if (data.topicId) {
+      // Topic-based matching - check if user_topics table exists
+      let userTopicsTableExists = false;
+      try {
+        await prisma.$queryRaw`SELECT 1 FROM user_topics LIMIT 1`;
+        userTopicsTableExists = true;
+      } catch (error: any) {
+        if (
+          error.code === 'P2021' ||
+          error.message?.includes('does not exist')
+        ) {
+          userTopicsTableExists = false;
+        } else {
+          throw error;
+        }
+      }
+
+      if (!userTopicsTableExists) {
+        return {
+          success: false,
+          message: 'Topics feature is not available in this environment',
+        };
+      }
+
+      if (connectionsTableExists) {
+        matches = await prisma.$queryRaw`
+          WITH user_topic_mates AS (
+            SELECT ut2.user_id
+            FROM user_topics ut1
+            JOIN user_topics ut2 ON ut1.topic_id = ut2.topic_id
+            WHERE ut1.user_id = ${session.user.id}::uuid
+              AND ut1.topic_id = ${data.topicId}::uuid
+              AND ut2.user_id != ${session.user.id}::uuid
+          ),
+          availability_overlaps AS (
+            SELECT 
+              utm.user_id,
+              COUNT(*) as overlap_count,
+              ARRAY_AGG(
+                JSON_BUILD_OBJECT(
+                  'day', a1.day_of_week,
+                  'start', a1.start_time,
+                  'end', a1.end_time
+                )
+              ) as common_slots
+            FROM user_topic_mates utm
+            JOIN availability a1 ON utm.user_id = a1.user_id
+            JOIN availability a2 ON a1.day_of_week = a2.day_of_week
+            WHERE a2.user_id = ${session.user.id}::uuid
+              AND a1.start_time < a2.end_time
+              AND a1.end_time > a2.start_time
+            GROUP BY utm.user_id
+          )
+          SELECT 
+            u.id,
+            u.first_name as "firstName",
+            u.last_name as "lastName",
+            u.profile_image_url as "profileImageUrl",
+            up.preferred_location as "preferredLocation",
+            up.study_style as "studyStyle",
+            up.study_pace as "studyPace",
+            up.bio,
+            COALESCE(ao.overlap_count, 0) as "availabilityScore",
+            COALESCE(ao.common_slots, '{}') as "commonAvailability",
+            CASE 
+              WHEN c.id IS NOT NULL THEN 'connected'
+              WHEN c2.id IS NOT NULL THEN 'pending'
+              ELSE 'none'
+            END as "connectionStatus",
+            'topic' as "matchType",
+            ${data.topicId}::uuid as "matchContextId"
           FROM user_topic_mates utm
-          JOIN availability a1 ON utm.user_id = a1.user_id
-          JOIN availability a2 ON a1.day_of_week = a2.day_of_week
-          WHERE a2.user_id = ${session.user.id}::uuid
-            AND a1.start_time < a2.end_time
-            AND a1.end_time > a2.start_time
-          GROUP BY utm.user_id
-        )
-        SELECT 
-          u.id,
-          u.first_name as "firstName",
-          u.last_name as "lastName",
-          u.profile_image_url as "profileImageUrl",
-          up.preferred_location as "preferredLocation",
-          up.study_style as "studyStyle",
-          up.study_pace as "studyPace",
-          up.bio,
-          COALESCE(ao.overlap_count, 0) as "availabilityScore",
-          COALESCE(ao.common_slots, '{}') as "commonAvailability",
-          CASE 
-            WHEN c.id IS NOT NULL THEN 'connected'
-            WHEN c2.id IS NOT NULL THEN 'pending'
-            ELSE 'none'
-          END as "connectionStatus",
-          'topic' as "matchType",
-          ${data.topicId}::uuid as "matchContextId"
-        FROM user_topic_mates utm
-        JOIN users u ON utm.user_id = u.id
-        LEFT JOIN user_profiles up ON u.id = up.user_id
-        LEFT JOIN availability_overlaps ao ON u.id = ao.user_id
-        LEFT JOIN connections c ON (
-          (c.requester_id = ${session.user.id}::uuid AND c.target_id = u.id AND c.topic_id = ${data.topicId}::uuid AND c.status = 'accepted') OR
-          (c.target_id = ${session.user.id}::uuid AND c.requester_id = u.id AND c.topic_id = ${data.topicId}::uuid AND c.status = 'accepted')
-        )
-        LEFT JOIN connections c2 ON (
-          (c2.requester_id = ${session.user.id}::uuid AND c2.target_id = u.id AND c2.topic_id = ${data.topicId}::uuid AND c2.status = 'pending') OR
-          (c2.target_id = ${session.user.id}::uuid AND c2.requester_id = u.id AND c2.topic_id = ${data.topicId}::uuid AND c2.status = 'pending')
-        )
-        WHERE u.is_active = TRUE
-          AND u.is_verified = TRUE
-        ORDER BY availability_score DESC, u.created_at ASC
-        LIMIT ${data.limit}
-      `;
+          JOIN users u ON utm.user_id = u.id
+          LEFT JOIN user_profiles up ON u.id = up.user_id
+          LEFT JOIN availability_overlaps ao ON u.id = ao.user_id
+          LEFT JOIN connections c ON (
+            (c.requester_id = ${session.user.id}::uuid AND c.target_id = u.id AND c.topic_id = ${data.topicId}::uuid AND c.status = 'accepted') OR
+            (c.target_id = ${session.user.id}::uuid AND c.requester_id = u.id AND c.topic_id = ${data.topicId}::uuid AND c.status = 'accepted')
+          )
+          LEFT JOIN connections c2 ON (
+            (c2.requester_id = ${session.user.id}::uuid AND c2.target_id = u.id AND c2.topic_id = ${data.topicId}::uuid AND c2.status = 'pending') OR
+            (c2.target_id = ${session.user.id}::uuid AND c2.requester_id = u.id AND c2.topic_id = ${data.topicId}::uuid AND c2.status = 'pending')
+          )
+          WHERE u.is_active = TRUE
+            AND u.is_verified = TRUE
+          ORDER BY ao.overlap_count DESC, u.created_at ASC
+          LIMIT ${data.limit}
+        `;
+      } else {
+        // Simplified query without connections table
+        matches = await prisma.$queryRaw`
+          WITH user_topic_mates AS (
+            SELECT ut2.user_id
+            FROM user_topics ut1
+            JOIN user_topics ut2 ON ut1.topic_id = ut2.topic_id
+            WHERE ut1.user_id = ${session.user.id}::uuid
+              AND ut1.topic_id = ${data.topicId}::uuid
+              AND ut2.user_id != ${session.user.id}::uuid
+          ),
+          availability_overlaps AS (
+            SELECT 
+              utm.user_id,
+              COUNT(*) as overlap_count,
+              ARRAY_AGG(
+                JSON_BUILD_OBJECT(
+                  'day', a1.day_of_week,
+                  'start', a1.start_time,
+                  'end', a1.end_time
+                )
+              ) as common_slots
+            FROM user_topic_mates utm
+            JOIN availability a1 ON utm.user_id = a1.user_id
+            JOIN availability a2 ON a1.day_of_week = a2.day_of_week
+            WHERE a2.user_id = ${session.user.id}::uuid
+              AND a1.start_time < a2.end_time
+              AND a1.end_time > a2.start_time
+            GROUP BY utm.user_id
+          )
+          SELECT 
+            u.id,
+            u.first_name as "firstName",
+            u.last_name as "lastName",
+            u.profile_image_url as "profileImageUrl",
+            up.preferred_location as "preferredLocation",
+            up.study_style as "studyStyle",
+            up.study_pace as "studyPace",
+            up.bio,
+            COALESCE(ao.overlap_count, 0) as "availabilityScore",
+            COALESCE(ao.common_slots, '{}') as "commonAvailability",
+            'none' as "connectionStatus",
+            'topic' as "matchType",
+            ${data.topicId}::uuid as "matchContextId"
+          FROM user_topic_mates utm
+          JOIN users u ON utm.user_id = u.id
+          LEFT JOIN user_profiles up ON u.id = up.user_id
+          LEFT JOIN availability_overlaps ao ON u.id = ao.user_id
+          WHERE u.is_active = TRUE
+            AND u.is_verified = TRUE
+          ORDER BY ao.overlap_count DESC, u.created_at ASC
+          LIMIT ${data.limit}
+        `;
+      }
     } else {
       return {
         success: false,
@@ -230,6 +389,19 @@ export async function sendConnectionRequest(formData: FormData) {
   }
 
   try {
+    // Check if connections table exists
+    try {
+      await prisma.$queryRaw`SELECT 1 FROM connections LIMIT 1`;
+    } catch (error: any) {
+      if (error.code === 'P2021' || error.message?.includes('does not exist')) {
+        return {
+          success: false,
+          message: 'Connections feature is not available in this environment',
+        };
+      }
+      throw error;
+    }
+
     const targetId = formData.get('targetId') as string;
     const courseId = formData.get('courseId') as string | null;
     const topicId = formData.get('topicId') as string | null;
