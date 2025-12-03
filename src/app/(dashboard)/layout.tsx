@@ -1,10 +1,11 @@
 'use client';
 
-import { Sidebar } from '@/components/nexus';
+import { Sidebar } from '@/components/layout/sidebar';
+import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import {
   SidebarProvider,
   useSidebar,
-} from '@/components/nexus/ui/sidebar-context';
+} from '@/components/layout/sidebar-context';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -13,7 +14,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
 
   return (
-    <div className="w-full h-screen bg-[#050508] text-slate-200 font-sans overflow-hidden selection:bg-indigo-500/30">
+    <div className="w-full min-h-screen bg-[#050508] text-slate-200 font-sans selection:bg-indigo-500/30">
       {/* Ambient Background Mesh */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/20 blur-[100px] animate-pulse-glow"></div>
@@ -21,12 +22,17 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         <div className="absolute top-[30%] left-[40%] w-[30%] h-[30%] rounded-full bg-cyan-900/10 blur-[80px] animate-pulse-glow animation-delay-4000"></div>
       </div>
 
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar - Hidden on mobile, visible on desktop */}
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
 
-      {/* Main Content */}
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
+
+      {/* Main Content - Mobile-first padding */}
       <main
-        className={`relative z-10 h-full overflow-y-auto transition-all duration-300 pl-6 pr-6 ${isCollapsed ? 'ml-20' : 'ml-72'}`}
+        className={`relative z-10 min-h-screen overflow-y-auto transition-all duration-300 pb-20 md:pb-6 px-4 md:px-6 ${isCollapsed ? 'md:ml-20' : 'md:ml-72'}`}
       >
         {children}
       </main>
