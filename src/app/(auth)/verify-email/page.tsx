@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { CheckCircle, XCircle, Clock, Mail } from 'lucide-react';
 
 function VerifyEmailContent() {
@@ -100,34 +100,37 @@ function VerifyEmailContent() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
       </div>
 
-      <div className="max-w-md w-full space-y-8 relative z-10">
-        <div className="glass-panel p-10 rounded-3xl border border-white/10">
-          <div className="text-center mb-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8 relative z-10">
+        <div className="glass-panel p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border border-white/10">
+          <div className="text-center mb-6 sm:mb-8">
             {status === 'success' && (
-              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-green-500/50">
-                <CheckCircle size={48} className="text-green-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4 sm:mb-6 border-4 border-green-500/50">
+                <CheckCircle
+                  size={36}
+                  className="text-green-400 sm:w-12 sm:h-12"
+                />
               </div>
             )}
             {status === 'error' && (
-              <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-red-500/50">
-                <XCircle size={48} className="text-red-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4 sm:mb-6 border-4 border-red-500/50">
+                <XCircle size={36} className="text-red-400 sm:w-12 sm:h-12" />
               </div>
             )}
             {status === 'expired' && (
-              <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-yellow-500/50">
-                <Clock size={48} className="text-yellow-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-4 sm:mb-6 border-4 border-yellow-500/50">
+                <Clock size={36} className="text-yellow-400 sm:w-12 sm:h-12" />
               </div>
             )}
             {(status === 'idle' || status === 'verifying') && (
-              <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-6 border-4 border-indigo-500/50">
-                <Mail size={48} className="text-indigo-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4 sm:mb-6 border-4 border-indigo-500/50">
+                <Mail size={36} className="text-indigo-400 sm:w-12 sm:h-12" />
               </div>
             )}
 
-            <h1 className="text-4xl font-black text-white mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 sm:mb-3">
               Email Verification
             </h1>
-            <p className="text-gray-400">
+            <p className="text-sm sm:text-base text-gray-400">
               {status === 'verifying' && 'Verifying your email address...'}
               {status === 'success' && 'Verification Successful'}
               {status === 'error' && 'Verification Failed'}

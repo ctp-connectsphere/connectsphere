@@ -1,6 +1,6 @@
 'use client';
 
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { getUserCourses } from '@/lib/actions/courses';
 import { createGroup, getAllGroups, joinGroup } from '@/lib/actions/groups';
 import { ArrowRight, Plus, Users, X, Zap } from 'lucide-react';
@@ -385,28 +385,31 @@ export default function GroupsPage() {
   const filters = ['All', 'Computer Science', 'Math', 'Exam Prep', 'Full'];
 
   return (
-    <div className="w-full h-full bg-[#0a0a0a] text-slate-200 font-sans overflow-y-auto">
-      <main className="relative z-10 w-full p-6 md:p-10">
+    <div className="w-full min-h-screen bg-[#0a0a0a] text-slate-200 font-sans overflow-y-auto pb-20 md:pb-0">
+      <main className="relative z-10 w-full p-4 sm:p-6 md:p-10">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Header - Mobile-first */}
+          <div className="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl md:text-5xl font-black text-white mb-2 flex items-center gap-4">
-                <Users size={48} className="text-indigo-400" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-2 flex items-center gap-2 sm:gap-4">
+                <Users size={32} className="text-indigo-400 sm:w-12 sm:h-12" />
                 Study Groups
               </h1>
-              <p className="text-gray-400 text-lg">
+              <p className="text-sm sm:text-base md:text-lg text-gray-400">
                 Join vibrant study communities and learn together
               </p>
             </div>
-            <GlowingButton onClick={() => setShowCreateModal(true)}>
-              <Plus size={20} className="mr-2" />
+            <GlowingButton
+              onClick={() => setShowCreateModal(true)}
+              className="w-full md:w-auto"
+            >
+              <Plus size={18} className="mr-2 sm:w-5 sm:h-5" />
               Create Group
             </GlowingButton>
           </div>
 
-          {/* Filter Pills */}
-          <div className="mb-8 flex flex-wrap gap-3">
+          {/* Filter Pills - Mobile-first */}
+          <div className="mb-6 sm:mb-8 flex flex-wrap gap-2 sm:gap-3">
             {filters.map(filter => (
               <button
                 key={filter}
@@ -422,9 +425,9 @@ export default function GroupsPage() {
             ))}
           </div>
 
-          {/* Groups Grid */}
+          {/* Groups Grid - Mobile-first */}
           {filteredGroups.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredGroups.map(group => (
                 <StudyGroupCard
                   key={group.id}
@@ -454,12 +457,12 @@ export default function GroupsPage() {
         </div>
       </main>
 
-      {/* Create Group Modal */}
+      {/* Create Group Modal - Mobile-first */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-gray-800 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">
+          <div className="bg-[#121212] border border-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">
                 Create Study Group
               </h2>
               <button

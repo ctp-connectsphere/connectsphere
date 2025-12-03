@@ -1,6 +1,6 @@
 'use client';
 
-import { ChatView } from '@/components/nexus';
+import { ChatView } from '../_components/ChatView';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -29,7 +29,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-[#0a0a0a] text-slate-200 font-sans overflow-hidden">
+    <div className="w-full min-h-screen bg-[#0a0a0a] text-slate-200 font-sans pb-20 md:pb-0">
       <ChatView />
     </div>
   );

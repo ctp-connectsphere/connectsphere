@@ -1,5 +1,6 @@
-import ConnectSpherePlatform from '@/components/nexus-study-platform';
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  return <ConnectSpherePlatform />;
+  // Default logged-in landing: Study Partner (matches) page
+  redirect('/matches');
 }

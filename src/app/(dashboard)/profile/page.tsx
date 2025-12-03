@@ -17,14 +17,14 @@ import {
   BookOpen,
   Zap,
 } from 'lucide-react';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { getUserProfile } from '@/lib/actions/profile';
 import { getUserTopics } from '@/lib/actions/topics';
 import { getUserAvailability } from '@/lib/actions/availability';
 import { getDashboardStats } from '@/lib/actions/dashboard';
 import { getUserCourses } from '@/lib/actions/courses';
-import { TopicSelector } from '@/components/topics/topic-selector';
-import { ProfileForm } from '@/components/profile/profile-form';
+import { TopicSelector } from '@/app/(dashboard)/topics/_components/TopicSelector';
+import { ProfileForm } from './_components/ProfileForm';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -154,7 +154,7 @@ export default function ProfilePage() {
   const userEmail = user?.email || session?.user?.email || '';
 
   return (
-    <div className="p-6 md:p-10 min-h-screen bg-[#050505] text-white font-sans overflow-y-auto">
+    <div className="p-4 sm:p-6 md:p-10 min-h-screen bg-[#050505] text-white font-sans overflow-y-auto pb-20 md:pb-10">
       {/* --- 1. Hero Section (顶部个人信息) --- */}
       <div className="relative mb-8 group">
         {/* 背景 Banner */}
@@ -162,12 +162,12 @@ export default function ProfilePage() {
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
         </div>
 
-        {/* 个人信息悬浮层 */}
-        <div className="flex flex-col md:flex-row items-start md:items-end px-6 md:px-8 -mt-16 relative z-10 gap-6">
+        {/* 个人信息悬浮层 - Mobile-first */}
+        <div className="flex flex-col md:flex-row items-start md:items-end px-4 sm:px-6 md:px-8 -mt-12 sm:-mt-16 relative z-10 gap-4 sm:gap-6">
           {/* 头像 */}
           <div className="relative">
             <div
-              className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-[#121212] border-4 border-[#050505] flex items-center justify-center overflow-hidden shadow-2xl"
+              className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full bg-[#121212] border-4 border-[#050505] flex items-center justify-center overflow-hidden shadow-2xl"
               style={{
                 backgroundImage: user?.profileImageUrl
                   ? `url(${user.profileImageUrl})`
@@ -196,10 +196,10 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* 名字与简介 */}
+          {/* 名字与简介 - Mobile-first */}
           <div className="flex-1 pb-2">
-            <div className="flex flex-col md:flex-row md:items-center gap-3 mb-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-white">
+            <div className="flex flex-col md:flex-row md:items-center gap-2 sm:gap-3 mb-1">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                 {userName}
               </h1>
               <div className="flex gap-2">

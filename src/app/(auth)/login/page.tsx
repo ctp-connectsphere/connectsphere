@@ -1,7 +1,7 @@
 'use client';
 import { signIn } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { ArrowRight, Sparkles, BookOpen, Github } from 'lucide-react';
 
 interface LoginErrors {
@@ -111,9 +111,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#050508] relative overflow-hidden">
-      {/* Artistic Split - Left Panel (Visual) */}
-      <div className="hidden lg:flex w-1/2 relative items-center justify-center overflow-hidden">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#050508] relative overflow-hidden">
+      {/* Artistic Split - Left Panel (Visual) - Hidden on mobile */}
+      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600/30 via-purple-600/30 to-pink-600/30"></div>
           <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-blob"></div>
@@ -152,12 +152,14 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Panel (Form) */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-8 relative z-10">
+      {/* Right Panel (Form) - Mobile-first */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10 min-h-screen lg:min-h-0">
         <div className="w-full max-w-md">
-          <div className="mb-8 text-center lg:text-left">
-            <h1 className="text-4xl font-black text-white mb-3">Sign In</h1>
-            <p className="text-gray-400">
+          <div className="mb-6 sm:mb-8 text-center lg:text-left">
+            <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 sm:mb-3">
+              Sign In
+            </h1>
+            <p className="text-sm sm:text-base text-gray-400">
               Enter your ConnectSphere credentials
             </p>
           </div>

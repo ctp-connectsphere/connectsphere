@@ -1,6 +1,6 @@
 'use client';
 
-import { OnboardingView } from '@/components/nexus';
+import { OnboardingView } from './_components/OnboardingView';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-[#050508] text-slate-200 font-sans overflow-hidden selection:bg-indigo-500/30">
+    <div className="w-full min-h-screen bg-[#050508] text-slate-200 font-sans selection:bg-indigo-500/30 pb-20 md:pb-0">
       <style>{styleTag}</style>
       <OnboardingView onComplete={handleComplete} />
     </div>

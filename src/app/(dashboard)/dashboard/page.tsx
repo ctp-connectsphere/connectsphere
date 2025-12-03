@@ -1,6 +1,6 @@
 'use client';
 
-import { DashboardView } from '@/components/nexus';
+import { DashboardView } from './_components/DashboardView';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';

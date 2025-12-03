@@ -27,7 +27,7 @@ import {
   updatePrivacy,
   updateAppearance,
 } from '@/lib/actions/settings';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
@@ -182,13 +182,15 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans flex">
-      {/* --- Layout Container --- */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full p-6 gap-8">
-        {/* 1. Settings Sidebar (左侧导航) */}
+    <div className="min-h-screen bg-[#050505] text-white font-sans flex pb-20 md:pb-0">
+      {/* --- Layout Container - Mobile-first --- */}
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full p-4 sm:p-6 gap-6 sm:gap-8">
+        {/* 1. Settings Sidebar (左侧导航) - Mobile-first */}
         <aside className="w-full md:w-64 flex-shrink-0">
-          <h1 className="text-3xl font-bold mb-2">Settings</h1>
-          <p className="text-gray-500 text-sm mb-8">Manage your preferences</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Settings</h1>
+          <p className="text-gray-500 text-xs sm:text-sm mb-6 sm:mb-8">
+            Manage your preferences
+          </p>
 
           <nav className="space-y-1">
             {menuItems.map(item => {
@@ -230,8 +232,8 @@ export default function SettingsPage() {
           </div>
         </aside>
 
-        {/* 2. Content Area (右侧内容区) */}
-        <main className="flex-1 bg-[#121212] border border-gray-900 rounded-3xl p-6 md:p-8 min-h-[600px]">
+        {/* 2. Content Area (右侧内容区) - Mobile-first */}
+        <main className="flex-1 bg-[#121212] border border-gray-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 min-h-[400px] sm:min-h-[600px]">
           {/* --- Tab: Account --- */}
           {activeTab === 'account' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">

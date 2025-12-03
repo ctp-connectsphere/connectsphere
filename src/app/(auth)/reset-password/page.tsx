@@ -2,7 +2,7 @@
 import { resetPassword } from '@/lib/actions/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { ArrowLeft, Lock } from 'lucide-react';
 
 function ResetPasswordContent() {
@@ -64,8 +64,8 @@ function ResetPasswordContent() {
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#050508] py-12 px-4">
-        <div className="max-w-md w-full glass-panel p-10 rounded-3xl border border-white/10">
-          <h1 className="text-4xl font-black text-white mb-6 text-center">
+        <div className="max-w-md w-full glass-panel p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border border-white/10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 sm:mb-6 text-center">
             Invalid Reset Link
           </h1>
           <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
@@ -89,16 +89,18 @@ function ResetPasswordContent() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
       </div>
 
-      <div className="max-w-md w-full space-y-8 relative z-10">
-        <div className="glass-panel p-10 rounded-3xl border border-white/10">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-6">
-              <Lock size={32} className="text-white" />
+      <div className="max-w-md w-full space-y-6 sm:space-y-8 relative z-10">
+        <div className="glass-panel p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl border border-white/10">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <Lock size={24} className="text-white sm:w-8 sm:h-8" />
             </div>
-            <h1 className="text-4xl font-black text-white mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 sm:mb-3">
               Set New Password
             </h1>
-            <p className="text-gray-400">Enter your new password below</p>
+            <p className="text-sm sm:text-base text-gray-400">
+              Enter your new password below
+            </p>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-5">

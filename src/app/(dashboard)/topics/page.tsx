@@ -4,9 +4,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Brain } from 'lucide-react';
-import { TopicSelector } from '@/components/topics/topic-selector';
+import { TopicSelector } from './_components/TopicSelector';
 import { getUserTopics } from '@/lib/actions/topics';
-import { Badge } from '@/components/nexus/ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 export default function TopicsPage() {
   const { status } = useSession();
@@ -51,30 +51,32 @@ export default function TopicsPage() {
   }
 
   return (
-    <div className="w-full h-full overflow-y-auto p-6 md:p-12">
+    <div className="w-full min-h-screen overflow-y-auto p-4 sm:p-6 md:p-12 pb-20 md:pb-12">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <Brain size={32} className="text-white" />
+        {/* Header - Mobile-first */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/30 flex-shrink-0">
+              <Brain size={24} className="text-white sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h1 className="text-4xl font-black text-white mb-2">My Topics</h1>
-              <p className="text-gray-400">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-1 sm:mb-2">
+                My Topics
+              </h1>
+              <p className="text-sm sm:text-base text-gray-400">
                 Manage your skills, interests, and subjects
               </p>
             </div>
           </div>
         </div>
 
-        {/* Current Topics */}
+        {/* Current Topics - Mobile-first */}
         {userTopics.length > 0 && (
-          <div className="glass-panel rounded-3xl p-8 mb-8 border border-white/10">
-            <h2 className="text-2xl font-black text-white mb-6">
+          <div className="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 border border-white/10">
+            <h2 className="text-xl sm:text-2xl font-black text-white mb-4 sm:mb-6">
               Your Selected Topics ({userTopics.length})
             </h2>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {userTopics.map(ut => {
                 const getColorClasses = (category: string) => {
                   switch (category) {
@@ -129,9 +131,9 @@ export default function TopicsPage() {
           </div>
         )}
 
-        {/* Topic Selector */}
-        <div className="glass-panel rounded-3xl p-8 border border-white/10">
-          <h2 className="text-2xl font-black text-white mb-6">
+        {/* Topic Selector - Mobile-first */}
+        <div className="glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-white/10">
+          <h2 className="text-xl sm:text-2xl font-black text-white mb-4 sm:mb-6">
             Browse & Add Topics
           </h2>
           <TopicSelector

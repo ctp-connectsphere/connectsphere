@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { User, Clock, MapPin, Plus, Search, BookOpen } from 'lucide-react';
-import { GlowingButton } from '@/components/nexus';
+import { GlowingButton } from '@/components/ui/glowing-button';
 import { searchCourses } from '@/lib/actions/courses';
 
 // Get course color and style based on code
@@ -305,21 +305,21 @@ export default function CoursesPage() {
   const enrolledCourseIds = enrolledCourses.map(ec => ec.id);
 
   return (
-    <div className="w-full h-full bg-[#0a0a0a] text-slate-200 font-sans overflow-y-auto">
-      <main className="relative z-10 w-full p-6 md:p-10">
+    <div className="w-full min-h-screen bg-[#0a0a0a] text-slate-200 font-sans overflow-y-auto pb-20 md:pb-10">
+      <main className="relative z-10 w-full p-4 sm:p-6 md:p-10">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-black text-white mb-2">
+          {/* Header - Mobile-first */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 sm:mb-8 gap-4">
+            <div className="mb-4 md:mb-0">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-2">
                 Course Catalog
               </h1>
-              <p className="text-gray-400 text-lg">
+              <p className="text-sm sm:text-base md:text-lg text-gray-400">
                 Search and enroll in courses for {new Date().getFullYear()}
               </p>
             </div>
 
-            {/* Enhanced Search */}
+            {/* Enhanced Search - Mobile-first */}
             <form onSubmit={handleSearch} className="relative w-full md:w-96">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"

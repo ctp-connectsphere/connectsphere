@@ -1,6 +1,6 @@
 'use client';
 
-import { MatchView } from '@/components/nexus';
+import { MatchView } from './_components/MatchView';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -29,7 +29,7 @@ export default function MatchesPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-[#050508] text-slate-200 font-sans overflow-hidden selection:bg-indigo-500/30">
+    <div className="w-full min-h-screen bg-[#050508] text-slate-200 font-sans selection:bg-indigo-500/30 pb-20 md:pb-0">
       {/* Ambient Background Mesh */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/20 blur-[100px] animate-pulse-glow"></div>
@@ -37,8 +37,8 @@ export default function MatchesPage() {
         <div className="absolute top-[30%] left-[40%] w-[30%] h-[30%] rounded-full bg-cyan-900/10 blur-[80px] animate-pulse-glow animation-delay-4000"></div>
       </div>
 
-      {/* Main Content */}
-      <main className="relative z-10 w-full h-full">
+      {/* Main Content - Mobile-first */}
+      <main className="relative z-10 w-full min-h-screen">
         <MatchView />
       </main>
     </div>
