@@ -400,12 +400,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             // Create user profile
             try {
-              await prisma.userProfile.create({
-                data: {
-                  userId: dbUser.id,
-                  onboardingCompleted: false,
-                },
-              });
+              try {
+                await prisma.userProfile.create({
+                  data: {
+                    userId: dbUser.id,
+                    onboardingCompleted: false,
+                  },
+                });
+              } catch (profileError: any) {
+                // Handle case where onboarding_completed column doesn't exist
+                if (
+                  profileError?.code === 'P2022' ||
+                  profileError?.message?.includes('onboarding_completed') ||
+                  profileError?.message?.includes('does not exist')
+                ) {
+                  // Column doesn't exist - create without it
+                  await prisma.userProfile.create({
+                    data: {
+                      userId: dbUser.id,
+                    },
+                  });
+                } else {
+                  throw profileError;
+                }
+              }
             } catch (error: unknown) {
               const errorMessage =
                 error instanceof Error ? error.message : String(error);
@@ -420,12 +438,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 errorCode === 'P1008';
               if (isConnectionError) {
                 await new Promise(resolve => setTimeout(resolve, 500));
-                await prisma.userProfile.create({
-                  data: {
-                    userId: dbUser.id,
-                    onboardingCompleted: false,
-                  },
-                });
+                try {
+                  await prisma.userProfile.create({
+                    data: {
+                      userId: dbUser.id,
+                      onboardingCompleted: false,
+                    },
+                  });
+                } catch (retryError: any) {
+                  // Handle case where onboarding_completed column doesn't exist on retry
+                  if (
+                    retryError?.code === 'P2022' ||
+                    retryError?.message?.includes('onboarding_completed') ||
+                    retryError?.message?.includes('does not exist')
+                  ) {
+                    await prisma.userProfile.create({
+                      data: {
+                        userId: dbUser.id,
+                      },
+                    });
+                  } else {
+                    throw retryError;
+                  }
+                }
               } else {
                 throw error;
               }
