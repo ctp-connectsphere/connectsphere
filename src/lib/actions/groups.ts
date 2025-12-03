@@ -33,13 +33,33 @@ export async function createGroup(formData: FormData) {
     const courseId = formData.get('courseId') as string;
     const tagsStr = formData.get('tags') as string;
 
+    // Parse tags safely
+    let tags: string[] | undefined = undefined;
+    if (tagsStr && tagsStr.trim()) {
+      try {
+        const parsed = JSON.parse(tagsStr);
+        if (Array.isArray(parsed)) {
+          tags = parsed;
+        } else if (typeof parsed === 'string') {
+          // Handle case where tags is a single string
+          tags = [parsed];
+        }
+      } catch {
+        // If JSON parse fails, treat as single tag
+        tags = [tagsStr];
+      }
+    }
+
     const data = createGroupSchema.parse({
       name: formData.get('name'),
       description: formData.get('description') || undefined,
-      courseId: courseId && courseId.trim() ? courseId : undefined,
+      courseId:
+        courseId && courseId.trim() && courseId !== 'null'
+          ? courseId
+          : undefined,
       maxMembers: Number(formData.get('maxMembers')) || 6,
       vibe: formData.get('vibe') || undefined,
-      tags: tagsStr ? JSON.parse(tagsStr) : undefined,
+      tags: tags,
     });
 
     // Create the group
@@ -85,9 +105,17 @@ export async function createGroup(formData: FormData) {
         error: error.issues[0]?.message || 'Validation failed',
       };
     }
+    // Provide more detailed error message
+    const errorMessage = error?.message || 'Failed to create group';
+    if (error?.code === 'P2003') {
+      return {
+        success: false,
+        error: 'Invalid course ID or course does not exist',
+      };
+    }
     return {
       success: false,
-      error: 'Failed to create group',
+      error: errorMessage,
     };
   }
 }
